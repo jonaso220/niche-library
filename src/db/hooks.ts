@@ -3,6 +3,10 @@ import { db } from './database'
 import type { Perfume, CollectionEntry, ShelfPerfume } from '@/types/perfume'
 import type { ShelfType } from '@/types/shelves'
 import { getShelfDefinition } from '@/lib/constants'
+import { getCurrentUserId } from '@/firebase/auth-state'
+import * as cloud from '@/firebase/firestore-service'
+
+// ===================== QUERY HOOKS (unchanged - read from Dexie) =====================
 
 export function useAllPerfumes(): Perfume[] | undefined {
   return useLiveQuery(() => db.perfumes.toArray())
@@ -96,29 +100,62 @@ export function useSearchPerfumes(query: string): Perfume[] | undefined {
   }, [query])
 }
 
-// Collection CRUD operations
+// ===================== MUTATION FUNCTIONS (dual-write: Dexie + Firestore) =====================
+
 export async function addToCollection(perfumeId: string, owned: boolean = true): Promise<void> {
   const existing = await db.collection.get(perfumeId)
   if (existing) return
 
-  await db.collection.put({
+  const entry: CollectionEntry = {
     perfumeId,
     addedAt: new Date().toISOString(),
     owned,
-  })
+  }
+
+  // Local write (instant, triggers useLiveQuery)
+  await db.collection.put(entry)
+
+  // Cloud write (fire-and-forget)
+  const userId = getCurrentUserId()
+  if (userId) {
+    cloud.cloudAddToCollection(userId, entry).catch(console.error)
+  }
 }
 
 export async function removeFromCollection(perfumeId: string): Promise<void> {
+  // Local write
   await db.collection.delete(perfumeId)
+
+  // Cloud write
+  const userId = getCurrentUserId()
+  if (userId) {
+    cloud.cloudRemoveFromCollection(userId, perfumeId).catch(console.error)
+  }
 }
 
 export async function updateCollectionEntry(
   perfumeId: string,
   updates: Partial<CollectionEntry>
 ): Promise<void> {
+  // Local write
   await db.collection.update(perfumeId, updates)
+
+  // Cloud write
+  const userId = getCurrentUserId()
+  if (userId) {
+    cloud.cloudUpdateCollectionEntry(userId, perfumeId, updates).catch(console.error)
+  }
 }
 
 export async function addPerfumeToCatalog(perfume: Perfume): Promise<void> {
+  // Local write
   await db.perfumes.put(perfume)
+
+  // Cloud write (only non-seed perfumes)
+  if (perfume.dataSource !== 'seed') {
+    const userId = getCurrentUserId()
+    if (userId) {
+      cloud.cloudAddPerfume(userId, perfume).catch(console.error)
+    }
+  }
 }

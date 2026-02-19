@@ -1,9 +1,12 @@
 import { useState } from 'react'
 import { db } from '@/db/database'
 import { isApiConfigured } from '@/api/fragella'
-import { Key, Download, Upload, Trash2, Database, CheckCircle } from 'lucide-react'
+import { useAuth } from '@/firebase/AuthContext'
+import { isFirebaseConfigured } from '@/firebase/config'
+import { Key, Download, Upload, Trash2, Database, CheckCircle, Cloud, CloudOff, LogIn, LogOut, User } from 'lucide-react'
 
 export function SettingsPage() {
+  const { user, isAuthenticated, signInWithGoogle, signOut, loading: authLoading } = useAuth()
   const [apiKey, setApiKey] = useState(localStorage.getItem('fragella_api_key') ?? '')
   const [saved, setSaved] = useState(false)
   const [importing, setImporting] = useState(false)
@@ -74,6 +77,74 @@ export function SettingsPage() {
         <h1 className="font-heading text-2xl md:text-3xl font-bold text-text-primary">Ajustes</h1>
         <p className="text-sm text-text-secondary mt-1">Configura tu biblioteca</p>
       </div>
+
+      {/* Cloud Sync */}
+      {isFirebaseConfigured && (
+        <section className="bg-card border border-border rounded-xl p-5 space-y-4">
+          <div className="flex items-center gap-2">
+            {isAuthenticated ? (
+              <Cloud className="w-4 h-4 text-accent-green" />
+            ) : (
+              <CloudOff className="w-4 h-4 text-text-muted" />
+            )}
+            <h2 className="font-heading text-lg font-semibold text-text-primary">Sincronización en la Nube</h2>
+          </div>
+
+          {isAuthenticated && user ? (
+            <div className="space-y-3">
+              <div className="flex items-center gap-3 p-3 bg-surface rounded-lg">
+                {user.photoURL ? (
+                  <img
+                    src={user.photoURL}
+                    alt={user.displayName ?? 'Avatar'}
+                    className="w-10 h-10 rounded-full border-2 border-gold/30"
+                    referrerPolicy="no-referrer"
+                  />
+                ) : (
+                  <div className="w-10 h-10 rounded-full bg-gold/20 flex items-center justify-center">
+                    <User className="w-5 h-5 text-gold" />
+                  </div>
+                )}
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-text-primary truncate">{user.displayName ?? 'Usuario'}</p>
+                  <p className="text-xs text-text-muted truncate">{user.email}</p>
+                </div>
+                <span className="flex items-center gap-1 text-xs text-accent-green">
+                  <CheckCircle className="w-3.5 h-3.5" />
+                  Conectado
+                </span>
+              </div>
+
+              <p className="text-xs text-text-muted">
+                Tu colección se sincroniza automáticamente con la nube. Los perfumes que agregues, modifiques o elimines se guardarán en tu cuenta de Google.
+              </p>
+
+              <button
+                onClick={signOut}
+                className="flex items-center gap-2 px-4 py-2 bg-surface border border-border rounded-lg text-sm text-text-secondary hover:text-danger hover:border-danger/30 transition-colors"
+              >
+                <LogOut className="w-4 h-4" />
+                Cerrar Sesión
+              </button>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              <p className="text-xs text-text-muted">
+                Inicia sesión con tu cuenta de Google para sincronizar tu colección en la nube.
+                Podrás acceder a tus perfumes desde cualquier dispositivo.
+              </p>
+              <button
+                onClick={signInWithGoogle}
+                disabled={authLoading}
+                className="flex items-center gap-2 px-4 py-2.5 bg-gold text-background rounded-lg text-sm font-medium hover:bg-gold-bright transition-colors disabled:opacity-50"
+              >
+                <LogIn className="w-4 h-4" />
+                {authLoading ? 'Conectando...' : 'Iniciar Sesión con Google'}
+              </button>
+            </div>
+          )}
+        </section>
+      )}
 
       {/* API Key */}
       <section className="bg-card border border-border rounded-xl p-5 space-y-3">

@@ -1,6 +1,8 @@
 import { useNavigate } from 'react-router'
 import { useState } from 'react'
-import { Menu, Search } from 'lucide-react'
+import { Menu, Search, LogIn, LogOut, User } from 'lucide-react'
+import { useAuth } from '@/firebase/AuthContext'
+import { isFirebaseConfigured } from '@/firebase/config'
 
 interface TopBarProps {
   onMenuClick: () => void
@@ -9,6 +11,7 @@ interface TopBarProps {
 export function TopBar({ onMenuClick }: TopBarProps) {
   const navigate = useNavigate()
   const [query, setQuery] = useState('')
+  const { user, isAuthenticated, signInWithGoogle, signOut } = useAuth()
 
   function handleSearch(e: React.FormEvent) {
     e.preventDefault()
@@ -44,6 +47,43 @@ export function TopBar({ onMenuClick }: TopBarProps) {
           />
         </div>
       </form>
+
+      {/* Auth section */}
+      {isFirebaseConfigured && (
+        <div className="ml-2 shrink-0">
+          {isAuthenticated ? (
+            <div className="flex items-center gap-2">
+              {user?.photoURL ? (
+                <img
+                  src={user.photoURL}
+                  alt={user.displayName ?? ''}
+                  className="w-8 h-8 rounded-full border border-border"
+                  referrerPolicy="no-referrer"
+                />
+              ) : (
+                <div className="w-8 h-8 rounded-full bg-gold/20 flex items-center justify-center">
+                  <User className="w-4 h-4 text-gold" />
+                </div>
+              )}
+              <button
+                onClick={signOut}
+                className="p-2 text-text-muted hover:text-text-primary rounded-lg hover:bg-surface-hover transition-colors"
+                title="Cerrar sesión"
+              >
+                <LogOut className="w-4 h-4" />
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={signInWithGoogle}
+              className="flex items-center gap-2 px-3 py-1.5 bg-surface border border-border rounded-lg text-sm text-text-secondary hover:text-gold hover:border-gold/30 transition-colors"
+            >
+              <LogIn className="w-4 h-4" />
+              <span className="hidden sm:inline">Iniciar sesión</span>
+            </button>
+          )}
+        </div>
+      )}
     </header>
   )
 }

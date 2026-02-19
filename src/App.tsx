@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router'
 import { useEffect, useState } from 'react'
+import { AuthProvider } from '@/firebase/AuthContext'
 import { AppShell } from '@/components/layout/AppShell'
 import { HomePage } from '@/pages/HomePage'
 import { ShelfPage } from '@/pages/ShelfPage'
@@ -29,18 +30,20 @@ function App() {
   }
 
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route element={<AppShell />}>
-          <Route index element={<HomePage />} />
-          <Route path="shelf/:shelfId" element={<ShelfPage />} />
-          <Route path="perfume/:perfumeId" element={<PerfumePage />} />
-          <Route path="search" element={<SearchPage />} />
-          <Route path="add" element={<AddManualPage />} />
-          <Route path="settings" element={<SettingsPage />} />
-        </Route>
-      </Routes>
-    </BrowserRouter>
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route element={<AppShell />}>
+            <Route index element={<HomePage />} />
+            <Route path="shelf/:shelfId" element={<ShelfPage />} />
+            <Route path="perfume/:perfumeId" element={<PerfumePage />} />
+            <Route path="search" element={<SearchPage />} />
+            <Route path="add" element={<AddManualPage />} />
+            <Route path="settings" element={<SettingsPage />} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
   )
 }
 
