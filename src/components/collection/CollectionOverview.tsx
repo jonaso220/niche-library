@@ -1,7 +1,7 @@
 import { Link } from 'react-router'
 import { useCollectionStats, useCollectionPerfumes } from '@/db/hooks'
 import { SHELF_DEFINITIONS } from '@/lib/constants'
-import { Library, Heart, TrendingUp, Database, ChevronRight } from 'lucide-react'
+import { Library, Heart, TrendingUp, Database, ChevronRight, Search, Sparkles } from 'lucide-react'
 import { PerfumeCard } from '@/components/perfume/PerfumeCard'
 
 export function CollectionOverview() {
@@ -18,7 +18,6 @@ export function CollectionOverview() {
     .sort((a, b) => b.effectiveRating - a.effectiveRating)
     .slice(0, 5)
 
-  // Quick shelf previews
   const shelfPreviews = ['season-spring', 'season-summer', 'season-fall', 'season-winter'].map(id => {
     const shelf = SHELF_DEFINITIONS.find(s => s.id === id)!
     const items = allPerfumes?.filter(shelf.filterFn).sort((a, b) => b.effectiveRating - a.effectiveRating).slice(0, 5) ?? []
@@ -26,35 +25,43 @@ export function CollectionOverview() {
   })
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 max-w-6xl mx-auto">
       {/* Hero */}
-      <div>
-        <h1 className="font-heading text-3xl md:text-4xl font-bold text-text-primary">
-          Tu Colección
+      <div className="space-y-1">
+        <h1 className="text-3xl md:text-4xl font-bold tracking-tight">
+          Tu <span className="gradient-text">Colección</span>
         </h1>
-        <p className="text-text-secondary mt-1">Bienvenido a tu biblioteca de fragancias</p>
+        <p className="text-text-secondary text-sm">Tu biblioteca personal de fragancias</p>
       </div>
 
-      {/* Stats */}
+      {/* Stats Grid */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <StatCard
-          icon={<Library className="w-5 h-5 text-gold" />}
+          icon={<Library className="w-5 h-5" />}
+          iconColor="text-gold"
+          iconBg="bg-gold/10"
           label="En Colección"
           value={stats?.totalInCollection ?? 0}
         />
         <StatCard
-          icon={<Heart className="w-5 h-5 text-accent-rose" />}
+          icon={<Heart className="w-5 h-5" />}
+          iconColor="text-accent-rose"
+          iconBg="bg-accent-rose/10"
           label="Lista de Deseos"
           value={stats?.totalWishlist ?? 0}
         />
         <StatCard
-          icon={<TrendingUp className="w-5 h-5 text-accent-green" />}
+          icon={<TrendingUp className="w-5 h-5" />}
+          iconColor="text-accent-green"
+          iconBg="bg-accent-green/10"
           label="Rating Promedio"
           value={stats?.avgRating ?? 0}
           decimal
         />
         <StatCard
-          icon={<Database className="w-5 h-5 text-accent-blue" />}
+          icon={<Database className="w-5 h-5" />}
+          iconColor="text-accent-blue"
+          iconBg="bg-accent-blue/10"
           label="En Catálogo"
           value={stats?.totalCatalog ?? 0}
         />
@@ -84,19 +91,22 @@ export function CollectionOverview() {
 
       {/* Empty state */}
       {stats?.totalInCollection === 0 && (
-        <div className="text-center py-16">
-          <span className="text-6xl mb-4 block">🧴</span>
-          <h2 className="font-heading text-2xl text-text-secondary mb-2">
+        <div className="flex flex-col items-center justify-center py-20 text-center">
+          <div className="w-20 h-20 rounded-2xl bg-gold/10 flex items-center justify-center mb-6">
+            <Sparkles className="w-10 h-10 text-gold" />
+          </div>
+          <h2 className="text-2xl font-bold tracking-tight text-text-primary mb-2">
             Tu colección está vacía
           </h2>
-          <p className="text-text-muted mb-6 max-w-md mx-auto">
+          <p className="text-text-muted mb-8 max-w-md text-sm leading-relaxed">
             Comienza buscando perfumes en el catálogo y agrégalos a tu colección.
             Tenemos más de {stats?.totalCatalog ?? 0} perfumes pre-cargados.
           </p>
           <Link
             to="/search"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-gold text-background rounded-lg font-medium hover:bg-gold-bright transition-colors"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-gold text-background rounded-xl font-semibold text-sm hover:bg-gold-bright shadow-lg shadow-gold/20"
           >
+            <Search className="w-4 h-4" />
             Explorar Catálogo
           </Link>
         </div>
@@ -105,19 +115,23 @@ export function CollectionOverview() {
   )
 }
 
-function StatCard({ icon, label, value, decimal }: {
+function StatCard({ icon, iconColor, iconBg, label, value, decimal }: {
   icon: React.ReactNode
+  iconColor: string
+  iconBg: string
   label: string
   value: number
   decimal?: boolean
 }) {
   return (
-    <div className="bg-card border border-border rounded-xl p-4">
-      <div className="flex items-center gap-2 mb-2">{icon}</div>
-      <p className="font-heading text-2xl font-bold text-text-primary">
+    <div className="bg-white/[0.04] border border-white/[0.06] rounded-2xl p-4 hover:bg-white/[0.06] transition-colors">
+      <div className={`w-10 h-10 rounded-xl ${iconBg} flex items-center justify-center mb-3`}>
+        <span className={iconColor}>{icon}</span>
+      </div>
+      <p className="text-2xl font-bold tracking-tight text-text-primary">
         {decimal ? value.toFixed(1) : value}
       </p>
-      <p className="text-xs text-text-muted">{label}</p>
+      <p className="text-xs text-text-muted mt-0.5">{label}</p>
     </div>
   )
 }
@@ -129,14 +143,14 @@ function ShelfPreview({ title, items, to }: {
 }) {
   return (
     <section>
-      <div className="flex items-center justify-between mb-3">
-        <h2 className="font-heading text-xl font-semibold text-text-primary">{title}</h2>
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-lg font-semibold tracking-tight text-text-primary">{title}</h2>
         <Link
           to={to}
-          className="flex items-center gap-1 text-sm text-gold hover:text-gold-bright transition-colors"
+          className="flex items-center gap-1 text-xs font-medium text-text-muted hover:text-gold transition-colors"
         >
           Ver todo
-          <ChevronRight className="w-4 h-4" />
+          <ChevronRight className="w-3.5 h-3.5" />
         </Link>
       </div>
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">

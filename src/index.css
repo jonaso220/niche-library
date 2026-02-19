@@ -1,44 +1,48 @@
 @import "tailwindcss";
 
 @theme {
-  --font-heading: 'Playfair Display', serif;
+  --font-heading: 'Inter', sans-serif;
   --font-body: 'Inter', sans-serif;
 
-  /* Fondo: verde esmeralda muy oscuro (del fondo del ícono) */
-  --color-background: oklch(0.15 0.04 160);
-  --color-surface: oklch(0.19 0.035 160);
-  --color-surface-hover: oklch(0.23 0.03 160);
-  --color-card: oklch(0.17 0.038 160);
-  --color-card-hover: oklch(0.21 0.032 160);
-  --color-border: oklch(0.27 0.03 160);
-  --color-border-subtle: oklch(0.22 0.025 160);
+  /* Fondo: verde esmeralda profundo con toque moderno */
+  --color-background: oklch(0.13 0.03 160);
+  --color-surface: oklch(0.17 0.025 160);
+  --color-surface-hover: oklch(0.21 0.025 160);
+  --color-card: oklch(0.16 0.028 160);
+  --color-card-hover: oklch(0.20 0.025 160);
+  --color-border: oklch(0.24 0.02 160);
+  --color-border-subtle: oklch(0.20 0.018 160);
 
-  /* Dorado/ámbar (del frasco y texto del ícono) */
-  --color-gold: oklch(0.78 0.14 80);
-  --color-gold-dim: oklch(0.62 0.12 78);
-  --color-gold-bright: oklch(0.86 0.11 82);
+  /* Dorado/ámbar moderno */
+  --color-gold: oklch(0.80 0.14 80);
+  --color-gold-dim: oklch(0.64 0.12 78);
+  --color-gold-bright: oklch(0.88 0.12 82);
 
-  /* Textos: crema cálido (del humo/libro del ícono) */
-  --color-text-primary: oklch(0.92 0.02 90);
-  --color-text-secondary: oklch(0.70 0.02 100);
-  --color-text-muted: oklch(0.48 0.02 160);
+  /* Textos: blanco limpio y grises */
+  --color-text-primary: oklch(0.95 0.005 90);
+  --color-text-secondary: oklch(0.72 0.015 100);
+  --color-text-muted: oklch(0.50 0.015 160);
 
-  /* Acentos verdes (del frasco del ícono) */
-  --color-accent-emerald: oklch(0.55 0.12 160);
-  --color-accent-rose: oklch(0.65 0.13 25);
-  --color-accent-green: oklch(0.65 0.14 155);
-  --color-accent-blue: oklch(0.60 0.08 200);
-  --color-accent-purple: oklch(0.55 0.12 300);
+  /* Acentos */
+  --color-accent-emerald: oklch(0.60 0.14 160);
+  --color-accent-rose: oklch(0.68 0.14 25);
+  --color-accent-green: oklch(0.68 0.15 155);
+  --color-accent-blue: oklch(0.64 0.10 240);
+  --color-accent-purple: oklch(0.58 0.14 300);
 
-  /* Estaciones - adaptadas al tema verde/dorado */
+  /* Estaciones */
   --color-season-spring: oklch(0.72 0.16 148);
   --color-season-summer: oklch(0.78 0.14 88);
   --color-season-fall: oklch(0.68 0.15 55);
   --color-season-winter: oklch(0.65 0.08 220);
 
-  --color-danger: oklch(0.62 0.18 25);
-  --color-success: oklch(0.65 0.15 155);
-  --color-warning: oklch(0.78 0.14 82);
+  --color-danger: oklch(0.65 0.20 25);
+  --color-success: oklch(0.68 0.16 155);
+  --color-warning: oklch(0.80 0.14 82);
+
+  /* Glass effects */
+  --color-glass: oklch(0.17 0.025 160 / 0.7);
+  --color-glass-border: oklch(0.30 0.02 160 / 0.4);
 }
 
 * {
@@ -59,14 +63,28 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-heading);
+/* Modern gradient background */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 50vh;
+  background: radial-gradient(ellipse at 20% 0%, oklch(0.22 0.06 160 / 0.6) 0%, transparent 60%),
+              radial-gradient(ellipse at 80% 10%, oklch(0.20 0.04 80 / 0.3) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
 }
 
-/* Selection color matches gold accent */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  letter-spacing: -0.02em;
+}
+
 ::selection {
-  background-color: oklch(0.78 0.14 80 / 0.3);
-  color: oklch(0.92 0.02 90);
+  background-color: oklch(0.80 0.14 80 / 0.3);
+  color: oklch(0.95 0.005 90);
 }
 
 ::-webkit-scrollbar {
@@ -74,11 +92,11 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--color-background);
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--color-border);
+  background: oklch(0.30 0.02 160 / 0.5);
   border-radius: 3px;
 }
 
@@ -86,7 +104,27 @@ h1, h2, h3, h4, h5, h6 {
   background: var(--color-gold-dim);
 }
 
-/* Range input styling for the emerald theme */
 input[type="range"] {
-  accent-color: oklch(0.78 0.14 80);
+  accent-color: oklch(0.80 0.14 80);
+}
+
+/* Glass morphism utility */
+.glass {
+  background: var(--color-glass);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--color-glass-border);
+}
+
+/* Smooth transitions for all interactive elements */
+button, a, input, select, textarea {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Gradient text utility */
+.gradient-text {
+  background: linear-gradient(135deg, oklch(0.80 0.14 80), oklch(0.88 0.12 82));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }

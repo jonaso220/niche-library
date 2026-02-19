@@ -8,9 +8,9 @@ export function AppShell() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   return (
-    <div className="flex h-screen bg-background overflow-hidden">
+    <div className="flex h-screen bg-background overflow-hidden relative">
       {/* Sidebar - Desktop */}
-      <aside className="hidden lg:flex lg:w-64 lg:flex-col lg:border-r lg:border-border">
+      <aside className="hidden lg:flex lg:w-60 lg:flex-col lg:border-r lg:border-border/50">
         <Sidebar onClose={() => setSidebarOpen(false)} />
       </aside>
 
@@ -18,24 +18,23 @@ export function AppShell() {
       {sidebarOpen && (
         <>
           <div
-            className="fixed inset-0 bg-black/60 z-40 lg:hidden"
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden"
             onClick={() => setSidebarOpen(false)}
           />
-          <aside className="fixed inset-y-0 left-0 w-72 z-50 lg:hidden">
+          <aside className="fixed inset-y-0 left-0 w-72 z-50 lg:hidden shadow-2xl shadow-black/50">
             <Sidebar onClose={() => setSidebarOpen(false)} />
           </aside>
         </>
       )}
 
       {/* Main content */}
-      <div className="flex flex-1 flex-col min-w-0">
+      <div className="flex flex-1 flex-col min-w-0 relative z-10">
         <TopBar onMenuClick={() => setSidebarOpen(true)} />
 
-        <main className="flex-1 overflow-y-auto p-4 md:p-6 pb-20 lg:pb-6">
+        <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 pb-20 lg:pb-8">
           <Outlet />
         </main>
 
-        {/* Mobile bottom nav */}
         <MobileNav />
       </div>
     </div>
