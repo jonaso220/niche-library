@@ -28,7 +28,7 @@ export function TopBar({ onMenuClick }: TopBarProps) {
       </button>
 
       <div className="hidden lg:flex items-center gap-2">
-        <span className="text-xl">🧴</span>
+        <img src="/icon-192.png" alt="Niche Library" className="w-8 h-8 rounded-lg" />
         <h1 className="font-heading text-lg font-bold text-gold">Niche Library</h1>
       </div>
 

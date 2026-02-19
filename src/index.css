@@ -4,35 +4,41 @@
   --font-heading: 'Playfair Display', serif;
   --font-body: 'Inter', sans-serif;
 
-  --color-background: oklch(0.14 0.005 250);
-  --color-surface: oklch(0.18 0.005 250);
-  --color-surface-hover: oklch(0.22 0.005 250);
-  --color-card: oklch(0.16 0.005 250);
-  --color-card-hover: oklch(0.20 0.005 250);
-  --color-border: oklch(0.25 0.008 250);
-  --color-border-subtle: oklch(0.20 0.005 250);
+  /* Fondo: verde esmeralda muy oscuro (del fondo del ícono) */
+  --color-background: oklch(0.15 0.04 160);
+  --color-surface: oklch(0.19 0.035 160);
+  --color-surface-hover: oklch(0.23 0.03 160);
+  --color-card: oklch(0.17 0.038 160);
+  --color-card-hover: oklch(0.21 0.032 160);
+  --color-border: oklch(0.27 0.03 160);
+  --color-border-subtle: oklch(0.22 0.025 160);
 
-  --color-gold: oklch(0.78 0.15 75);
-  --color-gold-dim: oklch(0.60 0.12 75);
-  --color-gold-bright: oklch(0.88 0.12 75);
+  /* Dorado/ámbar (del frasco y texto del ícono) */
+  --color-gold: oklch(0.78 0.14 80);
+  --color-gold-dim: oklch(0.62 0.12 78);
+  --color-gold-bright: oklch(0.86 0.11 82);
 
-  --color-text-primary: oklch(0.93 0.005 250);
-  --color-text-secondary: oklch(0.65 0.01 250);
-  --color-text-muted: oklch(0.45 0.008 250);
+  /* Textos: crema cálido (del humo/libro del ícono) */
+  --color-text-primary: oklch(0.92 0.02 90);
+  --color-text-secondary: oklch(0.70 0.02 100);
+  --color-text-muted: oklch(0.48 0.02 160);
 
-  --color-accent-rose: oklch(0.65 0.15 15);
-  --color-accent-green: oklch(0.70 0.15 155);
-  --color-accent-blue: oklch(0.65 0.12 240);
-  --color-accent-purple: oklch(0.60 0.15 300);
+  /* Acentos verdes (del frasco del ícono) */
+  --color-accent-emerald: oklch(0.55 0.12 160);
+  --color-accent-rose: oklch(0.65 0.13 25);
+  --color-accent-green: oklch(0.65 0.14 155);
+  --color-accent-blue: oklch(0.60 0.08 200);
+  --color-accent-purple: oklch(0.55 0.12 300);
 
-  --color-season-spring: oklch(0.75 0.18 145);
-  --color-season-summer: oklch(0.78 0.16 85);
-  --color-season-fall: oklch(0.68 0.16 45);
-  --color-season-winter: oklch(0.70 0.12 230);
+  /* Estaciones - adaptadas al tema verde/dorado */
+  --color-season-spring: oklch(0.72 0.16 148);
+  --color-season-summer: oklch(0.78 0.14 88);
+  --color-season-fall: oklch(0.68 0.15 55);
+  --color-season-winter: oklch(0.65 0.08 220);
 
-  --color-danger: oklch(0.65 0.2 25);
-  --color-success: oklch(0.70 0.17 150);
-  --color-warning: oklch(0.78 0.15 80);
+  --color-danger: oklch(0.62 0.18 25);
+  --color-success: oklch(0.65 0.15 155);
+  --color-warning: oklch(0.78 0.14 82);
 }
 
 * {
@@ -57,6 +63,12 @@ h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-heading);
 }
 
+/* Selection color matches gold accent */
+::selection {
+  background-color: oklch(0.78 0.14 80 / 0.3);
+  color: oklch(0.92 0.02 90);
+}
+
 ::-webkit-scrollbar {
   width: 6px;
 }
@@ -72,4 +84,9 @@ h1, h2, h3, h4, h5, h6 {
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--color-gold-dim);
+}
+
+/* Range input styling for the emerald theme */
+input[type="range"] {
+  accent-color: oklch(0.78 0.14 80);
 }

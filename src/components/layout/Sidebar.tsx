@@ -65,8 +65,8 @@ export function Sidebar({ onClose }: SidebarProps) {
     <div className="flex flex-col h-full bg-surface overflow-y-auto">
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-border">
-        <NavLink to="/" onClick={onClose} className="flex items-center gap-2">
-          <span className="text-2xl">🧴</span>
+        <NavLink to="/" onClick={onClose} className="flex items-center gap-3">
+          <img src="/icon-192.png" alt="Niche Library" className="w-9 h-9 rounded-lg shadow-sm" />
           <div>
             <h1 className="font-heading text-lg font-bold text-gold leading-tight">
               Niche Library

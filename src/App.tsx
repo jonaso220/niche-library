@@ -20,6 +20,7 @@ function App() {
     return (
       <div className="flex items-center justify-center min-h-screen bg-background">
         <div className="text-center">
+          <img src="/icon-192.png" alt="Niche Library" className="w-24 h-24 mx-auto mb-4 rounded-2xl shadow-lg shadow-gold/10" />
           <h1 className="text-3xl font-heading text-gold mb-2">Niche Library</h1>
           <p className="text-text-secondary">Cargando tu colección...</p>
         </div>

@@ -1,0 +1,27 @@
+{
+  "name": "Niche Library",
+  "short_name": "Niche Library",
+  "description": "Tu colección de fragancias organizada por temporada, horario y ocasión",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1a3d2e",
+  "theme_color": "#1a3d2e",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
