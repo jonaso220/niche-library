@@ -72,7 +72,7 @@ export function SettingsPage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto space-y-5">
+    <div className="max-w-3xl mx-auto space-y-5">
       <div>
         <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Ajustes</h1>
         <p className="text-sm text-text-secondary mt-1">Configura tu biblioteca</p>

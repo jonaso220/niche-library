@@ -39,7 +39,7 @@ export function TopBar({ onMenuClick }: TopBarProps) {
         </div>
 
         {/* Search */}
-        <form onSubmit={handleSearch} className="flex-1 max-w-lg lg:max-w-xl ml-auto">
+        <form onSubmit={handleSearch} className="flex-1 max-w-lg lg:max-w-2xl ml-auto">
           <div className="relative group">
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted group-focus-within:text-gold transition-colors" />
             <input

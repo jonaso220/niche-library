@@ -25,7 +25,7 @@ export function CollectionOverview() {
   })
 
   return (
-    <div className="space-y-8 max-w-6xl">
+    <div className="space-y-8">
       {/* Hero */}
       <div>
         <p className="text-gold-dim text-xs font-bold uppercase tracking-[0.15em] mb-1.5">Bienvenido</p>
@@ -176,7 +176,7 @@ function ShelfPreview({ title, items, to }: {
           <ChevronRight className="w-3.5 h-3.5" />
         </Link>
       </div>
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 2xl:grid-cols-6 gap-3">
         {items.map(perfume => (
           <PerfumeCard key={perfume.id} perfume={perfume} showSeasons={false} />
         ))}

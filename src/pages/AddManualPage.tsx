@@ -97,7 +97,7 @@ export function AddManualPage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
+    <div className="max-w-3xl mx-auto space-y-6">
       <button
         onClick={() => navigate(-1)}
         className="flex items-center gap-2 text-sm text-text-secondary hover:text-gold transition-colors"

@@ -33,7 +33,7 @@ export function PerfumeDetail({ perfume }: PerfumeDetailProps) {
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="space-y-6">
       {/* Back button */}
       <button
         onClick={() => navigate(-1)}
