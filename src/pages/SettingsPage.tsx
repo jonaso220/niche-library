@@ -1,24 +1,37 @@
 import { useState } from 'react'
 import { db } from '@/db/database'
 import { isApiConfigured } from '@/api/fragella'
+import { isFragranceFinderConfigured } from '@/api/fragrancefinder'
 import { useAuth } from '@/firebase/AuthContext'
 import { isFirebaseConfigured } from '@/firebase/config'
-import { Key, Download, Upload, Trash2, Database, CheckCircle, Cloud, CloudOff, LogIn, LogOut, User } from 'lucide-react'
+import { Key, Download, Upload, Trash2, Database, CheckCircle, Cloud, CloudOff, LogIn, LogOut, User, Search } from 'lucide-react'
 
 export function SettingsPage() {
   const { user, isAuthenticated, signInWithGoogle, signOut, loading: authLoading } = useAuth()
-  const [apiKey, setApiKey] = useState(localStorage.getItem('fragella_api_key') ?? '')
-  const [saved, setSaved] = useState(false)
+  const [fragellaKey, setFragellaKey] = useState(localStorage.getItem('fragella_api_key') ?? '')
+  const [ffKey, setFfKey] = useState(localStorage.getItem('fragrancefinder_api_key') ?? '')
+  const [savedFragella, setSavedFragella] = useState(false)
+  const [savedFF, setSavedFF] = useState(false)
   const [importing, setImporting] = useState(false)
 
-  function handleSaveApiKey() {
-    if (apiKey.trim()) {
-      localStorage.setItem('fragella_api_key', apiKey.trim())
+  function handleSaveFragellaKey() {
+    if (fragellaKey.trim()) {
+      localStorage.setItem('fragella_api_key', fragellaKey.trim())
     } else {
       localStorage.removeItem('fragella_api_key')
     }
-    setSaved(true)
-    setTimeout(() => setSaved(false), 2000)
+    setSavedFragella(true)
+    setTimeout(() => setSavedFragella(false), 2000)
+  }
+
+  function handleSaveFFKey() {
+    if (ffKey.trim()) {
+      localStorage.setItem('fragrancefinder_api_key', ffKey.trim())
+    } else {
+      localStorage.removeItem('fragrancefinder_api_key')
+    }
+    setSavedFF(true)
+    setTimeout(() => setSavedFF(false), 2000)
   }
 
   async function handleExport() {
@@ -150,42 +163,95 @@ export function SettingsPage() {
         </section>
       )}
 
-      {/* API Key */}
-      <section className="bg-white/[0.04] border border-white/[0.06] rounded-2xl p-5 space-y-3">
+      {/* APIs de Búsqueda */}
+      <section className="bg-white/[0.04] border border-white/[0.06] rounded-2xl p-5 space-y-5">
         <div className="flex items-center gap-2.5">
           <div className="w-8 h-8 rounded-xl bg-gold/10 flex items-center justify-center">
-            <Key className="w-4 h-4 text-gold" />
+            <Search className="w-4 h-4 text-gold" />
           </div>
-          <h2 className="text-base font-semibold">API de Fragella</h2>
+          <div>
+            <h2 className="text-base font-semibold">APIs de Búsqueda</h2>
+            <p className="text-xs text-text-muted mt-0.5">Configura las APIs para buscar fragancias online</p>
+          </div>
         </div>
-        <p className="text-xs text-text-muted leading-relaxed">
-          Regístrate gratis en api.fragella.com para obtener 20 búsquedas/mes.
-          Esto te permite buscar perfumes que no están en el catálogo local.
-        </p>
-        <div className="flex gap-2">
-          <input
-            type="password"
-            value={apiKey}
-            onChange={(e) => setApiKey(e.target.value)}
-            placeholder="Tu API key de Fragella"
-            className="flex-1 px-3 py-2.5 bg-white/[0.04] border border-white/[0.06] rounded-xl text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-gold/40 focus:ring-1 focus:ring-gold/20"
-          />
-          <button
-            onClick={handleSaveApiKey}
-            className="px-4 py-2.5 bg-gold text-background rounded-xl text-sm font-semibold hover:bg-gold-bright shadow-lg shadow-gold/20"
-          >
-            {saved ? 'Guardado' : 'Guardar'}
-          </button>
+
+        {/* Fragella */}
+        <div className="space-y-2.5 p-3.5 bg-white/[0.02] rounded-xl border border-white/[0.04]">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Key className="w-3.5 h-3.5 text-gold/60" />
+              <span className="text-sm font-semibold">Fragella</span>
+            </div>
+            {isApiConfigured() ? (
+              <span className="flex items-center gap-1 text-[10px] text-accent-green font-medium">
+                <CheckCircle className="w-3 h-3" />
+                Configurada
+              </span>
+            ) : (
+              <span className="text-[10px] text-text-muted">No configurada</span>
+            )}
+          </div>
+          <p className="text-[11px] text-text-muted leading-relaxed">
+            Datos más completos (notas, acordes, estaciones). 20 búsquedas/mes gratis.{' '}
+            <a href="https://api.fragella.com" target="_blank" rel="noopener noreferrer" className="text-gold/70 hover:text-gold underline underline-offset-2">
+              Obtener key
+            </a>
+          </p>
+          <div className="flex gap-2">
+            <input
+              type="password"
+              value={fragellaKey}
+              onChange={(e) => setFragellaKey(e.target.value)}
+              placeholder="Tu API key de Fragella"
+              className="flex-1 px-3 py-2 bg-white/[0.04] border border-white/[0.06] rounded-lg text-xs text-text-primary placeholder:text-text-muted focus:outline-none focus:border-gold/40 focus:ring-1 focus:ring-gold/20"
+            />
+            <button
+              onClick={handleSaveFragellaKey}
+              className="px-3.5 py-2 bg-gold text-background rounded-lg text-xs font-semibold hover:bg-gold-bright shadow-lg shadow-gold/20"
+            >
+              {savedFragella ? '✓' : 'Guardar'}
+            </button>
+          </div>
         </div>
-        <div className="flex items-center gap-2 text-xs">
-          {isApiConfigured() ? (
-            <span className="flex items-center gap-1 text-accent-green font-medium">
-              <CheckCircle className="w-3.5 h-3.5" />
-              API configurada
-            </span>
-          ) : (
-            <span className="text-text-muted">API no configurada (solo búsqueda local)</span>
-          )}
+
+        {/* FragranceFinder */}
+        <div className="space-y-2.5 p-3.5 bg-white/[0.02] rounded-xl border border-white/[0.04]">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Key className="w-3.5 h-3.5 text-accent-blue/60" />
+              <span className="text-sm font-semibold">FragranceFinder</span>
+              <span className="text-[9px] text-text-muted/50 font-medium px-1.5 py-0.5 bg-white/[0.04] rounded">RapidAPI</span>
+            </div>
+            {isFragranceFinderConfigured() ? (
+              <span className="flex items-center gap-1 text-[10px] text-accent-green font-medium">
+                <CheckCircle className="w-3 h-3" />
+                Configurada
+              </span>
+            ) : (
+              <span className="text-[10px] text-text-muted">No configurada</span>
+            )}
+          </div>
+          <p className="text-[11px] text-text-muted leading-relaxed">
+            Búsqueda de fragancias + dupes. 20 búsquedas/mes gratis.{' '}
+            <a href="https://rapidapi.com/remote-skills-remote-skills-default/api/fragrancefinder-api" target="_blank" rel="noopener noreferrer" className="text-gold/70 hover:text-gold underline underline-offset-2">
+              Obtener key en RapidAPI
+            </a>
+          </p>
+          <div className="flex gap-2">
+            <input
+              type="password"
+              value={ffKey}
+              onChange={(e) => setFfKey(e.target.value)}
+              placeholder="Tu RapidAPI key"
+              className="flex-1 px-3 py-2 bg-white/[0.04] border border-white/[0.06] rounded-lg text-xs text-text-primary placeholder:text-text-muted focus:outline-none focus:border-gold/40 focus:ring-1 focus:ring-gold/20"
+            />
+            <button
+              onClick={handleSaveFFKey}
+              className="px-3.5 py-2 bg-gold text-background rounded-lg text-xs font-semibold hover:bg-gold-bright shadow-lg shadow-gold/20"
+            >
+              {savedFF ? '✓' : 'Guardar'}
+            </button>
+          </div>
         </div>
       </section>
 

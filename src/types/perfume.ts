@@ -3,7 +3,7 @@ export type TimeOfDay = 'day' | 'night' | 'versatile'
 export type Gender = 'masculino' | 'femenino' | 'unisex'
 export type Concentration = 'EDT' | 'EDP' | 'Extrait' | 'Parfum' | 'EDC' | 'Other'
 export type OccasionType = 'professional' | 'casual' | 'nightOut' | 'date' | 'special'
-export type DataSource = 'fragella' | 'manual' | 'seed'
+export type DataSource = 'fragella' | 'fragrancefinder' | 'manual' | 'seed'
 
 export interface FragranceNote {
   name: string
