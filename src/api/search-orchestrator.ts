@@ -3,12 +3,14 @@ import type { ApiProvider, SearchResult } from '@/api/types'
 import { generateSlug } from '@/lib/utils'
 import { fragellaProvider } from '@/api/fragella'
 import { fragranceFinderProvider } from '@/api/fragrancefinder'
+import { parfumoProvider } from '@/api/parfumo-provider'
 
 /**
  * Priority order: providers listed first win in merge conflicts.
  * Fragella provides the richest data (accords, seasons, occasions).
+ * Parfumo is the local dataset (59K fragrances, no API key needed).
  */
-const providers: ApiProvider[] = [
+const onlineProviders: ApiProvider[] = [
   fragellaProvider,
   fragranceFinderProvider,
 ]
@@ -69,25 +71,36 @@ function deduplicateAndMerge(allResults: Perfume[]): Perfume[] {
 }
 
 /**
- * Search all configured API providers in parallel.
+ * Search all configured providers in parallel.
+ * Parfumo (local dataset) is always searched first if available.
+ * Online APIs are searched in parallel alongside.
  * Partial failures are captured as errors but don't block other results.
  */
-export async function searchAllApis(query: string, limit = 10): Promise<SearchResult> {
-  const configuredProviders = providers.filter(p => p.isConfigured())
+export async function searchAllApis(query: string, limit = 20): Promise<SearchResult> {
+  const allProviders: ApiProvider[] = []
 
-  if (configuredProviders.length === 0) {
+  // Parfumo (local dataset) is always included if loaded
+  if (parfumoProvider.isConfigured()) {
+    allProviders.push(parfumoProvider)
+  }
+
+  // Add configured online providers
+  const configuredOnline = onlineProviders.filter(p => p.isConfigured())
+  allProviders.push(...configuredOnline)
+
+  if (allProviders.length === 0) {
     return { results: [], errors: [], providersQueried: 0 }
   }
 
   const settled = await Promise.allSettled(
-    configuredProviders.map(provider => provider.search(query, limit))
+    allProviders.map(provider => provider.search(query, limit))
   )
 
   const allResults: Perfume[] = []
   const errors: SearchResult['errors'] = []
 
   settled.forEach((result, i) => {
-    const provider = configuredProviders[i]
+    const provider = allProviders[i]
     if (result.status === 'fulfilled') {
       allResults.push(...result.value)
     } else {
@@ -103,20 +116,23 @@ export async function searchAllApis(query: string, limit = 10): Promise<SearchRe
   return {
     results,
     errors,
-    providersQueried: configuredProviders.length,
+    providersQueried: allProviders.length,
   }
 }
 
 /**
- * Check if at least one API provider is configured.
+ * Check if at least one search provider is available (including local dataset).
  */
 export function isAnyApiConfigured(): boolean {
-  return providers.some(p => p.isConfigured())
+  return parfumoProvider.isConfigured() || onlineProviders.some(p => p.isConfigured())
 }
 
 /**
  * Get status of all providers (for settings UI).
  */
 export function getProvidersStatus(): { name: string; configured: boolean }[] {
-  return providers.map(p => ({ name: p.name, configured: p.isConfigured() }))
+  return [
+    { name: parfumoProvider.name, configured: parfumoProvider.isConfigured() },
+    ...onlineProviders.map(p => ({ name: p.name, configured: p.isConfigured() })),
+  ]
 }
