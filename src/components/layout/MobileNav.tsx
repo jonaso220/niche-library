@@ -12,7 +12,7 @@ const navItems = [
 
 export function MobileNav() {
   return (
-    <nav className="lg:hidden fixed bottom-0 left-0 right-0 glass border-t border-white/[0.04] z-30">
+    <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-30 glass border-t border-white/[0.06] shadow-[0_-4px_20px] shadow-black/20">
       <div className="flex items-center justify-around py-2 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
         {navItems.map(({ to, icon: Icon, label }) => (
           <NavLink
@@ -20,12 +20,23 @@ export function MobileNav() {
             to={to}
             end={to === '/'}
             className={({ isActive }) => cn(
-              'flex flex-col items-center gap-0.5 px-3 py-1 min-w-0',
-              isActive ? 'text-gold' : 'text-text-muted'
+              'flex flex-col items-center gap-0.5 px-3 py-1.5 min-w-0 rounded-lg transition-all',
+              isActive
+                ? 'text-gold'
+                : 'text-text-muted hover:text-text-secondary'
             )}
           >
-            <Icon className="w-5 h-5" />
-            <span className="text-[10px] font-medium">{label}</span>
+            {({ isActive }) => (
+              <>
+                <div className="relative">
+                  <Icon className="w-5 h-5" />
+                  {isActive && (
+                    <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-gold shadow-sm shadow-gold/50" />
+                  )}
+                </div>
+                <span className={cn("text-[10px]", isActive ? "font-bold" : "font-medium")}>{label}</span>
+              </>
+            )}
           </NavLink>
         ))}
       </div>

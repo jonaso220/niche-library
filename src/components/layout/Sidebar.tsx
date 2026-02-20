@@ -35,13 +35,13 @@ function NavItem({ to, icon: IconName, label, onClose }: {
       to={to}
       onClick={onClose}
       className={({ isActive }) => cn(
-        'flex items-center gap-2.5 px-2.5 py-[7px] rounded-lg text-[13px] transition-all',
+        'flex items-center gap-2.5 px-3 py-[7px] rounded-lg text-[13px] transition-all duration-200',
         isActive
-          ? 'bg-gold/10 text-gold font-medium'
-          : 'text-text-secondary hover:bg-white/[0.04] hover:text-text-primary'
+          ? 'bg-gradient-to-r from-gold/15 to-gold/5 text-gold font-semibold shadow-[inset_0_0_0_1px] shadow-gold/10'
+          : 'text-text-secondary hover:bg-white/[0.05] hover:text-text-primary'
       )}
     >
-      {Icon && <Icon className="w-[15px] h-[15px] shrink-0" />}
+      {Icon && <Icon className="w-4 h-4 shrink-0" />}
       <span className="truncate">{label}</span>
     </NavLink>
   )
@@ -55,10 +55,10 @@ function CollapsibleSection({ title, children, defaultOpen = false }: {
   const [open, setOpen] = useState(defaultOpen)
 
   return (
-    <div className="mt-2 pt-1">
+    <div className="mt-3 pt-1">
       <button
         onClick={() => setOpen(!open)}
-        className="flex items-center justify-between w-full px-2.5 py-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-text-muted hover:text-text-secondary transition-colors"
+        className="flex items-center justify-between w-full px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.1em] text-text-muted/80 hover:text-text-secondary transition-colors"
       >
         <span>{title}</span>
         <ChevronDown className={cn(
@@ -67,7 +67,7 @@ function CollapsibleSection({ title, children, defaultOpen = false }: {
         )} />
       </button>
       {open && (
-        <div className="space-y-0.5 mt-0.5">
+        <div className="space-y-0.5 mt-1">
           {children}
         </div>
       )}
@@ -83,23 +83,29 @@ export function Sidebar({ onClose }: SidebarProps) {
   const coleccion = getShelfsByCategory('coleccion')
 
   return (
-    <div className="flex flex-col h-full bg-surface overflow-y-auto">
-      {/* Header */}
-      <div className="flex items-center justify-between px-4 py-4">
-        <NavLink to="/" onClick={onClose} className="flex items-center gap-2.5">
-          <img src="/icon-192.png" alt="Niche Library" className="w-9 h-9 rounded-[10px]" />
-          <div>
-            <h1 className="text-[15px] font-bold text-text-primary leading-tight">
-              Niche Library
-            </h1>
-            <p className="text-[10px] text-text-muted font-medium tracking-wide">
-              COLECCIÓN PERSONAL
-            </p>
-          </div>
-        </NavLink>
-        <button onClick={onClose} className="lg:hidden p-1 text-text-muted hover:text-text-primary rounded-md">
-          <X className="w-4.5 h-4.5" />
-        </button>
+    <div className="flex flex-col h-full bg-surface/80 backdrop-blur-xl overflow-y-auto border-r border-border/30">
+      {/* Header with gradient accent */}
+      <div className="relative px-4 py-5">
+        <div className="absolute inset-0 bg-gradient-to-b from-gold/[0.04] to-transparent pointer-events-none" />
+        <div className="relative flex items-center justify-between">
+          <NavLink to="/" onClick={onClose} className="flex items-center gap-3 group">
+            <div className="relative">
+              <img src="/icon-192.png" alt="Niche Library" className="w-10 h-10 rounded-xl shadow-lg shadow-black/30" />
+              <div className="absolute inset-0 rounded-xl ring-1 ring-white/10" />
+            </div>
+            <div>
+              <h1 className="text-[15px] font-bold text-text-primary leading-tight group-hover:text-gold transition-colors">
+                Niche Library
+              </h1>
+              <p className="text-[9px] text-gold-dim font-semibold tracking-[0.15em] uppercase mt-0.5">
+                COLECCIÓN PERSONAL
+              </p>
+            </div>
+          </NavLink>
+          <button onClick={onClose} className="lg:hidden p-1.5 text-text-muted hover:text-text-primary rounded-lg hover:bg-white/[0.06]">
+            <X className="w-4.5 h-4.5" />
+          </button>
+        </div>
       </div>
 
       {/* Quick Actions */}
@@ -107,7 +113,7 @@ export function Sidebar({ onClose }: SidebarProps) {
         <NavLink
           to="/search"
           onClick={onClose}
-          className="flex items-center justify-center gap-1.5 flex-1 py-2 bg-gold/8 border border-gold/12 rounded-lg text-[12px] font-medium text-gold/80 hover:bg-gold/12 hover:text-gold"
+          className="flex items-center justify-center gap-1.5 flex-1 py-2.5 bg-gold/10 border border-gold/15 rounded-xl text-[12px] font-semibold text-gold hover:bg-gold/15 hover:border-gold/25 hover:shadow-lg hover:shadow-gold/5 transition-all"
         >
           <Search className="w-3.5 h-3.5" />
           Buscar
@@ -115,16 +121,16 @@ export function Sidebar({ onClose }: SidebarProps) {
         <NavLink
           to="/add"
           onClick={onClose}
-          className="flex items-center justify-center gap-1.5 flex-1 py-2 bg-white/[0.03] border border-white/[0.06] rounded-lg text-[12px] font-medium text-text-secondary hover:bg-white/[0.05] hover:text-text-primary"
+          className="flex items-center justify-center gap-1.5 flex-1 py-2.5 bg-white/[0.04] border border-white/[0.08] rounded-xl text-[12px] font-semibold text-text-secondary hover:bg-white/[0.07] hover:text-text-primary hover:border-white/[0.12] transition-all"
         >
           <PlusCircle className="w-3.5 h-3.5" />
           Agregar
         </NavLink>
       </div>
 
-      <div className="mx-3 h-px bg-white/[0.04]" />
+      <div className="mx-3 h-px bg-gradient-to-r from-transparent via-white/[0.06] to-transparent" />
 
-      <nav className="flex-1 px-3 py-2 space-y-0.5 overflow-y-auto">
+      <nav className="flex-1 px-2 py-2 space-y-0.5 overflow-y-auto">
         {/* Colección */}
         <CollapsibleSection title="Colección" defaultOpen>
           {coleccion.map(shelf => (
@@ -168,18 +174,18 @@ export function Sidebar({ onClose }: SidebarProps) {
       </nav>
 
       {/* Footer */}
-      <div className="px-3 py-2 border-t border-white/[0.04]">
+      <div className="px-2 py-2.5 border-t border-white/[0.05]">
         <NavLink
           to="/settings"
           onClick={onClose}
           className={({ isActive }) => cn(
-            'flex items-center gap-2.5 px-2.5 py-[7px] rounded-lg text-[13px] transition-all',
+            'flex items-center gap-2.5 px-3 py-[7px] rounded-lg text-[13px] transition-all duration-200',
             isActive
-              ? 'bg-gold/10 text-gold font-medium'
-              : 'text-text-muted hover:text-text-primary hover:bg-white/[0.04]'
+              ? 'bg-gradient-to-r from-gold/15 to-gold/5 text-gold font-semibold'
+              : 'text-text-muted hover:text-text-primary hover:bg-white/[0.05]'
           )}
         >
-          <Settings className="w-[15px] h-[15px]" />
+          <Settings className="w-4 h-4" />
           <span>Ajustes</span>
         </NavLink>
       </div>
