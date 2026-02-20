@@ -1,4 +1,5 @@
 import { NavLink } from 'react-router'
+import { useState } from 'react'
 import { cn } from '@/lib/utils'
 import { getShelfsByCategory } from '@/lib/constants'
 import {
@@ -7,7 +8,7 @@ import {
   SunMedium, Moon, Clock,
   Briefcase, Shirt, PartyPopper, HeartHandshake, Sparkles,
   TreePine, Flame, Wind, Flower, Citrus,
-  Search, PlusCircle, Settings, X,
+  Search, PlusCircle, Settings, X, ChevronDown,
 } from 'lucide-react'
 
 const ICON_MAP: Record<string, React.ElementType> = {
@@ -34,23 +35,43 @@ function NavItem({ to, icon: IconName, label, onClose }: {
       to={to}
       onClick={onClose}
       className={({ isActive }) => cn(
-        'flex items-center gap-3 px-3 py-2 rounded-xl text-[13px] font-medium transition-all',
+        'flex items-center gap-2.5 px-2.5 py-[7px] rounded-lg text-[13px] transition-all',
         isActive
-          ? 'bg-gold/12 text-gold shadow-sm shadow-gold/5'
-          : 'text-text-secondary hover:bg-white/5 hover:text-text-primary'
+          ? 'bg-gold/10 text-gold font-medium'
+          : 'text-text-secondary hover:bg-white/[0.04] hover:text-text-primary'
       )}
     >
-      {Icon && <Icon className="w-4 h-4 shrink-0 opacity-80" />}
+      {Icon && <Icon className="w-[15px] h-[15px] shrink-0" />}
       <span className="truncate">{label}</span>
     </NavLink>
   )
 }
 
-function SectionTitle({ children }: { children: React.ReactNode }) {
+function CollapsibleSection({ title, children, defaultOpen = false }: {
+  title: string
+  children: React.ReactNode
+  defaultOpen?: boolean
+}) {
+  const [open, setOpen] = useState(defaultOpen)
+
   return (
-    <h3 className="text-[10px] font-semibold uppercase tracking-[0.15em] text-text-muted/70 mt-6 mb-1.5 px-3">
-      {children}
-    </h3>
+    <div className="mt-1">
+      <button
+        onClick={() => setOpen(!open)}
+        className="flex items-center justify-between w-full px-2.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-text-muted/60 hover:text-text-muted transition-colors"
+      >
+        <span>{title}</span>
+        <ChevronDown className={cn(
+          'w-3 h-3 transition-transform duration-200',
+          open ? 'rotate-0' : '-rotate-90'
+        )} />
+      </button>
+      {open && (
+        <div className="space-y-0.5 mt-0.5">
+          {children}
+        </div>
+      )}
+    </div>
   )
 }
 
@@ -62,98 +83,103 @@ export function Sidebar({ onClose }: SidebarProps) {
   const coleccion = getShelfsByCategory('coleccion')
 
   return (
-    <div className="flex flex-col h-full bg-surface/80 backdrop-blur-xl overflow-y-auto">
+    <div className="flex flex-col h-full bg-surface overflow-y-auto">
       {/* Header */}
-      <div className="flex items-center justify-between p-4 pb-3">
-        <NavLink to="/" onClick={onClose} className="flex items-center gap-3 group">
-          <img src="/icon-192.png" alt="Niche Library" className="w-10 h-10 rounded-xl shadow-lg shadow-black/20" />
+      <div className="flex items-center justify-between px-4 py-4">
+        <NavLink to="/" onClick={onClose} className="flex items-center gap-2.5">
+          <img src="/icon-192.png" alt="Niche Library" className="w-9 h-9 rounded-[10px]" />
           <div>
-            <h1 className="text-base font-bold gradient-text leading-tight">
+            <h1 className="text-[15px] font-bold text-text-primary leading-tight">
               Niche Library
             </h1>
-            <p className="text-[10px] text-text-muted font-medium uppercase tracking-[0.15em]">
-              Tu colección
+            <p className="text-[10px] text-text-muted font-medium tracking-wide">
+              COLECCIÓN PERSONAL
             </p>
           </div>
         </NavLink>
-        <button onClick={onClose} className="lg:hidden p-1.5 text-text-muted hover:text-text-primary rounded-lg hover:bg-white/5">
-          <X className="w-5 h-5" />
+        <button onClick={onClose} className="lg:hidden p-1 text-text-muted hover:text-text-primary rounded-md">
+          <X className="w-4.5 h-4.5" />
         </button>
       </div>
 
       {/* Quick Actions */}
-      <div className="px-2 py-1 flex gap-1.5">
+      <div className="px-3 pb-3 flex gap-2">
         <NavLink
           to="/search"
           onClick={onClose}
-          className="flex items-center gap-2 flex-1 px-3 py-2.5 bg-white/5 border border-white/8 rounded-xl text-[13px] text-text-secondary hover:text-gold hover:border-gold/20 hover:bg-gold/5"
+          className="flex items-center justify-center gap-1.5 flex-1 py-2 bg-gold/8 border border-gold/12 rounded-lg text-[12px] font-medium text-gold/80 hover:bg-gold/12 hover:text-gold"
         >
-          <Search className="w-3.5 h-3.5 opacity-70" />
-          <span>Buscar</span>
+          <Search className="w-3.5 h-3.5" />
+          Buscar
         </NavLink>
         <NavLink
           to="/add"
           onClick={onClose}
-          className="flex items-center gap-2 flex-1 px-3 py-2.5 bg-white/5 border border-white/8 rounded-xl text-[13px] text-text-secondary hover:text-gold hover:border-gold/20 hover:bg-gold/5"
+          className="flex items-center justify-center gap-1.5 flex-1 py-2 bg-white/[0.03] border border-white/[0.06] rounded-lg text-[12px] font-medium text-text-secondary hover:bg-white/[0.05] hover:text-text-primary"
         >
-          <PlusCircle className="w-3.5 h-3.5 opacity-70" />
-          <span>Agregar</span>
+          <PlusCircle className="w-3.5 h-3.5" />
+          Agregar
         </NavLink>
       </div>
 
-      <div className="w-full h-px bg-border/50 my-2 mx-2" />
+      <div className="mx-3 h-px bg-white/[0.04]" />
 
-      <nav className="flex-1 px-2 pb-2 space-y-0.5">
+      <nav className="flex-1 px-3 py-2 space-y-0.5 overflow-y-auto">
         {/* Colección */}
-        <SectionTitle>Colección</SectionTitle>
-        {coleccion.map(shelf => (
-          <NavItem
-            key={shelf.id}
-            to={shelf.id === 'all' ? '/shelf/all' : shelf.id === 'wishlist' ? '/shelf/wishlist' : `/shelf/${shelf.id}`}
-            icon={shelf.icon}
-            label={shelf.label}
-            onClose={onClose}
-          />
-        ))}
+        <CollapsibleSection title="Colección" defaultOpen>
+          {coleccion.map(shelf => (
+            <NavItem
+              key={shelf.id}
+              to={shelf.id === 'all' ? '/shelf/all' : shelf.id === 'wishlist' ? '/shelf/wishlist' : `/shelf/${shelf.id}`}
+              icon={shelf.icon}
+              label={shelf.label}
+              onClose={onClose}
+            />
+          ))}
+        </CollapsibleSection>
 
         {/* Temporadas */}
-        <SectionTitle>Temporadas</SectionTitle>
-        {temporada.map(shelf => (
-          <NavItem key={shelf.id} to={`/shelf/${shelf.id}`} icon={shelf.icon} label={shelf.label} onClose={onClose} />
-        ))}
+        <CollapsibleSection title="Temporadas" defaultOpen>
+          {temporada.map(shelf => (
+            <NavItem key={shelf.id} to={`/shelf/${shelf.id}`} icon={shelf.icon} label={shelf.label} onClose={onClose} />
+          ))}
+        </CollapsibleSection>
 
         {/* Horario */}
-        <SectionTitle>Horario</SectionTitle>
-        {horario.map(shelf => (
-          <NavItem key={shelf.id} to={`/shelf/${shelf.id}`} icon={shelf.icon} label={shelf.label} onClose={onClose} />
-        ))}
+        <CollapsibleSection title="Horario">
+          {horario.map(shelf => (
+            <NavItem key={shelf.id} to={`/shelf/${shelf.id}`} icon={shelf.icon} label={shelf.label} onClose={onClose} />
+          ))}
+        </CollapsibleSection>
 
         {/* Ocasiones */}
-        <SectionTitle>Ocasiones</SectionTitle>
-        {ocasion.map(shelf => (
-          <NavItem key={shelf.id} to={`/shelf/${shelf.id}`} icon={shelf.icon} label={shelf.label} onClose={onClose} />
-        ))}
+        <CollapsibleSection title="Ocasiones">
+          {ocasion.map(shelf => (
+            <NavItem key={shelf.id} to={`/shelf/${shelf.id}`} icon={shelf.icon} label={shelf.label} onClose={onClose} />
+          ))}
+        </CollapsibleSection>
 
         {/* Familias Olfativas */}
-        <SectionTitle>Familias Olfativas</SectionTitle>
-        {familia.map(shelf => (
-          <NavItem key={shelf.id} to={`/shelf/${shelf.id}`} icon={shelf.icon} label={shelf.label} onClose={onClose} />
-        ))}
+        <CollapsibleSection title="Familias Olfativas">
+          {familia.map(shelf => (
+            <NavItem key={shelf.id} to={`/shelf/${shelf.id}`} icon={shelf.icon} label={shelf.label} onClose={onClose} />
+          ))}
+        </CollapsibleSection>
       </nav>
 
       {/* Footer */}
-      <div className="p-2 border-t border-border/50">
+      <div className="px-3 py-2 border-t border-white/[0.04]">
         <NavLink
           to="/settings"
           onClick={onClose}
           className={({ isActive }) => cn(
-            'flex items-center gap-3 px-3 py-2 rounded-xl text-[13px] font-medium transition-all',
+            'flex items-center gap-2.5 px-2.5 py-[7px] rounded-lg text-[13px] transition-all',
             isActive
-              ? 'bg-gold/12 text-gold'
-              : 'text-text-muted hover:text-text-primary hover:bg-white/5'
+              ? 'bg-gold/10 text-gold font-medium'
+              : 'text-text-muted hover:text-text-primary hover:bg-white/[0.04]'
           )}
         >
-          <Settings className="w-4 h-4 opacity-70" />
+          <Settings className="w-[15px] h-[15px]" />
           <span>Ajustes</span>
         </NavLink>
       </div>

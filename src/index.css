@@ -4,24 +4,24 @@
   --font-heading: 'Inter', sans-serif;
   --font-body: 'Inter', sans-serif;
 
-  /* Fondo: verde esmeralda profundo con toque moderno */
-  --color-background: oklch(0.13 0.03 160);
-  --color-surface: oklch(0.17 0.025 160);
-  --color-surface-hover: oklch(0.21 0.025 160);
-  --color-card: oklch(0.16 0.028 160);
-  --color-card-hover: oklch(0.20 0.025 160);
-  --color-border: oklch(0.24 0.02 160);
-  --color-border-subtle: oklch(0.20 0.018 160);
+  /* Fondo: verde esmeralda profundo */
+  --color-background: oklch(0.12 0.025 160);
+  --color-surface: oklch(0.15 0.022 160);
+  --color-surface-hover: oklch(0.19 0.022 160);
+  --color-card: oklch(0.14 0.024 160);
+  --color-card-hover: oklch(0.18 0.022 160);
+  --color-border: oklch(0.22 0.018 160);
+  --color-border-subtle: oklch(0.18 0.015 160);
 
-  /* Dorado/ámbar moderno */
+  /* Dorado/ámbar */
   --color-gold: oklch(0.80 0.14 80);
   --color-gold-dim: oklch(0.64 0.12 78);
   --color-gold-bright: oklch(0.88 0.12 82);
 
-  /* Textos: blanco limpio y grises */
+  /* Textos */
   --color-text-primary: oklch(0.95 0.005 90);
-  --color-text-secondary: oklch(0.72 0.015 100);
-  --color-text-muted: oklch(0.50 0.015 160);
+  --color-text-secondary: oklch(0.70 0.012 100);
+  --color-text-muted: oklch(0.45 0.012 160);
 
   /* Acentos */
   --color-accent-emerald: oklch(0.60 0.14 160);
@@ -40,9 +40,9 @@
   --color-success: oklch(0.68 0.16 155);
   --color-warning: oklch(0.80 0.14 82);
 
-  /* Glass effects */
-  --color-glass: oklch(0.17 0.025 160 / 0.7);
-  --color-glass-border: oklch(0.30 0.02 160 / 0.4);
+  /* Glass */
+  --color-glass: oklch(0.14 0.022 160 / 0.8);
+  --color-glass-border: oklch(0.25 0.015 160 / 0.5);
 }
 
 * {
@@ -63,23 +63,9 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Modern gradient background */
-body::before {
-  content: '';
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 50vh;
-  background: radial-gradient(ellipse at 20% 0%, oklch(0.22 0.06 160 / 0.6) 0%, transparent 60%),
-              radial-gradient(ellipse at 80% 10%, oklch(0.20 0.04 80 / 0.3) 0%, transparent 50%);
-  pointer-events: none;
-  z-index: 0;
-}
-
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-heading);
-  letter-spacing: -0.02em;
+  letter-spacing: -0.025em;
 }
 
 ::selection {
@@ -87,8 +73,9 @@ h1, h2, h3, h4, h5, h6 {
   color: oklch(0.95 0.005 90);
 }
 
+/* Scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 5px;
 }
 
 ::-webkit-scrollbar-track {
@@ -96,35 +83,53 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: oklch(0.30 0.02 160 / 0.5);
-  border-radius: 3px;
+  background: oklch(0.25 0.015 160 / 0.4);
+  border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-gold-dim);
+  background: oklch(0.35 0.015 160 / 0.6);
 }
 
 input[type="range"] {
   accent-color: oklch(0.80 0.14 80);
 }
 
-/* Glass morphism utility */
+/* Glass */
 .glass {
   background: var(--color-glass);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid var(--color-glass-border);
+  backdrop-filter: blur(20px) saturate(1.2);
+  -webkit-backdrop-filter: blur(20px) saturate(1.2);
 }
 
-/* Smooth transitions for all interactive elements */
+/* Smooth transitions */
 button, a, input, select, textarea {
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.15s ease;
 }
 
-/* Gradient text utility */
+/* Gradient text */
 .gradient-text {
-  background: linear-gradient(135deg, oklch(0.80 0.14 80), oklch(0.88 0.12 82));
+  background: linear-gradient(135deg, oklch(0.80 0.14 80), oklch(0.90 0.10 85));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+}
+
+/* Glow effect for gold buttons */
+.glow-gold {
+  box-shadow: 0 0 20px oklch(0.80 0.14 80 / 0.15), 0 4px 12px oklch(0.80 0.14 80 / 0.1);
+}
+
+/* Subtle noise texture overlay */
+.noise {
+  position: relative;
+}
+.noise::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0.015;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  pointer-events: none;
+  border-radius: inherit;
 }

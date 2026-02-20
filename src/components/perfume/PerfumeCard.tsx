@@ -20,20 +20,20 @@ export function PerfumeCard({ perfume, showPrice = true, showSeasons = true, onC
   const rating = isShelfPerfume(perfume) ? perfume.effectiveRating : perfume.rating
 
   const content = (
-    <div className="group bg-white/[0.04] hover:bg-white/[0.07] border border-white/[0.06] hover:border-gold/15 rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-gold/5 hover:-translate-y-0.5">
+    <div className="group bg-white/[0.03] hover:bg-white/[0.05] border border-white/[0.05] hover:border-white/[0.10] rounded-xl overflow-hidden transition-all duration-200 hover:shadow-lg hover:shadow-black/20">
       {/* Image */}
-      <div className="aspect-square bg-white/[0.02] flex items-center justify-center overflow-hidden relative">
+      <div className="aspect-square bg-white/[0.02] flex items-center justify-center overflow-hidden">
         {perfume.imageUrl ? (
           <img
             src={perfume.imageUrl}
             alt={`${perfume.brand} ${perfume.name}`}
-            className="w-full h-full object-contain p-4 group-hover:scale-105 transition-transform duration-500"
+            className="w-full h-full object-contain p-4 group-hover:scale-[1.03] transition-transform duration-300"
             loading="lazy"
           />
         ) : (
-          <div className="flex flex-col items-center gap-2 text-text-muted/50">
-            <Droplets className="w-10 h-10" />
-            <span className="text-[10px] font-medium">{perfume.concentration}</span>
+          <div className="flex flex-col items-center gap-1.5 text-text-muted/30">
+            <Droplets className="w-8 h-8" />
+            <span className="text-[10px] font-medium text-text-muted/40">{perfume.concentration}</span>
           </div>
         )}
       </div>
@@ -41,17 +41,17 @@ export function PerfumeCard({ perfume, showPrice = true, showSeasons = true, onC
       {/* Info */}
       <div className="p-3 space-y-1.5">
         <div>
-          <p className="text-[10px] uppercase tracking-[0.1em] text-gold-dim font-semibold truncate">
+          <p className="text-[10px] uppercase tracking-[0.08em] text-gold-dim font-semibold truncate">
             {perfume.brand}
           </p>
-          <h3 className="font-semibold text-sm leading-snug truncate text-text-primary group-hover:text-gold transition-colors">
+          <h3 className="font-semibold text-[13px] leading-snug truncate text-text-primary group-hover:text-gold transition-colors">
             {perfume.name}
           </h3>
         </div>
 
         <div className="flex items-center justify-between">
           <RatingStars rating={rating} />
-          <span className="text-[10px] text-text-muted font-medium">{perfume.concentration}</span>
+          <span className="text-[10px] text-text-muted">{perfume.concentration}</span>
         </div>
 
         {showSeasons && perfume.seasonScores.length > 0 && (
@@ -66,14 +66,14 @@ export function PerfumeCard({ perfume, showPrice = true, showSeasons = true, onC
           />
         )}
 
-        {/* Performance */}
-        <div className="flex items-center gap-3 text-[10px] text-text-muted font-medium">
+        {/* Performance dots */}
+        <div className="flex items-center gap-3 text-[10px] text-text-muted">
           <span className="flex items-center gap-1">
-            <span className="w-1.5 h-1.5 rounded-full bg-accent-green/60" />
+            <span className="w-1 h-1 rounded-full bg-accent-green/50" />
             {perfume.longevity}/10
           </span>
           <span className="flex items-center gap-1">
-            <span className="w-1.5 h-1.5 rounded-full bg-accent-blue/60" />
+            <span className="w-1 h-1 rounded-full bg-accent-blue/50" />
             {perfume.sillage}/10
           </span>
         </div>

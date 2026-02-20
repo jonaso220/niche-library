@@ -12,22 +12,20 @@ const navItems = [
 
 export function MobileNav() {
   return (
-    <nav className="lg:hidden fixed bottom-0 left-0 right-0 glass border-t border-glass-border z-30">
-      <div className="flex items-center justify-around py-1.5 pb-[max(0.375rem,env(safe-area-inset-bottom))]">
+    <nav className="lg:hidden fixed bottom-0 left-0 right-0 glass border-t border-white/[0.04] z-30">
+      <div className="flex items-center justify-around py-2 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
         {navItems.map(({ to, icon: Icon, label }) => (
           <NavLink
             key={to}
             to={to}
             end={to === '/'}
             className={({ isActive }) => cn(
-              'flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl min-w-0',
-              isActive
-                ? 'text-gold'
-                : 'text-text-muted hover:text-text-secondary'
+              'flex flex-col items-center gap-0.5 px-3 py-1 min-w-0',
+              isActive ? 'text-gold' : 'text-text-muted'
             )}
           >
-            <Icon className={cn('w-5 h-5')} />
-            <span className="text-[10px] font-medium truncate">{label}</span>
+            <Icon className="w-5 h-5" />
+            <span className="text-[10px] font-medium">{label}</span>
           </NavLink>
         ))}
       </div>
