@@ -17,7 +17,6 @@ export function SearchPage() {
 
   const localResults = useSearchPerfumes(query)
 
-  // Search API when query changes
   useEffect(() => {
     if (query.length < 3 || !isApiConfigured()) return
 
@@ -26,7 +25,6 @@ export function SearchPage() {
       setApiError(null)
       try {
         const results = await searchFragrances(query)
-        // Filter out results that are already in local DB
         const localIds = new Set(localResults?.map(p => p.id) ?? [])
         setApiResults(results.filter(r => !localIds.has(r.id)))
       } catch (err) {
@@ -55,9 +53,9 @@ export function SearchPage() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto space-y-6">
+    <div className="space-y-6">
       <div>
-        <h1 className="font-heading text-2xl md:text-3xl font-bold text-text-primary">
+        <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
           Buscar Perfumes
         </h1>
         <p className="text-sm text-text-secondary mt-1">
@@ -66,14 +64,14 @@ export function SearchPage() {
       </div>
 
       {/* Search input */}
-      <div className="relative">
+      <div className="relative max-w-2xl">
         <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-text-muted" />
         <input
           type="text"
           value={query}
           onChange={(e) => handleQueryChange(e.target.value)}
           placeholder="Escribe nombre o marca... (ej: Sauvage, Lattafa, Khamrah)"
-          className="w-full pl-12 pr-4 py-3 bg-card border border-border rounded-xl text-text-primary placeholder:text-text-muted focus:outline-none focus:border-gold/50 focus:ring-2 focus:ring-gold/20 transition-all text-base"
+          className="w-full pl-12 pr-4 py-3.5 bg-white/[0.04] border border-white/[0.08] rounded-xl text-text-primary placeholder:text-text-muted focus:outline-none focus:border-gold/30 focus:ring-1 focus:ring-gold/20 text-[15px]"
           autoFocus
         />
       </div>
@@ -81,12 +79,12 @@ export function SearchPage() {
       {/* Local results */}
       {localResults && localResults.length > 0 && (
         <section>
-          <h2 className="text-sm font-semibold text-text-muted uppercase tracking-wider mb-3 flex items-center gap-2">
-            <span>📂</span> En el Catálogo ({localResults.length})
+          <h2 className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3 flex items-center gap-2">
+            En el Catálogo ({localResults.length})
           </h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
             {localResults.map(perfume => (
-              <SearchResultItem key={perfume.id} perfume={perfume} />
+              <PerfumeCard key={perfume.id} perfume={perfume} showSeasons={false} />
             ))}
           </div>
         </section>
@@ -95,7 +93,7 @@ export function SearchPage() {
       {/* API results */}
       {isApiConfigured() && query.length >= 3 && (
         <section>
-          <h2 className="text-sm font-semibold text-text-muted uppercase tracking-wider mb-3 flex items-center gap-2">
+          <h2 className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3 flex items-center gap-2">
             {apiLoading ? (
               <Loader2 className="w-3.5 h-3.5 animate-spin" />
             ) : (
@@ -106,7 +104,7 @@ export function SearchPage() {
           </h2>
 
           {apiError && (
-            <div className="p-3 bg-danger/10 border border-danger/20 rounded-lg text-sm text-danger mb-3">
+            <div className="p-3 bg-danger/10 border border-danger/15 rounded-xl text-sm text-danger mb-3">
               {apiError}
             </div>
           )}
@@ -130,10 +128,10 @@ export function SearchPage() {
       )}
 
       {!isApiConfigured() && (
-        <div className="p-4 bg-surface border border-border rounded-xl flex items-start gap-3">
+        <div className="p-4 bg-white/[0.03] border border-white/[0.05] rounded-xl flex items-start gap-3 max-w-2xl">
           <WifiOff className="w-5 h-5 text-text-muted shrink-0 mt-0.5" />
           <div>
-            <p className="text-sm text-text-secondary">Búsqueda online desactivada</p>
+            <p className="text-sm text-text-secondary font-medium">Búsqueda online desactivada</p>
             <p className="text-xs text-text-muted mt-0.5">
               Configura tu API key de Fragella en Ajustes para buscar más allá del catálogo local.
             </p>
@@ -144,17 +142,13 @@ export function SearchPage() {
       {/* No results */}
       {query.length >= 2 && localResults?.length === 0 && !apiLoading && apiResults.length === 0 && (
         <div className="text-center py-8">
-          <p className="text-text-muted">
-            No se encontró "{query}". <a href="/add" className="text-gold hover:text-gold-bright">Agréga manualmente</a>.
+          <p className="text-text-muted text-sm">
+            No se encontró "{query}". <a href="/add" className="text-gold hover:text-gold-bright font-medium">Agregar manualmente</a>.
           </p>
         </div>
       )}
     </div>
   )
-}
-
-function SearchResultItem({ perfume }: { perfume: Perfume }) {
-  return <PerfumeCard perfume={perfume} showSeasons={false} />
 }
 
 function ApiResultCard({ perfume, onAdd }: {
@@ -172,19 +166,17 @@ function ApiResultCard({ perfume, onAdd }: {
   }
 
   return (
-    <div className="flex items-center gap-3 bg-card border border-border rounded-lg p-3 hover:border-gold/20 transition-colors">
-      {/* Thumbnail */}
-      <div className="w-14 h-14 bg-surface rounded-lg flex items-center justify-center shrink-0">
+    <div className="flex items-center gap-3 bg-white/[0.03] border border-white/[0.05] rounded-xl p-3 hover:border-gold/15 transition-colors">
+      <div className="w-14 h-14 bg-white/[0.03] rounded-lg flex items-center justify-center shrink-0 overflow-hidden">
         {perfume.imageUrl ? (
-          <img src={perfume.imageUrl} alt="" className="w-full h-full object-contain p-1 rounded-lg" />
+          <img src={perfume.imageUrl} alt="" className="w-full h-full object-contain p-1" />
         ) : (
-          <span className="text-2xl">🧴</span>
+          <span className="text-xl text-text-muted/30">💧</span>
         )}
       </div>
 
-      {/* Info */}
       <div className="flex-1 min-w-0">
-        <p className="text-[10px] uppercase tracking-wider text-gold-dim">{perfume.brand}</p>
+        <p className="text-[10px] uppercase tracking-wider text-gold-dim font-semibold">{perfume.brand}</p>
         <p className="text-sm font-medium text-text-primary truncate">{perfume.name}</p>
         <div className="flex items-center gap-2 mt-0.5">
           <RatingStars rating={perfume.rating} size="sm" />
@@ -192,22 +184,21 @@ function ApiResultCard({ perfume, onAdd }: {
         </div>
       </div>
 
-      {/* Actions */}
       {added ? (
-        <span className="text-xs text-accent-green px-3 py-1">Agregado</span>
+        <span className="text-xs text-accent-green font-medium px-3 py-1">Agregado</span>
       ) : (
         <div className="flex gap-1.5 shrink-0">
           <button
             onClick={() => handleAdd(true)}
             disabled={adding}
-            className="px-3 py-1.5 bg-gold text-background rounded-lg text-xs font-medium hover:bg-gold-bright transition-colors disabled:opacity-50"
+            className="px-3 py-1.5 bg-gold text-background rounded-lg text-xs font-semibold hover:bg-gold-bright disabled:opacity-50"
           >
             {adding ? '...' : 'Colección'}
           </button>
           <button
             onClick={() => handleAdd(false)}
             disabled={adding}
-            className="px-3 py-1.5 bg-surface border border-border rounded-lg text-xs text-text-secondary hover:text-gold hover:border-gold/30 transition-colors disabled:opacity-50"
+            className="px-3 py-1.5 bg-white/[0.04] border border-white/[0.06] rounded-lg text-xs text-text-secondary hover:text-gold hover:border-gold/15 disabled:opacity-50"
           >
             Deseos
           </button>
