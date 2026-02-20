@@ -4,24 +4,24 @@
   --font-heading: 'Inter', sans-serif;
   --font-body: 'Inter', sans-serif;
 
-  /* Fondo: verde esmeralda profundo */
-  --color-background: oklch(0.12 0.025 160);
-  --color-surface: oklch(0.15 0.022 160);
-  --color-surface-hover: oklch(0.19 0.022 160);
-  --color-card: oklch(0.14 0.024 160);
-  --color-card-hover: oklch(0.18 0.022 160);
-  --color-border: oklch(0.22 0.018 160);
-  --color-border-subtle: oklch(0.18 0.015 160);
+  /* Fondo: verde esmeralda profundo — más contraste entre capas */
+  --color-background: oklch(0.11 0.02 160);
+  --color-surface: oklch(0.15 0.02 160);
+  --color-surface-hover: oklch(0.19 0.02 160);
+  --color-card: oklch(0.16 0.022 160);
+  --color-card-hover: oklch(0.20 0.02 160);
+  --color-border: oklch(0.23 0.016 160);
+  --color-border-subtle: oklch(0.19 0.014 160);
 
   /* Dorado/ámbar */
   --color-gold: oklch(0.80 0.14 80);
   --color-gold-dim: oklch(0.64 0.12 78);
   --color-gold-bright: oklch(0.88 0.12 82);
 
-  /* Textos */
-  --color-text-primary: oklch(0.95 0.005 90);
-  --color-text-secondary: oklch(0.70 0.012 100);
-  --color-text-muted: oklch(0.45 0.012 160);
+  /* Textos — más contraste */
+  --color-text-primary: oklch(0.96 0.005 90);
+  --color-text-secondary: oklch(0.72 0.012 100);
+  --color-text-muted: oklch(0.50 0.012 160);
 
   /* Acentos */
   --color-accent-emerald: oklch(0.60 0.14 160);

@@ -55,10 +55,10 @@ function CollapsibleSection({ title, children, defaultOpen = false }: {
   const [open, setOpen] = useState(defaultOpen)
 
   return (
-    <div className="mt-1">
+    <div className="mt-2 pt-1">
       <button
         onClick={() => setOpen(!open)}
-        className="flex items-center justify-between w-full px-2.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-text-muted/60 hover:text-text-muted transition-colors"
+        className="flex items-center justify-between w-full px-2.5 py-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-text-muted hover:text-text-secondary transition-colors"
       >
         <span>{title}</span>
         <ChevronDown className={cn(
