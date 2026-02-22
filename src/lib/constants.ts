@@ -33,14 +33,14 @@ export const SHELF_DEFINITIONS: ShelfDefinition[] = [
     limit: 30,
   },
 
-  // Temporadas
+  // Temporadas (solo owned)
   {
     id: 'season-spring',
     label: 'Primavera',
     icon: 'Flower2',
     description: 'Ideales para primavera',
     category: 'temporada',
-    filterFn: (p) => (p.seasonScores.find(s => s.season === 'spring')?.score ?? 0) >= SEASON_THRESHOLD,
+    filterFn: (p) => p.collectionData.owned && (p.seasonScores.find(s => s.season === 'spring')?.score ?? 0) >= SEASON_THRESHOLD,
   },
   {
     id: 'season-summer',
@@ -48,7 +48,7 @@ export const SHELF_DEFINITIONS: ShelfDefinition[] = [
     icon: 'Sun',
     description: 'Ideales para verano',
     category: 'temporada',
-    filterFn: (p) => (p.seasonScores.find(s => s.season === 'summer')?.score ?? 0) >= SEASON_THRESHOLD,
+    filterFn: (p) => p.collectionData.owned && (p.seasonScores.find(s => s.season === 'summer')?.score ?? 0) >= SEASON_THRESHOLD,
   },
   {
     id: 'season-fall',
@@ -56,7 +56,7 @@ export const SHELF_DEFINITIONS: ShelfDefinition[] = [
     icon: 'Leaf',
     description: 'Ideales para otoño',
     category: 'temporada',
-    filterFn: (p) => (p.seasonScores.find(s => s.season === 'fall')?.score ?? 0) >= SEASON_THRESHOLD,
+    filterFn: (p) => p.collectionData.owned && (p.seasonScores.find(s => s.season === 'fall')?.score ?? 0) >= SEASON_THRESHOLD,
   },
   {
     id: 'season-winter',
@@ -64,10 +64,10 @@ export const SHELF_DEFINITIONS: ShelfDefinition[] = [
     icon: 'Snowflake',
     description: 'Ideales para invierno',
     category: 'temporada',
-    filterFn: (p) => (p.seasonScores.find(s => s.season === 'winter')?.score ?? 0) >= SEASON_THRESHOLD,
+    filterFn: (p) => p.collectionData.owned && (p.seasonScores.find(s => s.season === 'winter')?.score ?? 0) >= SEASON_THRESHOLD,
   },
 
-  // Horario
+  // Horario (solo owned)
   {
     id: 'time-day',
     label: 'Día',
@@ -75,6 +75,7 @@ export const SHELF_DEFINITIONS: ShelfDefinition[] = [
     description: 'Para uso diurno',
     category: 'horario',
     filterFn: (p) => {
+      if (!p.collectionData.owned) return false
       const casual = p.occasionScores.find(o => o.occasion === 'casual')?.score ?? 0
       const prof = p.occasionScores.find(o => o.occasion === 'professional')?.score ?? 0
       const night = p.occasionScores.find(o => o.occasion === 'nightOut')?.score ?? 0
@@ -89,6 +90,7 @@ export const SHELF_DEFINITIONS: ShelfDefinition[] = [
     description: 'Para uso nocturno',
     category: 'horario',
     filterFn: (p) => {
+      if (!p.collectionData.owned) return false
       const night = p.occasionScores.find(o => o.occasion === 'nightOut')?.score ?? 0
       return night >= TIME_LOW
     },
@@ -100,6 +102,7 @@ export const SHELF_DEFINITIONS: ShelfDefinition[] = [
     description: 'Sirven de día y de noche',
     category: 'horario',
     filterFn: (p) => {
+      if (!p.collectionData.owned) return false
       const casual = p.occasionScores.find(o => o.occasion === 'casual')?.score ?? 0
       const prof = p.occasionScores.find(o => o.occasion === 'professional')?.score ?? 0
       const night = p.occasionScores.find(o => o.occasion === 'nightOut')?.score ?? 0
@@ -108,14 +111,14 @@ export const SHELF_DEFINITIONS: ShelfDefinition[] = [
     },
   },
 
-  // Ocasiones
+  // Ocasiones (solo owned)
   {
     id: 'occasion-professional',
     label: 'Profesional',
     icon: 'Briefcase',
     description: 'Para el trabajo u oficina',
     category: 'ocasion',
-    filterFn: (p) => (p.occasionScores.find(o => o.occasion === 'professional')?.score ?? 0) >= SEASON_THRESHOLD,
+    filterFn: (p) => p.collectionData.owned && (p.occasionScores.find(o => o.occasion === 'professional')?.score ?? 0) >= SEASON_THRESHOLD,
   },
   {
     id: 'occasion-casual',
@@ -123,7 +126,7 @@ export const SHELF_DEFINITIONS: ShelfDefinition[] = [
     icon: 'Shirt',
     description: 'Para el día a día',
     category: 'ocasion',
-    filterFn: (p) => (p.occasionScores.find(o => o.occasion === 'casual')?.score ?? 0) >= SEASON_THRESHOLD,
+    filterFn: (p) => p.collectionData.owned && (p.occasionScores.find(o => o.occasion === 'casual')?.score ?? 0) >= SEASON_THRESHOLD,
   },
   {
     id: 'occasion-nightOut',
@@ -131,7 +134,7 @@ export const SHELF_DEFINITIONS: ShelfDefinition[] = [
     icon: 'PartyPopper',
     description: 'Para salir de noche',
     category: 'ocasion',
-    filterFn: (p) => (p.occasionScores.find(o => o.occasion === 'nightOut')?.score ?? 0) >= SEASON_THRESHOLD,
+    filterFn: (p) => p.collectionData.owned && (p.occasionScores.find(o => o.occasion === 'nightOut')?.score ?? 0) >= SEASON_THRESHOLD,
   },
   {
     id: 'occasion-date',
@@ -139,7 +142,7 @@ export const SHELF_DEFINITIONS: ShelfDefinition[] = [
     icon: 'HeartHandshake',
     description: 'Para una cita romántica',
     category: 'ocasion',
-    filterFn: (p) => (p.occasionScores.find(o => o.occasion === 'date')?.score ?? 0) >= SEASON_THRESHOLD,
+    filterFn: (p) => p.collectionData.owned && (p.occasionScores.find(o => o.occasion === 'date')?.score ?? 0) >= SEASON_THRESHOLD,
   },
   {
     id: 'occasion-special',
@@ -147,17 +150,17 @@ export const SHELF_DEFINITIONS: ShelfDefinition[] = [
     icon: 'Sparkles',
     description: 'Para ocasiones especiales',
     category: 'ocasion',
-    filterFn: (p) => (p.occasionScores.find(o => o.occasion === 'special')?.score ?? 0) >= SEASON_THRESHOLD,
+    filterFn: (p) => p.collectionData.owned && (p.occasionScores.find(o => o.occasion === 'special')?.score ?? 0) >= SEASON_THRESHOLD,
   },
 
-  // Familias olfativas
+  // Familias olfativas (solo owned)
   {
     id: 'family-woody',
     label: 'Amaderado',
     icon: 'TreePine',
     description: 'Notas de madera dominantes',
     category: 'familia',
-    filterFn: (p) => p.accords.some(a =>
+    filterFn: (p) => p.collectionData.owned && p.accords.some(a =>
       ['woody', 'amaderado', 'warm spicy', 'oud'].includes(a.name.toLowerCase()) && a.percentage >= ACCORD_THRESHOLD
     ),
   },
@@ -167,7 +170,7 @@ export const SHELF_DEFINITIONS: ShelfDefinition[] = [
     icon: 'Flame',
     description: 'Notas orientales y especiadas',
     category: 'familia',
-    filterFn: (p) => p.accords.some(a =>
+    filterFn: (p) => p.collectionData.owned && p.accords.some(a =>
       ['oriental', 'amber', 'sweet', 'balsamic', 'ámbar'].includes(a.name.toLowerCase()) && a.percentage >= ACCORD_THRESHOLD
     ),
   },
@@ -177,7 +180,7 @@ export const SHELF_DEFINITIONS: ShelfDefinition[] = [
     icon: 'Wind',
     description: 'Fragancias frescas y acuáticas',
     category: 'familia',
-    filterFn: (p) => p.accords.some(a =>
+    filterFn: (p) => p.collectionData.owned && p.accords.some(a =>
       ['fresh', 'aquatic', 'ozonic', 'green', 'fresco', 'acuático'].includes(a.name.toLowerCase()) && a.percentage >= ACCORD_THRESHOLD
     ),
   },
@@ -187,7 +190,7 @@ export const SHELF_DEFINITIONS: ShelfDefinition[] = [
     icon: 'Flower',
     description: 'Notas florales dominantes',
     category: 'familia',
-    filterFn: (p) => p.accords.some(a =>
+    filterFn: (p) => p.collectionData.owned && p.accords.some(a =>
       ['floral', 'white floral', 'rose', 'floral blanco'].includes(a.name.toLowerCase()) && a.percentage >= ACCORD_THRESHOLD
     ),
   },
@@ -197,7 +200,7 @@ export const SHELF_DEFINITIONS: ShelfDefinition[] = [
     icon: 'Leaf',
     description: 'Hierbas y aromáticas',
     category: 'familia',
-    filterFn: (p) => p.accords.some(a =>
+    filterFn: (p) => p.collectionData.owned && p.accords.some(a =>
       ['aromatic', 'herbal', 'lavender', 'aromático'].includes(a.name.toLowerCase()) && a.percentage >= ACCORD_THRESHOLD
     ),
   },
@@ -207,7 +210,7 @@ export const SHELF_DEFINITIONS: ShelfDefinition[] = [
     icon: 'Citrus',
     description: 'Notas cítricas frescas',
     category: 'familia',
-    filterFn: (p) => p.accords.some(a =>
+    filterFn: (p) => p.collectionData.owned && p.accords.some(a =>
       ['citrus', 'cítrico', 'fresh spicy'].includes(a.name.toLowerCase()) && a.percentage >= ACCORD_THRESHOLD
     ),
   },

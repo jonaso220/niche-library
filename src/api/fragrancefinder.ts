@@ -1,7 +1,7 @@
 import type { Perfume } from '@/types/perfume'
 import type { ApiProvider } from '@/api/types'
 import { generateSlug } from '@/lib/utils'
-import { mapGender, mapConcentration, buildDefaultSeasonScores, buildDefaultOccasionScores } from '@/api/mappers'
+import { mapGender, mapConcentration, inferSeasonScores, inferOccasionScores } from '@/api/mappers'
 
 const BASE_URL = 'https://fragrancefinder-api.p.rapidapi.com'
 const RAPIDAPI_HOST = 'fragrancefinder-api.p.rapidapi.com'
@@ -82,8 +82,8 @@ function transformToLocal(raw: FFFragrance): Perfume {
     sillage: 5,
     notes: extractNotes(raw),
     accords: [],
-    seasonScores: buildDefaultSeasonScores(),
-    occasionScores: buildDefaultOccasionScores(),
+    seasonScores: inferSeasonScores([]),
+    occasionScores: inferOccasionScores([]),
     imageUrl: buildImageUrl(raw),
     description: raw.description,
     dataSource: 'fragrancefinder',

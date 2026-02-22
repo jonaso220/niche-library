@@ -1,7 +1,7 @@
 import type { Perfume } from '@/types/perfume'
 import type { ApiProvider } from '@/api/types'
 import { generateSlug } from '@/lib/utils'
-import { mapConcentration, buildDefaultSeasonScores, buildDefaultOccasionScores } from '@/api/mappers'
+import { mapConcentration, inferSeasonScores, inferOccasionScores } from '@/api/mappers'
 import { searchParfumo, isParfumoLoaded } from '@/db/parfumo-loader'
 import type { ParfumoEntry } from '@/db/database'
 
@@ -26,6 +26,7 @@ function parseAccords(raw: string): Perfume['accords'] {
 }
 
 function transformToLocal(entry: ParfumoEntry): Perfume {
+  const accords = parseAccords(entry.accords)
   return {
     id: generateSlug(entry.brand, entry.name, entry.concentration),
     name: entry.name,
@@ -41,9 +42,9 @@ function transformToLocal(entry: ParfumoEntry): Perfume {
       middle: parseNotesList(entry.midNotes),
       base: parseNotesList(entry.baseNotes),
     },
-    accords: parseAccords(entry.accords),
-    seasonScores: buildDefaultSeasonScores(),
-    occasionScores: buildDefaultOccasionScores(),
+    accords,
+    seasonScores: inferSeasonScores(accords),
+    occasionScores: inferOccasionScores(accords),
     imageUrl: entry.imageUrl || undefined,
     dataSource: 'manual', // Treat as manual since it's from a dataset, not a live API
   }

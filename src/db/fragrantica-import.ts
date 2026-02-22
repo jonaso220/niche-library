@@ -1,14 +1,14 @@
 import { db } from './database'
 import { searchParfumo, isParfumoLoaded, loadParfumoDataset } from './parfumo-loader'
 import { generateSlug } from '@/lib/utils'
-import { mapConcentration, buildDefaultSeasonScores, buildDefaultOccasionScores } from '@/api/mappers'
+import { mapConcentration, buildDefaultSeasonScores, buildDefaultOccasionScores, inferSeasonScores, inferOccasionScores } from '@/api/mappers'
 import { addPerfumeToCatalog, addToCollection } from './hooks'
 import { fragranticaCollection, fragranticaWishlist, type FragranticaEntry } from '@/data/fragrantica-collection'
 import type { Perfume } from '@/types/perfume'
 
 const FRAGRANTICA_IMG = (id: string) => `https://fimgs.net/mdimg/perfume/375x500.${id}.jpg`
 const IMPORT_DONE_KEY = 'niche-library-fragrantica-import-v'
-const CURRENT_IMPORT_VERSION = 2
+const CURRENT_IMPORT_VERSION = 3
 
 export function isFragranticaImportDone(): boolean {
   return localStorage.getItem(IMPORT_DONE_KEY) === String(CURRENT_IMPORT_VERSION)
@@ -114,11 +114,23 @@ export async function importFragranticaCollection(
           : generateSlug(entry.brand, entry.name, '')
         const existing = await db.collection.get(finalId)
         if (existing) {
-          // Update image to correct Fragrantica image if needed
-          const correctImg = FRAGRANTICA_IMG(entry.fragranticaId)
+          // Update existing entry: fix image + infer season/occasion scores from accords
           const perfumeRecord = await db.perfumes.get(finalId)
-          if (perfumeRecord && perfumeRecord.imageUrl !== correctImg) {
-            await db.perfumes.update(finalId, { imageUrl: correctImg })
+          if (perfumeRecord) {
+            const correctImg = FRAGRANTICA_IMG(entry.fragranticaId)
+            const updates: Partial<Perfume> = {}
+            if (perfumeRecord.imageUrl !== correctImg) {
+              updates.imageUrl = correctImg
+            }
+            // Re-infer scores from accords if they have the old default values (score=5)
+            const hasDefaultScores = perfumeRecord.seasonScores.every(s => s.score === 5)
+            if (hasDefaultScores && perfumeRecord.accords.length > 0) {
+              updates.seasonScores = inferSeasonScores(perfumeRecord.accords)
+              updates.occasionScores = inferOccasionScores(perfumeRecord.accords)
+            }
+            if (Object.keys(updates).length > 0) {
+              await db.perfumes.update(finalId, updates)
+            }
           }
           skipped++
           continue
@@ -128,6 +140,7 @@ export async function importFragranticaCollection(
 
         if (parfumoMatch) {
           // Use Parfumo data with Fragrantica image
+          const accords = parseAccords(parfumoMatch.accords)
           perfume = {
             id: generateSlug(entry.brand, entry.name, parfumoMatch.concentration),
             name: entry.name,
@@ -143,9 +156,9 @@ export async function importFragranticaCollection(
               middle: parseNotesList(parfumoMatch.midNotes),
               base: parseNotesList(parfumoMatch.baseNotes),
             },
-            accords: parseAccords(parfumoMatch.accords),
-            seasonScores: buildDefaultSeasonScores(),
-            occasionScores: buildDefaultOccasionScores(),
+            accords,
+            seasonScores: inferSeasonScores(accords),
+            occasionScores: inferOccasionScores(accords),
             imageUrl: FRAGRANTICA_IMG(entry.fragranticaId),
             dataSource: 'fragrantica',
           }
