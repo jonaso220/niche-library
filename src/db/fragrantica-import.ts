@@ -8,7 +8,7 @@ import type { Perfume } from '@/types/perfume'
 
 const FRAGRANTICA_IMG = (id: string) => `https://fimgs.net/mdimg/perfume/375x500.${id}.jpg`
 const IMPORT_DONE_KEY = 'niche-library-fragrantica-import-v'
-const CURRENT_IMPORT_VERSION = 1
+const CURRENT_IMPORT_VERSION = 2
 
 export function isFragranticaImportDone(): boolean {
   return localStorage.getItem(IMPORT_DONE_KEY) === String(CURRENT_IMPORT_VERSION)
@@ -105,6 +105,12 @@ export async function importFragranticaCollection(
         : generateSlug(entry.brand, entry.name, '')
       const existing = await db.collection.get(finalId)
       if (existing) {
+        // Update image to correct Fragrantica image if needed
+        const correctImg = FRAGRANTICA_IMG(entry.fragranticaId)
+        const perfumeRecord = await db.perfumes.get(finalId)
+        if (perfumeRecord && perfumeRecord.imageUrl !== correctImg) {
+          await db.perfumes.update(finalId, { imageUrl: correctImg })
+        }
         skipped++
         continue
       }
@@ -131,7 +137,7 @@ export async function importFragranticaCollection(
           accords: parseAccords(parfumoMatch.accords),
           seasonScores: buildDefaultSeasonScores(),
           occasionScores: buildDefaultOccasionScores(),
-          imageUrl: parfumoMatch.imageUrl || FRAGRANTICA_IMG(entry.fragranticaId),
+          imageUrl: FRAGRANTICA_IMG(entry.fragranticaId),
           dataSource: 'fragrantica',
         }
       } else {
