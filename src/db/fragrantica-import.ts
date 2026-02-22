@@ -8,7 +8,7 @@ import type { Perfume } from '@/types/perfume'
 
 const FRAGRANTICA_IMG = (id: string) => `https://fimgs.net/mdimg/perfume/375x500.${id}.jpg`
 const IMPORT_DONE_KEY = 'niche-library-fragrantica-import-v'
-const CURRENT_IMPORT_VERSION = 3
+const CURRENT_IMPORT_VERSION = 4
 
 export function isFragranticaImportDone(): boolean {
   return localStorage.getItem(IMPORT_DONE_KEY) === String(CURRENT_IMPORT_VERSION)
@@ -78,7 +78,8 @@ function mapGenderFromName(name: string, brand: string): Perfume['gender'] {
 async function upgradeExistingScores(
   onProgress?: (done: number, total: number, current: string) => void
 ): Promise<void> {
-  const allPerfumes = await db.perfumes.where('dataSource').equals('fragrantica').toArray()
+  const all = await db.perfumes.toArray()
+  const allPerfumes = all.filter(p => p.dataSource === 'fragrantica')
   const total = allPerfumes.length
 
   for (let i = 0; i < allPerfumes.length; i++) {
@@ -104,7 +105,8 @@ export async function importFragranticaCollection(
 
   try {
     // Check if this is just a score upgrade (perfumes already imported)
-    const existingCount = await db.perfumes.where('dataSource').equals('fragrantica').count()
+    const allPerfumes = await db.perfumes.toArray()
+    const existingCount = allPerfumes.filter(p => p.dataSource === 'fragrantica').length
     if (existingCount > 0) {
       // Fast path: just update scores from existing accords, no Parfumo needed
       onProgress?.(0, existingCount, 'Actualizando scores de temporada...')

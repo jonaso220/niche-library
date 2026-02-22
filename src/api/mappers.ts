@@ -74,6 +74,12 @@ const SEASON_ACCORD_MAP: Record<string, { spring: number; summer: number; fall: 
   // Powdery/Earthy
   'powdery':  { spring: 55, summer: 40, fall: 65, winter: 70 },
   'earthy':   { spring: 45, summer: 30, fall: 75, winter: 70 },
+  // Additional Parfumo accords
+  'gourmand': { spring: 35, summer: 25, fall: 75, winter: 85 },
+  'creamy':   { spring: 45, summer: 35, fall: 65, winter: 75 },
+  'resinous': { spring: 20, summer: 10, fall: 75, winter: 85 },
+  'animal':   { spring: 15, summer: 10, fall: 70, winter: 85 },
+  'leathery': { spring: 20, summer: 10, fall: 75, winter: 90 },
 }
 
 /** Accord groups mapped to occasion affinity */
@@ -105,6 +111,12 @@ const OCCASION_ACCORD_MAP: Record<string, { professional: number; casual: number
   'lavender': { professional: 75, casual: 80, nightOut: 35, date: 45, special: 35 },
   'powdery':  { professional: 65, casual: 55, nightOut: 60, date: 70, special: 65 },
   'earthy':   { professional: 50, casual: 45, nightOut: 65, date: 55, special: 70 },
+  // Additional Parfumo accords
+  'gourmand': { professional: 30, casual: 50, nightOut: 80, date: 85, special: 75 },
+  'creamy':   { professional: 50, casual: 55, nightOut: 65, date: 75, special: 65 },
+  'resinous': { professional: 40, casual: 35, nightOut: 80, date: 70, special: 80 },
+  'animal':   { professional: 25, casual: 20, nightOut: 80, date: 70, special: 85 },
+  'leathery': { professional: 50, casual: 35, nightOut: 85, date: 75, special: 85 },
 }
 
 function matchAccordKey(accordName: string): string | null {
