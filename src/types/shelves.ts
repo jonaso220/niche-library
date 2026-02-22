@@ -7,7 +7,7 @@ export type ShelfType =
   | 'occasion-date' | 'occasion-special'
   | 'family-woody' | 'family-oriental' | 'family-fresh' | 'family-floral'
   | 'family-aromatic' | 'family-citrus'
-  | 'all' | 'wishlist' | 'top-rated'
+  | 'all' | 'wishlist'
 
 export interface ShelfDefinition {
   id: ShelfType

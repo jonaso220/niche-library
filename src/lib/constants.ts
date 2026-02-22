@@ -23,16 +23,6 @@ export const SHELF_DEFINITIONS: ShelfDefinition[] = [
     category: 'coleccion',
     filterFn: (p) => !p.collectionData.owned,
   },
-  {
-    id: 'top-rated',
-    label: 'Mejor Valorados',
-    icon: 'Trophy',
-    description: 'Top 30 de tu colección',
-    category: 'coleccion',
-    filterFn: (p) => p.collectionData.owned,
-    limit: 30,
-  },
-
   // Temporadas (solo owned)
   {
     id: 'season-spring',

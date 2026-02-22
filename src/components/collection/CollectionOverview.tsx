@@ -8,11 +8,6 @@ export function CollectionOverview() {
   const stats = useCollectionStats()
   const allPerfumes = useCollectionPerfumes()
 
-  const topRated = allPerfumes
-    ?.filter(p => p.collectionData.owned)
-    .sort((a, b) => b.effectiveRating - a.effectiveRating)
-    .slice(0, 5)
-
   const shelfPreviews = ['season-spring', 'season-summer', 'season-fall', 'season-winter'].map(id => {
     const shelf = SHELF_DEFINITIONS.find(s => s.id === id)!
     const items = allPerfumes?.filter(shelf.filterFn).sort((a, b) => b.effectiveRating - a.effectiveRating).slice(0, 5) ?? []
@@ -57,11 +52,6 @@ export function CollectionOverview() {
           value={stats?.totalCatalog ?? 0}
         />
       </div>
-
-      {/* Top Rated */}
-      {topRated && topRated.length > 0 && (
-        <ShelfPreview title="Mejor Valorados" items={topRated} to="/shelf/top-rated" />
-      )}
 
       {/* Season previews */}
       {shelfPreviews.map(({ shelf, items }) =>

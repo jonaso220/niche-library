@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { cn } from '@/lib/utils'
 import { getShelfsByCategory } from '@/lib/constants'
 import {
-  Library, Heart, Trophy,
+  Library, Heart,
   Flower2, Sun, Leaf, Snowflake,
   SunMedium, Moon, Clock,
   Briefcase, Shirt, PartyPopper, HeartHandshake, Sparkles,
@@ -12,7 +12,7 @@ import {
 } from 'lucide-react'
 
 const ICON_MAP: Record<string, React.ElementType> = {
-  Library, Heart, Trophy,
+  Library, Heart,
   Flower2, Sun, Leaf, Snowflake,
   SunMedium, Moon, Clock,
   Briefcase, Shirt, PartyPopper, HeartHandshake, Sparkles,
