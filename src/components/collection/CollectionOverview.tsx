@@ -8,11 +8,6 @@ export function CollectionOverview() {
   const stats = useCollectionStats()
   const allPerfumes = useCollectionPerfumes()
 
-  const recentlyAdded = allPerfumes
-    ?.filter(p => p.collectionData.owned)
-    .sort((a, b) => b.collectionData.addedAt.localeCompare(a.collectionData.addedAt))
-    .slice(0, 5)
-
   const topRated = allPerfumes
     ?.filter(p => p.collectionData.owned)
     .sort((a, b) => b.effectiveRating - a.effectiveRating)
@@ -62,11 +57,6 @@ export function CollectionOverview() {
           value={stats?.totalCatalog ?? 0}
         />
       </div>
-
-      {/* Recently Added */}
-      {recentlyAdded && recentlyAdded.length > 0 && (
-        <ShelfPreview title="Agregados Recientemente" items={recentlyAdded} to="/shelf/all" />
-      )}
 
       {/* Top Rated */}
       {topRated && topRated.length > 0 && (
