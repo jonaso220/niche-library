@@ -1,5 +1,6 @@
 import { db } from '@/db/database'
 import type { Perfume, CollectionEntry } from '@/types/perfume'
+import { ensureScoresInferred } from '@/db/fragrantica-import'
 import {
   fetchCloudPerfumes,
   fetchCloudCollection,
@@ -60,8 +61,15 @@ export async function syncOnLogin(userId: string): Promise<void> {
     await db.collection.bulkPut(mergedCollection)
   }
 
-  // 6. Write merged data to cloud
-  await cloudBulkWritePerfumes(userId, mergedPerfumes).catch(console.error)
+  // 5b. Infer season/occasion scores for perfumes with accords but default scores
+  // Must run AFTER cloud merge to fix scores that were overwritten by cloud data
+  const scoresFixed = await ensureScoresInferred()
+
+  // 6. Write merged data to cloud (includes newly inferred scores)
+  const finalPerfumes = scoresFixed > 0
+    ? await db.perfumes.filter(p => p.dataSource !== 'seed').toArray()
+    : mergedPerfumes
+  await cloudBulkWritePerfumes(userId, finalPerfumes).catch(console.error)
   await cloudBulkWriteCollection(userId, mergedCollection).catch(console.error)
 
   // 7. Start real-time listeners
@@ -75,6 +83,8 @@ function startCloudListeners(userId: string) {
   unsubscribePerfumes = onCloudPerfumesChange(userId, async (perfumes) => {
     if (perfumes.length > 0) {
       await db.perfumes.bulkPut(perfumes)
+      // Re-infer scores in case cloud data had default scores
+      await ensureScoresInferred()
     }
   })
 
