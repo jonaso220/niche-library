@@ -92,13 +92,28 @@ export function useSearchPerfumes(query: string): Perfume[] | undefined {
   return useLiveQuery(async () => {
     if (!query || query.length < 2) return []
     const lower = query.toLowerCase()
+
+    // Search local collection perfumes
     const all = await db.perfumes.toArray()
-    return all
+    const localResults = all
       .filter(p =>
         p.name.toLowerCase().includes(lower) ||
         p.brand.toLowerCase().includes(lower)
       )
       .slice(0, 20)
+
+    // Also search Parfumo dataset if loaded
+    const { isParfumoLoaded } = await import('./parfumo-loader')
+    if (!isParfumoLoaded()) return localResults
+
+    const { parfumoProvider } = await import('@/api/parfumo-provider')
+    const parfumoResults = await parfumoProvider.search(query, 20)
+
+    // Merge: local first, then Parfumo results not already in local
+    const localIds = new Set(localResults.map(p => p.id))
+    const extra = parfumoResults.filter(p => !localIds.has(p.id))
+
+    return [...localResults, ...extra].slice(0, 20)
   }, [query])
 }
 
