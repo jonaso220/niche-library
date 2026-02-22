@@ -10,7 +10,7 @@ export function AppShell() {
   return (
     <div className="flex h-screen bg-background overflow-hidden relative">
       {/* Sidebar - Desktop */}
-      <aside className="hidden lg:flex lg:w-60 lg:flex-col lg:border-r lg:border-border/50">
+      <aside className="hidden lg:flex lg:w-72 lg:flex-col lg:border-r lg:border-border/50">
         <Sidebar onClose={() => setSidebarOpen(false)} />
       </aside>
 
