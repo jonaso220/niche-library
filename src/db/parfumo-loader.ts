@@ -2,7 +2,7 @@ import { db, type ParfumoEntry } from './database'
 import { generateSlug } from '@/lib/utils'
 
 const PARFUMO_LOADED_KEY = 'niche-library-parfumo-v'
-const CURRENT_PARFUMO_VERSION = 1
+const CURRENT_PARFUMO_VERSION = 2
 
 /** Check if the Parfumo dataset has been loaded into IndexedDB */
 export function isParfumoLoaded(): boolean {
@@ -39,7 +39,7 @@ async function doLoad(): Promise<void> {
     const raw: unknown[][] = await res.json()
 
     // Transform array-of-arrays to ParfumoEntry objects
-    // Format: [name, brand, year, concentration, rating, accords, topNotes, midNotes, baseNotes]
+    // Format: [name, brand, year, concentration, rating, accords, topNotes, midNotes, baseNotes, imageUrl]
     const BATCH_SIZE = 5000
     for (let i = 0; i < raw.length; i += BATCH_SIZE) {
       const batch = raw.slice(i, i + BATCH_SIZE)
@@ -54,6 +54,7 @@ async function doLoad(): Promise<void> {
         topNotes: String(row[6]),
         midNotes: String(row[7]),
         baseNotes: String(row[8]),
+        imageUrl: String(row[9] ?? ''),
       }))
 
       await db.parfumo.bulkPut(entries)

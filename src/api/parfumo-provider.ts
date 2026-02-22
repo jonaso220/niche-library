@@ -44,6 +44,7 @@ function transformToLocal(entry: ParfumoEntry): Perfume {
     accords: parseAccords(entry.accords),
     seasonScores: buildDefaultSeasonScores(),
     occasionScores: buildDefaultOccasionScores(),
+    imageUrl: entry.imageUrl || undefined,
     dataSource: 'manual', // Treat as manual since it's from a dataset, not a live API
   }
 }

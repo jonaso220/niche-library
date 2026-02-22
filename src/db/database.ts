@@ -13,6 +13,7 @@ export interface ParfumoEntry {
   topNotes: string
   midNotes: string
   baseNotes: string
+  imageUrl: string
 }
 
 export class NicheLibraryDB extends Dexie {
