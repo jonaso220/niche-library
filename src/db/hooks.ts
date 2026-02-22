@@ -50,13 +50,15 @@ export function useShelfPerfumes(shelfId: ShelfType): ShelfPerfume[] | undefined
   const shelf = getShelfDefinition(shelfId)
   if (!shelf) return []
 
-  return all
+  const sorted = all
     .filter(shelf.filterFn)
     .sort((a, b) => {
       const diff = b.effectiveRating - a.effectiveRating
       if (diff !== 0) return diff
       return a.name.localeCompare(b.name)
     })
+
+  return shelf.limit ? sorted.slice(0, shelf.limit) : sorted
 }
 
 export function useCollectionStats() {

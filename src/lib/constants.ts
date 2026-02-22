@@ -27,9 +27,10 @@ export const SHELF_DEFINITIONS: ShelfDefinition[] = [
     id: 'top-rated',
     label: 'Mejor Valorados',
     icon: 'Trophy',
-    description: 'Rating 4.0 o superior',
+    description: 'Top 30 de tu colección',
     category: 'coleccion',
-    filterFn: (p) => p.effectiveRating >= 4.0,
+    filterFn: (p) => p.collectionData.owned,
+    limit: 30,
   },
 
   // Temporadas

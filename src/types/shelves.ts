@@ -16,4 +16,6 @@ export interface ShelfDefinition {
   description: string
   category: 'temporada' | 'horario' | 'ocasion' | 'familia' | 'coleccion'
   filterFn: (p: ShelfPerfume) => boolean
+  /** Optional limit — only show top N results after sorting */
+  limit?: number
 }
