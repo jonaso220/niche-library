@@ -2,8 +2,6 @@ import type { ShelfDefinition } from '@/types/shelves'
 
 const SEASON_THRESHOLD = 50
 const ACCORD_THRESHOLD = 20
-const TIME_HIGH = 60
-const TIME_LOW = 40
 
 export const SHELF_DEFINITIONS: ShelfDefinition[] = [
   // Colección
@@ -55,92 +53,6 @@ export const SHELF_DEFINITIONS: ShelfDefinition[] = [
     description: 'Ideales para invierno',
     category: 'temporada',
     filterFn: (p) => p.collectionData.owned && (p.seasonScores.find(s => s.season === 'winter')?.score ?? 0) >= SEASON_THRESHOLD,
-  },
-
-  // Horario (solo owned)
-  {
-    id: 'time-day',
-    label: 'Día',
-    icon: 'SunMedium',
-    description: 'Para uso diurno',
-    category: 'horario',
-    filterFn: (p) => {
-      if (!p.collectionData.owned) return false
-      const casual = p.occasionScores.find(o => o.occasion === 'casual')?.score ?? 0
-      const prof = p.occasionScores.find(o => o.occasion === 'professional')?.score ?? 0
-      const night = p.occasionScores.find(o => o.occasion === 'nightOut')?.score ?? 0
-      const dayScore = (casual + prof) / 2
-      return dayScore >= TIME_HIGH || (dayScore >= TIME_LOW && night < TIME_HIGH)
-    },
-  },
-  {
-    id: 'time-night',
-    label: 'Noche',
-    icon: 'Moon',
-    description: 'Para uso nocturno',
-    category: 'horario',
-    filterFn: (p) => {
-      if (!p.collectionData.owned) return false
-      const night = p.occasionScores.find(o => o.occasion === 'nightOut')?.score ?? 0
-      return night >= TIME_LOW
-    },
-  },
-  {
-    id: 'time-versatile',
-    label: 'Versátil',
-    icon: 'Clock',
-    description: 'Sirven de día y de noche',
-    category: 'horario',
-    filterFn: (p) => {
-      if (!p.collectionData.owned) return false
-      const casual = p.occasionScores.find(o => o.occasion === 'casual')?.score ?? 0
-      const prof = p.occasionScores.find(o => o.occasion === 'professional')?.score ?? 0
-      const night = p.occasionScores.find(o => o.occasion === 'nightOut')?.score ?? 0
-      const dayScore = (casual + prof) / 2
-      return dayScore >= TIME_LOW && night >= TIME_LOW
-    },
-  },
-
-  // Ocasiones (solo owned)
-  {
-    id: 'occasion-professional',
-    label: 'Profesional',
-    icon: 'Briefcase',
-    description: 'Para el trabajo u oficina',
-    category: 'ocasion',
-    filterFn: (p) => p.collectionData.owned && (p.occasionScores.find(o => o.occasion === 'professional')?.score ?? 0) >= SEASON_THRESHOLD,
-  },
-  {
-    id: 'occasion-casual',
-    label: 'Casual',
-    icon: 'Shirt',
-    description: 'Para el día a día',
-    category: 'ocasion',
-    filterFn: (p) => p.collectionData.owned && (p.occasionScores.find(o => o.occasion === 'casual')?.score ?? 0) >= SEASON_THRESHOLD,
-  },
-  {
-    id: 'occasion-nightOut',
-    label: 'Salida Nocturna',
-    icon: 'PartyPopper',
-    description: 'Para salir de noche',
-    category: 'ocasion',
-    filterFn: (p) => p.collectionData.owned && (p.occasionScores.find(o => o.occasion === 'nightOut')?.score ?? 0) >= SEASON_THRESHOLD,
-  },
-  {
-    id: 'occasion-date',
-    label: 'Cita',
-    icon: 'HeartHandshake',
-    description: 'Para una cita romántica',
-    category: 'ocasion',
-    filterFn: (p) => p.collectionData.owned && (p.occasionScores.find(o => o.occasion === 'date')?.score ?? 0) >= SEASON_THRESHOLD,
-  },
-  {
-    id: 'occasion-special',
-    label: 'Evento Especial',
-    icon: 'Sparkles',
-    description: 'Para ocasiones especiales',
-    category: 'ocasion',
-    filterFn: (p) => p.collectionData.owned && (p.occasionScores.find(o => o.occasion === 'special')?.score ?? 0) >= SEASON_THRESHOLD,
   },
 
   // Familias olfativas (solo owned)
@@ -213,3 +125,19 @@ export function getShelfDefinition(shelfId: string): ShelfDefinition | undefined
 export function getShelfsByCategory(category: ShelfDefinition['category']): ShelfDefinition[] {
   return SHELF_DEFINITIONS.filter(s => s.category === category)
 }
+
+/* ── Filtros inline para vistas de temporada ── */
+
+export const TIME_FILTERS = [
+  { id: 'day', label: 'Día', icon: 'SunMedium' },
+  { id: 'night', label: 'Noche', icon: 'Moon' },
+  { id: 'versatile', label: 'Versátil', icon: 'Clock' },
+] as const
+
+export const OCCASION_FILTERS = [
+  { id: 'professional', label: 'Profesional', icon: 'Briefcase' },
+  { id: 'casual', label: 'Casual', icon: 'Shirt' },
+  { id: 'nightOut', label: 'Salida Nocturna', icon: 'PartyPopper' },
+  { id: 'date', label: 'Cita', icon: 'HeartHandshake' },
+  { id: 'special', label: 'Evento Especial', icon: 'Sparkles' },
+] as const

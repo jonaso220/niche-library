@@ -5,8 +5,6 @@ import { getShelfsByCategory } from '@/lib/constants'
 import {
   Library, Heart,
   Flower2, Sun, Leaf, Snowflake,
-  SunMedium, Moon, Clock,
-  Briefcase, Shirt, PartyPopper, HeartHandshake, Sparkles,
   TreePine, Flame, Wind, Flower, Citrus,
   Search, PlusCircle, Settings, X, ChevronDown,
 } from 'lucide-react'
@@ -14,8 +12,6 @@ import {
 const ICON_MAP: Record<string, React.ElementType> = {
   Library, Heart,
   Flower2, Sun, Leaf, Snowflake,
-  SunMedium, Moon, Clock,
-  Briefcase, Shirt, PartyPopper, HeartHandshake, Sparkles,
   TreePine, Flame, Wind, Flower, Citrus,
 }
 
@@ -77,8 +73,6 @@ function CollapsibleSection({ title, children, defaultOpen = false }: {
 
 export function Sidebar({ onClose }: SidebarProps) {
   const temporada = getShelfsByCategory('temporada')
-  const horario = getShelfsByCategory('horario')
-  const ocasion = getShelfsByCategory('ocasion')
   const familia = getShelfsByCategory('familia')
   const coleccion = getShelfsByCategory('coleccion')
 
@@ -147,20 +141,6 @@ export function Sidebar({ onClose }: SidebarProps) {
         {/* Temporadas */}
         <CollapsibleSection title="Temporadas" defaultOpen>
           {temporada.map(shelf => (
-            <NavItem key={shelf.id} to={`/shelf/${shelf.id}`} icon={shelf.icon} label={shelf.label} onClose={onClose} />
-          ))}
-        </CollapsibleSection>
-
-        {/* Horario */}
-        <CollapsibleSection title="Horario">
-          {horario.map(shelf => (
-            <NavItem key={shelf.id} to={`/shelf/${shelf.id}`} icon={shelf.icon} label={shelf.label} onClose={onClose} />
-          ))}
-        </CollapsibleSection>
-
-        {/* Ocasiones */}
-        <CollapsibleSection title="Ocasiones">
-          {ocasion.map(shelf => (
             <NavItem key={shelf.id} to={`/shelf/${shelf.id}`} icon={shelf.icon} label={shelf.label} onClose={onClose} />
           ))}
         </CollapsibleSection>
