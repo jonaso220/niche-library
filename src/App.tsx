@@ -9,12 +9,27 @@ import { SearchPage } from '@/pages/SearchPage'
 import { AddManualPage } from '@/pages/AddManualPage'
 import { SettingsPage } from '@/pages/SettingsPage'
 import { seedDatabaseIfNeeded } from '@/db/seed'
+import { importFragranticaCollection, isFragranticaImportDone } from '@/db/fragrantica-import'
 
 function App() {
   const [ready, setReady] = useState(false)
+  const [importProgress, setImportProgress] = useState('')
 
   useEffect(() => {
-    seedDatabaseIfNeeded().then(() => setReady(true))
+    async function init() {
+      await seedDatabaseIfNeeded()
+
+      // Import Fragrantica collection (runs once)
+      if (!isFragranticaImportDone()) {
+        setImportProgress('Importando colección de Fragrantica...')
+        await importFragranticaCollection((done, total, current) => {
+          setImportProgress(`Importando ${done}/${total}: ${current}`)
+        })
+      }
+
+      setReady(true)
+    }
+    init()
   }, [])
 
   if (!ready) {
@@ -23,7 +38,9 @@ function App() {
         <div className="text-center">
           <img src="/icon-192.png" alt="Niche Library" className="w-24 h-24 mx-auto mb-4 rounded-2xl shadow-lg shadow-gold/10" />
           <h1 className="text-3xl font-heading text-gold mb-2">Niche Library</h1>
-          <p className="text-text-secondary">Cargando tu colección...</p>
+          <p className="text-text-secondary">
+            {importProgress || 'Cargando tu colección...'}
+          </p>
         </div>
       </div>
     )
