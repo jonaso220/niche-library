@@ -25,7 +25,7 @@ export function CollectionOverview() {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
         <StatCard
           icon={<Library className="w-4.5 h-4.5" />}
           color="gold"
@@ -127,14 +127,16 @@ function StatCard({ icon, color, label, value, decimal }: {
 }) {
   const c = COLOR_MAP[color]
   return (
-    <div className={`relative overflow-hidden bg-gradient-to-br ${c.gradient} border ${c.border} rounded-2xl p-4 hover:shadow-lg ${c.glow} transition-all duration-200 card-lift`}>
-      <div className={`w-10 h-10 rounded-xl ${c.iconBg} flex items-center justify-center mb-3`}>
+    <div className={`relative overflow-hidden bg-gradient-to-br ${c.gradient} border ${c.border} rounded-2xl px-3 py-2.5 hover:shadow-lg ${c.glow} transition-all duration-200 card-lift flex items-center gap-2.5`}>
+      <div className={`w-8 h-8 rounded-lg ${c.iconBg} flex items-center justify-center shrink-0`}>
         <span className={c.text}>{icon}</span>
       </div>
-      <p className="text-3xl font-bold tracking-tight text-text-primary leading-none">
-        {decimal ? value.toFixed(1) : value}
-      </p>
-      <p className="text-[11px] text-text-muted mt-1.5 font-semibold tracking-wide">{label}</p>
+      <div className="min-w-0">
+        <p className="text-xl font-bold tracking-tight text-text-primary leading-none">
+          {decimal ? value.toFixed(1) : value}
+        </p>
+        <p className="text-[10px] text-text-muted mt-0.5 font-semibold tracking-wide truncate">{label}</p>
+      </div>
     </div>
   )
 }
