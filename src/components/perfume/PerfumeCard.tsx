@@ -25,7 +25,7 @@ export function PerfumeCard({ perfume, showPrice = true, showSeasons = true, onC
       <div className="absolute inset-0 bg-gradient-to-b from-gold/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
 
       {/* Image */}
-      <div className="relative aspect-[4/5] bg-white/[0.02] flex items-center justify-center overflow-hidden">
+      <div className="relative aspect-[3/4] bg-white/[0.02] flex items-center justify-center overflow-hidden">
         {perfume.imageUrl ? (
           <img
             src={perfume.imageUrl}
