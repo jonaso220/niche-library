@@ -25,6 +25,21 @@ for (const entry of enrichmentRaw as CompactEntry[]) {
 }
 
 /**
+ * Static image fixes for perfumes that were missing images.
+ * Key = perfume id, value = { imageUrl, fragranticaId }
+ */
+const IMAGE_FIXES: Record<string, { imageUrl: string; fragranticaId: string }> = {
+  'fw-clive-dorris': {
+    imageUrl: 'https://fimgs.net/mdimg/perfume/375x500.107712.jpg',
+    fragranticaId: '107712',
+  },
+  'fw-encode-blue': {
+    imageUrl: 'https://fimgs.net/mdimg/perfume/375x500.93849.jpg',
+    fragranticaId: '93849',
+  },
+}
+
+/**
  * Apply Fragrantica enrichment data to all perfumes that need it.
  * Matches by fragranticaId field or by extracting the ID from imageUrl.
  * Only updates if enrichment data has MORE notes/accords than current data.
@@ -87,6 +102,25 @@ export async function applyFragranticaEnrichment(): Promise<number> {
       changed = true
     }
 
+    if (changed) {
+      await db.perfumes.put(perfume)
+      updated++
+    }
+  }
+
+  // Apply static image fixes for perfumes missing images
+  for (const [perfumeId, fix] of Object.entries(IMAGE_FIXES)) {
+    const perfume = all.find(p => p.id === perfumeId)
+    if (!perfume) continue
+    let changed = false
+    if (!perfume.imageUrl || perfume.imageUrl === '' || perfume.imageUrl === 'none') {
+      perfume.imageUrl = fix.imageUrl
+      changed = true
+    }
+    if (!perfume.fragranticaId || perfume.fragranticaId === 'none' || perfume.fragranticaId === '') {
+      perfume.fragranticaId = fix.fragranticaId
+      changed = true
+    }
     if (changed) {
       await db.perfumes.put(perfume)
       updated++
