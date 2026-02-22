@@ -72,28 +72,41 @@ function mapGenderFromName(name: string, brand: string): Perfume['gender'] {
  * Returns progress callback for UI updates.
  */
 /**
- * Fast pass: update season/occasion scores for all perfumes that already exist
- * in the DB. Reads directly from IndexedDB — no Parfumo download needed.
+ * Ensure all perfumes with accords have proper inferred scores.
+ * Runs on every app init — idempotent and fast (skips already-inferred).
+ * Uses db.perfumes.put() instead of update() for reliability.
  */
-async function upgradeExistingScores(
-  onProgress?: (done: number, total: number, current: string) => void
-): Promise<void> {
+export async function ensureScoresInferred(): Promise<number> {
   const all = await db.perfumes.toArray()
-  const allPerfumes = all.filter(p => p.dataSource === 'fragrantica')
-  const total = allPerfumes.length
+  let updated = 0
 
-  for (let i = 0; i < allPerfumes.length; i++) {
-    const p = allPerfumes[i]
-    onProgress?.(i, total, `Actualizando ${p.brand} - ${p.name}`)
+  for (const p of all) {
+    if (!p.accords || p.accords.length === 0) continue
 
     const hasDefaultScores = p.seasonScores.every(s => s.score === 5)
-    if (hasDefaultScores && p.accords.length > 0) {
-      await db.perfumes.update(p.id, {
-        seasonScores: inferSeasonScores(p.accords),
-        occasionScores: inferOccasionScores(p.accords),
-      })
-    }
+    if (!hasDefaultScores) continue
+
+    // Infer new scores from accords
+    const newSeasonScores = inferSeasonScores(p.accords)
+    const newOccasionScores = inferOccasionScores(p.accords)
+
+    // Only write if inference produced non-default scores
+    const inferredNonDefault = newSeasonScores.some(s => s.score !== 5)
+    if (!inferredNonDefault) continue
+
+    // Use put() with full object — more reliable than update()
+    await db.perfumes.put({
+      ...p,
+      seasonScores: newSeasonScores,
+      occasionScores: newOccasionScores,
+    })
+    updated++
   }
+
+  if (updated > 0) {
+    console.log(`[NicheLibrary] Inferred scores for ${updated} perfumes`)
+  }
+  return updated
 }
 
 export async function importFragranticaCollection(
@@ -104,14 +117,11 @@ export async function importFragranticaCollection(
   let errors = 0
 
   try {
-    // Check if this is just a score upgrade (perfumes already imported)
+    // Check if perfumes were already imported
     const allPerfumes = await db.perfumes.toArray()
     const existingCount = allPerfumes.filter(p => p.dataSource === 'fragrantica').length
     if (existingCount > 0) {
-      // Fast path: just update scores from existing accords, no Parfumo needed
-      onProgress?.(0, existingCount, 'Actualizando scores de temporada...')
-      await upgradeExistingScores(onProgress)
-      onProgress?.(existingCount, existingCount, 'Actualización completa')
+      // Already imported — score inference runs separately via ensureScoresInferred()
       return { imported: 0, skipped: existingCount, errors: 0 }
     }
 

@@ -9,7 +9,7 @@ import { SearchPage } from '@/pages/SearchPage'
 import { AddManualPage } from '@/pages/AddManualPage'
 import { SettingsPage } from '@/pages/SettingsPage'
 import { seedDatabaseIfNeeded } from '@/db/seed'
-import { importFragranticaCollection, isFragranticaImportDone } from '@/db/fragrantica-import'
+import { importFragranticaCollection, isFragranticaImportDone, ensureScoresInferred } from '@/db/fragrantica-import'
 
 function App() {
   const [ready, setReady] = useState(false)
@@ -26,6 +26,10 @@ function App() {
           setImportProgress(`Importando ${done}/${total}: ${current}`)
         })
       }
+
+      // Ensure all perfumes with accords have inferred season/occasion scores
+      // Runs every init — idempotent, fast, skips already-inferred perfumes
+      await ensureScoresInferred()
 
       setReady(true)
     }
