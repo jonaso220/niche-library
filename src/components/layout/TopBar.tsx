@@ -37,7 +37,7 @@ export function TopBar({ onMenuClick }: TopBarProps) {
   }
 
   return (
-    <header className="sticky top-0 z-20 glass border-b border-white/[0.06] shadow-lg shadow-black/10">
+    <header className="sticky top-0 z-20 glass border-b border-white/[0.06]">
       <div className="flex items-center gap-4 px-4 md:px-6 lg:px-8 h-16">
         {/* Mobile menu button */}
         <button
@@ -53,14 +53,14 @@ export function TopBar({ onMenuClick }: TopBarProps) {
           <span className="font-bold text-[15px] gradient-text hidden sm:block">Niche Library</span>
         </div>
 
-        {/* Search */}
-        <form onSubmit={handleSearch} className="flex-1 max-w-xl lg:max-w-3xl mx-auto">
-          <div className={`relative group rounded-2xl transition-all duration-300 ${isFocused ? 'shadow-lg shadow-gold/[0.07]' : ''}`}>
+        {/* Search — fills all available space, no max-width */}
+        <form onSubmit={handleSearch} className="flex-1 min-w-0">
+          <div className={`relative group rounded-xl transition-all duration-300 ${isFocused ? 'shadow-md shadow-gold/[0.06]' : ''}`}>
             {/* Subtle gold glow border on focus */}
-            <div className={`absolute -inset-px rounded-2xl bg-gradient-to-r from-gold/25 via-gold/10 to-gold/25 transition-opacity duration-300 ${isFocused ? 'opacity-100' : 'opacity-0'}`} />
+            <div className={`absolute -inset-px rounded-xl bg-gradient-to-r from-gold/20 via-gold/8 to-gold/20 transition-opacity duration-300 ${isFocused ? 'opacity-100' : 'opacity-0'}`} />
 
-            <div className="relative flex items-center bg-white/[0.04] group-hover:bg-white/[0.06] border border-white/[0.08] group-hover:border-white/[0.12] rounded-2xl transition-all duration-200 overflow-hidden">
-              <Search className={`ml-4 w-[18px] h-[18px] shrink-0 transition-colors duration-200 ${isFocused ? 'text-gold' : 'text-text-muted/60'}`} />
+            <div className={`relative flex items-center rounded-xl transition-all duration-200 overflow-hidden ${isFocused ? 'bg-white/[0.06]' : 'bg-white/[0.04] hover:bg-white/[0.05]'} border ${isFocused ? 'border-gold/20' : 'border-white/[0.07] hover:border-white/[0.10]'}`}>
+              <Search className={`ml-3.5 w-4 h-4 shrink-0 transition-colors duration-200 ${isFocused ? 'text-gold' : 'text-text-muted/50'}`} />
               <input
                 ref={inputRef}
                 type="text"
@@ -69,11 +69,11 @@ export function TopBar({ onMenuClick }: TopBarProps) {
                 onFocus={() => setIsFocused(true)}
                 onBlur={() => setIsFocused(false)}
                 placeholder="Buscar fragancias, marcas, notas..."
-                className="w-full px-3 py-3 bg-transparent text-[14px] text-text-primary placeholder:text-text-muted/50 focus:outline-none font-medium"
+                className="w-full px-3 py-2.5 bg-transparent text-sm text-text-primary placeholder:text-text-muted/40 focus:outline-none"
               />
               {!query && !isFocused && (
-                <div className="hidden md:flex items-center gap-1 mr-3.5 shrink-0">
-                  <kbd className="flex items-center gap-0.5 px-1.5 py-0.5 bg-white/[0.06] border border-white/[0.08] rounded-md text-[10px] text-text-muted/60 font-medium">
+                <div className="hidden lg:flex items-center gap-1 mr-3 shrink-0">
+                  <kbd className="flex items-center gap-0.5 px-1.5 py-0.5 bg-white/[0.05] border border-white/[0.07] rounded-md text-[10px] text-text-muted/40 font-medium">
                     <Command className="w-2.5 h-2.5" />
                     K
                   </kbd>
@@ -87,7 +87,7 @@ export function TopBar({ onMenuClick }: TopBarProps) {
         {isFirebaseConfigured && (
           <div className="shrink-0">
             {isAuthenticated ? (
-              <div className="flex items-center gap-2.5">
+              <div className="flex items-center gap-2">
                 {user?.photoURL ? (
                   <img
                     src={user.photoURL}
