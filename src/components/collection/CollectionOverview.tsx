@@ -10,7 +10,7 @@ export function CollectionOverview() {
 
   const shelfPreviews = ['season-spring', 'season-summer', 'season-fall', 'season-winter'].map(id => {
     const shelf = SHELF_DEFINITIONS.find(s => s.id === id)!
-    const items = allPerfumes?.filter(shelf.filterFn).sort((a, b) => b.effectiveRating - a.effectiveRating).slice(0, 5) ?? []
+    const items = allPerfumes?.filter(shelf.filterFn).sort((a, b) => b.effectiveRating - a.effectiveRating).slice(0, 8) ?? []
     return { shelf, items }
   })
 
@@ -156,7 +156,7 @@ function ShelfPreview({ title, items, to }: {
           <ChevronRight className="w-3.5 h-3.5" />
         </Link>
       </div>
-      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 2xl:grid-cols-8 gap-2.5">
+      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 2xl:grid-cols-8 gap-2.5 auto-rows-[0] overflow-hidden grid-rows-1">
         {items.map(perfume => (
           <PerfumeCard key={perfume.id} perfume={perfume} showSeasons={false} />
         ))}
