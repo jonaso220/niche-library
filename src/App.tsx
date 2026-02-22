@@ -10,6 +10,7 @@ import { AddManualPage } from '@/pages/AddManualPage'
 import { SettingsPage } from '@/pages/SettingsPage'
 import { seedDatabaseIfNeeded } from '@/db/seed'
 import { importFragranticaCollection, isFragranticaImportDone, ensureScoresInferred } from '@/db/fragrantica-import'
+import { applyFragranticaEnrichment } from '@/db/fragrantica-enrichment'
 
 function App() {
   const [ready, setReady] = useState(false)
@@ -26,6 +27,10 @@ function App() {
           setImportProgress(`Importando ${done}/${total}: ${current}`)
         })
       }
+
+      // Enrich perfumes with Fragrantica scraped data (notes, accords, ratings)
+      // Runs every init — idempotent, only updates if enrichment has more data
+      await applyFragranticaEnrichment()
 
       // Ensure all perfumes with accords have inferred season/occasion scores
       // Runs every init — idempotent, fast, skips already-inferred perfumes

@@ -57,6 +57,7 @@ export interface Perfume {
   description?: string
   sourceUrl?: string
   dataSource: DataSource
+  fragranticaId?: string
 }
 
 export interface CollectionEntry {
