@@ -63,12 +63,12 @@ export function PerfumeDetail({ perfume }: PerfumeDetailProps) {
       <div className="flex flex-col md:flex-row gap-6">
         {/* Image */}
         <div className="w-full md:w-72 shrink-0 space-y-3">
-          <div className="group relative aspect-square bg-card rounded-xl border border-border flex items-center justify-center">
+          <div className="group relative aspect-square rounded-xl border border-border flex items-center justify-center overflow-hidden bg-[radial-gradient(ellipse_at_center,_rgba(180,170,155,0.12)_0%,_transparent_70%)]">
             {perfume.imageUrl ? (
               <img
                 src={perfume.imageUrl}
                 alt={`${perfume.brand} ${perfume.name}`}
-                className="w-full h-full object-contain p-6"
+                className="w-full h-full object-contain p-6 brightness-[0.88] contrast-[1.05] group-hover:brightness-100 transition-all duration-300"
               />
             ) : (
               <div className="flex flex-col items-center gap-3 text-text-muted">

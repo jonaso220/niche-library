@@ -25,12 +25,12 @@ export function PerfumeCard({ perfume, showPrice = true, showSeasons = true, onC
       <div className="absolute inset-0 bg-gradient-to-b from-gold/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
 
       {/* Image */}
-      <div className="relative aspect-square bg-white/[0.02] flex items-center justify-center overflow-hidden">
+      <div className="relative aspect-square flex items-center justify-center overflow-hidden bg-[radial-gradient(ellipse_at_center,_rgba(180,170,155,0.12)_0%,_transparent_70%)]">
         {perfume.imageUrl ? (
           <img
             src={perfume.imageUrl}
             alt={`${perfume.brand} ${perfume.name}`}
-            className="w-full h-full object-contain p-3 group-hover:scale-105 transition-transform duration-500"
+            className="w-full h-full object-contain p-3 brightness-[0.88] contrast-[1.05] group-hover:brightness-100 group-hover:scale-105 transition-all duration-500"
             loading="lazy"
           />
         ) : (
