@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useNavigate } from 'react-router'
 import type { Perfume } from '@/types/perfume'
 import { RatingStars } from './RatingStars'
@@ -6,9 +7,9 @@ import { PriceTag } from './PriceTag'
 import { NotePyramid } from './NotePyramid'
 import { AccordBar } from './AccordBar'
 import { PerformanceMeter } from './PerformanceMeter'
-import { addToCollection, removeFromCollection, useCollectionEntry, updateCollectionEntry } from '@/db/hooks'
+import { addToCollection, removeFromCollection, useCollectionEntry, updateCollectionEntry, updatePerfumeImage } from '@/db/hooks'
 import { OCCASION_LABELS } from '@/lib/utils'
-import { ArrowLeft, Plus, Check, Trash2, ExternalLink } from 'lucide-react'
+import { ArrowLeft, Plus, Check, Trash2, ExternalLink, Pencil, X, Save } from 'lucide-react'
 
 interface PerfumeDetailProps {
   perfume: Perfume
@@ -17,6 +18,9 @@ interface PerfumeDetailProps {
 export function PerfumeDetail({ perfume }: PerfumeDetailProps) {
   const navigate = useNavigate()
   const entry = useCollectionEntry(perfume.id)
+  const [editingImage, setEditingImage] = useState(false)
+  const [imageUrlInput, setImageUrlInput] = useState('')
+  const [imagePreviewError, setImagePreviewError] = useState(false)
 
   async function handleAdd(owned: boolean) {
     await addToCollection(perfume.id, owned)
@@ -30,6 +34,18 @@ export function PerfumeDetail({ perfume }: PerfumeDetailProps) {
     if (entry) {
       await updateCollectionEntry(perfume.id, { personalRating: rating })
     }
+  }
+
+  function openImageEditor() {
+    setImageUrlInput(perfume.imageUrl ?? '')
+    setImagePreviewError(false)
+    setEditingImage(true)
+  }
+
+  async function handleSaveImage() {
+    if (!imageUrlInput.trim()) return
+    await updatePerfumeImage(perfume.id, imageUrlInput.trim())
+    setEditingImage(false)
   }
 
   return (
@@ -46,17 +62,79 @@ export function PerfumeDetail({ perfume }: PerfumeDetailProps) {
       {/* Header */}
       <div className="flex flex-col md:flex-row gap-6">
         {/* Image */}
-        <div className="w-full md:w-72 aspect-square bg-card rounded-xl border border-border flex items-center justify-center shrink-0">
-          {perfume.imageUrl ? (
-            <img
-              src={perfume.imageUrl}
-              alt={`${perfume.brand} ${perfume.name}`}
-              className="w-full h-full object-contain p-6"
-            />
-          ) : (
-            <div className="flex flex-col items-center gap-3 text-text-muted">
-              <span className="text-6xl">🧴</span>
-              <span className="text-sm">{perfume.concentration}</span>
+        <div className="w-full md:w-72 shrink-0 space-y-3">
+          <div className="group relative aspect-square bg-card rounded-xl border border-border flex items-center justify-center">
+            {perfume.imageUrl ? (
+              <img
+                src={perfume.imageUrl}
+                alt={`${perfume.brand} ${perfume.name}`}
+                className="w-full h-full object-contain p-6"
+              />
+            ) : (
+              <div className="flex flex-col items-center gap-3 text-text-muted">
+                <span className="text-6xl">🧴</span>
+                <span className="text-sm">{perfume.concentration}</span>
+              </div>
+            )}
+
+            {/* Edit image overlay button */}
+            <button
+              onClick={openImageEditor}
+              className="absolute bottom-2 right-2 p-2 bg-background/80 backdrop-blur-sm border border-border rounded-lg text-text-muted hover:text-gold hover:border-gold/30 opacity-0 group-hover:opacity-100 transition-all duration-200"
+              title="Cambiar imagen"
+            >
+              <Pencil className="w-4 h-4" />
+            </button>
+          </div>
+
+          {/* Image URL editor */}
+          {editingImage && (
+            <div className="bg-card rounded-xl border border-gold/20 p-4 space-y-3">
+              <p className="text-xs font-medium text-text-secondary uppercase tracking-wide">Cambiar imagen</p>
+              <input
+                type="url"
+                value={imageUrlInput}
+                onChange={(e) => {
+                  setImageUrlInput(e.target.value)
+                  setImagePreviewError(false)
+                }}
+                placeholder="https://... URL de la imagen"
+                className="w-full px-3 py-2 bg-surface border border-border rounded-lg text-sm text-text-primary placeholder:text-text-muted/50 focus:outline-none focus:border-gold/40"
+                autoFocus
+              />
+
+              {/* Preview */}
+              {imageUrlInput.trim() && !imagePreviewError && (
+                <div className="aspect-square w-full bg-surface rounded-lg border border-border/50 flex items-center justify-center overflow-hidden">
+                  <img
+                    src={imageUrlInput.trim()}
+                    alt="Preview"
+                    className="w-full h-full object-contain p-3"
+                    onError={() => setImagePreviewError(true)}
+                  />
+                </div>
+              )}
+              {imagePreviewError && (
+                <p className="text-xs text-danger">No se pudo cargar la imagen. Verifica la URL.</p>
+              )}
+
+              <div className="flex gap-2">
+                <button
+                  onClick={handleSaveImage}
+                  disabled={!imageUrlInput.trim() || imagePreviewError}
+                  className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-gold text-background rounded-lg text-sm font-medium hover:bg-gold-bright transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  <Save className="w-3.5 h-3.5" />
+                  Guardar
+                </button>
+                <button
+                  onClick={() => setEditingImage(false)}
+                  className="flex items-center justify-center gap-2 px-3 py-2 bg-surface border border-border rounded-lg text-sm text-text-secondary hover:text-text-primary transition-colors"
+                >
+                  <X className="w-3.5 h-3.5" />
+                  Cancelar
+                </button>
+              </div>
             </div>
           )}
         </div>

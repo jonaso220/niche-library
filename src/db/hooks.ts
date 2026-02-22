@@ -149,6 +149,22 @@ export async function updateCollectionEntry(
   }
 }
 
+export async function updatePerfumeImage(perfumeId: string, imageUrl: string): Promise<void> {
+  const perfume = await db.perfumes.get(perfumeId)
+  if (!perfume) return
+
+  const updated = { ...perfume, imageUrl }
+
+  // Local write
+  await db.perfumes.put(updated)
+
+  // Cloud write
+  const userId = getCurrentUserId()
+  if (userId) {
+    cloud.cloudAddPerfume(userId, updated).catch(console.error)
+  }
+}
+
 export async function addPerfumeToCatalog(perfume: Perfume): Promise<void> {
   // Local write
   await db.perfumes.put(perfume)
