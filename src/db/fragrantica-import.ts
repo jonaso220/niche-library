@@ -71,6 +71,30 @@ function mapGenderFromName(name: string, brand: string): Perfume['gender'] {
  *
  * Returns progress callback for UI updates.
  */
+/**
+ * Fast pass: update season/occasion scores for all perfumes that already exist
+ * in the DB. Reads directly from IndexedDB — no Parfumo download needed.
+ */
+async function upgradeExistingScores(
+  onProgress?: (done: number, total: number, current: string) => void
+): Promise<void> {
+  const allPerfumes = await db.perfumes.where('dataSource').equals('fragrantica').toArray()
+  const total = allPerfumes.length
+
+  for (let i = 0; i < allPerfumes.length; i++) {
+    const p = allPerfumes[i]
+    onProgress?.(i, total, `Actualizando ${p.brand} - ${p.name}`)
+
+    const hasDefaultScores = p.seasonScores.every(s => s.score === 5)
+    if (hasDefaultScores && p.accords.length > 0) {
+      await db.perfumes.update(p.id, {
+        seasonScores: inferSeasonScores(p.accords),
+        occasionScores: inferOccasionScores(p.accords),
+      })
+    }
+  }
+}
+
 export async function importFragranticaCollection(
   onProgress?: (done: number, total: number, current: string) => void
 ): Promise<{ imported: number; skipped: number; errors: number }> {
@@ -79,7 +103,17 @@ export async function importFragranticaCollection(
   let errors = 0
 
   try {
-    // Try to load Parfumo dataset for richer data, but don't block import if it fails
+    // Check if this is just a score upgrade (perfumes already imported)
+    const existingCount = await db.perfumes.where('dataSource').equals('fragrantica').count()
+    if (existingCount > 0) {
+      // Fast path: just update scores from existing accords, no Parfumo needed
+      onProgress?.(0, existingCount, 'Actualizando scores de temporada...')
+      await upgradeExistingScores(onProgress)
+      onProgress?.(existingCount, existingCount, 'Actualización completa')
+      return { imported: 0, skipped: existingCount, errors: 0 }
+    }
+
+    // Full import path (first time only)
     let parfumoAvailable = isParfumoLoaded()
     if (!parfumoAvailable) {
       try {
@@ -105,33 +139,13 @@ export async function importFragranticaCollection(
       try {
         onProgress?.(i, total, `${entry.brand} - ${entry.name}`)
 
-        // Try to find in Parfumo dataset for rich data (only if loaded)
         const parfumoMatch = parfumoAvailable ? await findParfumoMatch(entry) : null
 
-        // Build the final ID to check for duplicates
         const finalId = parfumoMatch
           ? generateSlug(entry.brand, entry.name, parfumoMatch.concentration)
           : generateSlug(entry.brand, entry.name, '')
         const existing = await db.collection.get(finalId)
         if (existing) {
-          // Update existing entry: fix image + infer season/occasion scores from accords
-          const perfumeRecord = await db.perfumes.get(finalId)
-          if (perfumeRecord) {
-            const correctImg = FRAGRANTICA_IMG(entry.fragranticaId)
-            const updates: Partial<Perfume> = {}
-            if (perfumeRecord.imageUrl !== correctImg) {
-              updates.imageUrl = correctImg
-            }
-            // Re-infer scores from accords if they have the old default values (score=5)
-            const hasDefaultScores = perfumeRecord.seasonScores.every(s => s.score === 5)
-            if (hasDefaultScores && perfumeRecord.accords.length > 0) {
-              updates.seasonScores = inferSeasonScores(perfumeRecord.accords)
-              updates.occasionScores = inferOccasionScores(perfumeRecord.accords)
-            }
-            if (Object.keys(updates).length > 0) {
-              await db.perfumes.update(finalId, updates)
-            }
-          }
           skipped++
           continue
         }
@@ -139,7 +153,6 @@ export async function importFragranticaCollection(
         let perfume: Perfume
 
         if (parfumoMatch) {
-          // Use Parfumo data with Fragrantica image
           const accords = parseAccords(parfumoMatch.accords)
           perfume = {
             id: generateSlug(entry.brand, entry.name, parfumoMatch.concentration),
@@ -163,7 +176,6 @@ export async function importFragranticaCollection(
             dataSource: 'fragrantica',
           }
         } else {
-          // Minimal entry with Fragrantica image
           perfume = {
             id: generateSlug(entry.brand, entry.name, ''),
             name: entry.name,
@@ -182,7 +194,6 @@ export async function importFragranticaCollection(
           }
         }
 
-        // Add to catalog and collection
         await addPerfumeToCatalog(perfume)
         await addToCollection(perfume.id, owned)
         imported++
