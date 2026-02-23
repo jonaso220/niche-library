@@ -88,14 +88,14 @@ export function PerfumeCard({ perfume, showPrice = true, showSeasons = true, onC
 
   if (onClick) {
     return (
-      <button type="button" onClick={onClick} className="w-full text-left">
+      <button type="button" onClick={onClick} className="w-full h-full text-left">
         {content}
       </button>
     )
   }
 
   return (
-    <Link to={`/perfume/${perfume.id}`}>
+    <Link to={`/perfume/${perfume.id}`} className="h-full">
       {content}
     </Link>
   )

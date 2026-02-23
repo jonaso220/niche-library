@@ -5,6 +5,8 @@ import type { ShelfType } from '@/types/shelves'
 import { getShelfDefinition } from '@/lib/constants'
 import { getCurrentUserId } from '@/firebase/auth-state'
 import * as cloud from '@/firebase/firestore-service'
+import { isParfumoLoaded } from './parfumo-loader'
+import { parfumoProvider } from '@/api/parfumo-provider'
 
 // ===================== QUERY HOOKS (unchanged - read from Dexie) =====================
 
@@ -103,10 +105,8 @@ export function useSearchPerfumes(query: string): Perfume[] | undefined {
       .slice(0, 20)
 
     // Also search Parfumo dataset if loaded
-    const { isParfumoLoaded } = await import('./parfumo-loader')
     if (!isParfumoLoaded()) return localResults
 
-    const { parfumoProvider } = await import('@/api/parfumo-provider')
     const parfumoResults = await parfumoProvider.search(query, 20)
 
     // Merge: local first, then Parfumo results not already in local

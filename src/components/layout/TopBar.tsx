@@ -18,7 +18,9 @@ export function TopBar({ onMenuClick }: TopBarProps) {
   const { user, isAuthenticated, signInWithGoogle, signOut } = useAuth()
 
   const results = useSearchPerfumes(query)
-  const showDropdown = isFocused && query.length >= 2 && results && results.length > 0
+  const hasQuery = isFocused && query.length >= 2
+  const showDropdown = hasQuery && results && results.length > 0
+  const showNoResults = hasQuery && results && results.length === 0
   const displayResults = results?.slice(0, 6) ?? []
 
   // Cmd+K / Ctrl+K to focus search
@@ -29,6 +31,8 @@ export function TopBar({ onMenuClick }: TopBarProps) {
         inputRef.current?.focus()
       }
       if (e.key === 'Escape') {
+        if (blurTimeoutRef.current) clearTimeout(blurTimeoutRef.current)
+        setIsFocused(false)
         inputRef.current?.blur()
       }
     }
@@ -56,6 +60,7 @@ export function TopBar({ onMenuClick }: TopBarProps) {
   }
 
   function handleResultClick() {
+    if (blurTimeoutRef.current) clearTimeout(blurTimeoutRef.current)
     setQuery('')
     setIsFocused(false)
   }
@@ -148,6 +153,13 @@ export function TopBar({ onMenuClick }: TopBarProps) {
                   <ChevronRight className="w-3.5 h-3.5" />
                 </Link>
               )}
+            </div>
+          )}
+
+          {/* No results feedback */}
+          {showNoResults && (
+            <div className="absolute top-full left-0 right-0 mt-1.5 bg-surface border border-border/60 rounded-xl shadow-2xl shadow-black/40 overflow-hidden z-50">
+              <p className="px-3.5 py-3 text-sm text-text-muted text-center">Sin resultados para "{query}"</p>
             </div>
           )}
         </form>
