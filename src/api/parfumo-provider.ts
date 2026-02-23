@@ -17,6 +17,11 @@ function mapGenderFromName(name: string, brand: string): Perfume['gender'] {
   return 'unisex'
 }
 
+/** Image corrections for Parfumo entries with wrong or missing images */
+const PARFUMO_IMAGE_FIXES: Record<string, string> = {
+  'hugo-boss-boss-bottled-absolute': 'https://fimgs.net/mdimg/perfume/375x500.96246.jpg',
+}
+
 function parseAccords(raw: string): Perfume['accords'] {
   if (!raw) return []
   return raw.split(',').map((s, i, arr) => ({
@@ -25,10 +30,12 @@ function parseAccords(raw: string): Perfume['accords'] {
   })).filter(a => a.name)
 }
 
-function transformToLocal(entry: ParfumoEntry): Perfume {
+export function transformToLocal(entry: ParfumoEntry): Perfume {
   const accords = parseAccords(entry.accords)
+  const id = generateSlug(entry.brand, entry.name, entry.concentration)
+  const imageUrl = PARFUMO_IMAGE_FIXES[id] ?? (entry.imageUrl || undefined)
   return {
-    id: generateSlug(entry.brand, entry.name, entry.concentration),
+    id,
     name: entry.name,
     brand: entry.brand,
     year: entry.year || undefined,
@@ -45,7 +52,7 @@ function transformToLocal(entry: ParfumoEntry): Perfume {
     accords,
     seasonScores: inferSeasonScores(accords),
     occasionScores: inferOccasionScores(accords),
-    imageUrl: entry.imageUrl || undefined,
+    imageUrl,
     dataSource: 'manual', // Treat as manual since it's from a dataset, not a live API
   }
 }

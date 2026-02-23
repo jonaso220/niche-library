@@ -7,7 +7,7 @@ import { PriceTag } from './PriceTag'
 import { NotePyramid } from './NotePyramid'
 import { AccordBar } from './AccordBar'
 import { PerformanceMeter } from './PerformanceMeter'
-import { addToCollection, removeFromCollection, useCollectionEntry, updateCollectionEntry, updatePerfumeImage } from '@/db/hooks'
+import { addToCollection, removeFromCollection, useCollectionEntry, updateCollectionEntry, updatePerfumeImage, addPerfumeToCatalog } from '@/db/hooks'
 import { OCCASION_LABELS } from '@/lib/utils'
 import { ArrowLeft, Plus, Check, Trash2, ExternalLink, Pencil, X, Save } from 'lucide-react'
 
@@ -23,6 +23,7 @@ export function PerfumeDetail({ perfume }: PerfumeDetailProps) {
   const [imagePreviewError, setImagePreviewError] = useState(false)
 
   async function handleAdd(owned: boolean) {
+    await addPerfumeToCatalog(perfume)
     await addToCollection(perfume.id, owned)
   }
 

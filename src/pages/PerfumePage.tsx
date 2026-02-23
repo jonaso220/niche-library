@@ -1,10 +1,27 @@
 import { useParams } from 'react-router'
-import { usePerfumeById } from '@/db/hooks'
+import { useLiveQuery } from 'dexie-react-hooks'
+import { db } from '@/db/database'
+import { transformToLocal } from '@/api/parfumo-provider'
 import { PerfumeDetail } from '@/components/perfume/PerfumeDetail'
+import type { Perfume } from '@/types/perfume'
+
+function usePerfumeByIdWithFallback(id: string): Perfume | null | undefined {
+  return useLiveQuery(async () => {
+    // First try local catalog
+    const local = await db.perfumes.get(id)
+    if (local) return local
+
+    // Fallback: look in Parfumo dataset and transform
+    const parfumoEntry = await db.parfumo.get(id)
+    if (parfumoEntry) return transformToLocal(parfumoEntry)
+
+    return null
+  }, [id])
+}
 
 export function PerfumePage() {
   const { perfumeId } = useParams<{ perfumeId: string }>()
-  const perfume = usePerfumeById(perfumeId ?? '')
+  const perfume = usePerfumeByIdWithFallback(perfumeId ?? '')
 
   if (perfume === undefined) {
     return (
