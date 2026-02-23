@@ -66,6 +66,7 @@ export interface CollectionEntry {
   personalRating?: number
   personalNotes?: string
   owned: boolean
+  previouslyOwned?: boolean
   priceEstimate?: PriceEstimate
   tags?: string[]
 }

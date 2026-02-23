@@ -9,7 +9,7 @@ import { AccordBar } from './AccordBar'
 import { PerformanceMeter } from './PerformanceMeter'
 import { addToCollection, removeFromCollection, useCollectionEntry, updateCollectionEntry, updatePerfumeImage, addPerfumeToCatalog } from '@/db/hooks'
 import { OCCASION_LABELS } from '@/lib/utils'
-import { ArrowLeft, Plus, Check, Trash2, ExternalLink, Pencil, X, Save } from 'lucide-react'
+import { ArrowLeft, Plus, Check, Trash2, ExternalLink, Pencil, X, Save, Archive, RotateCcw } from 'lucide-react'
 
 interface PerfumeDetailProps {
   perfume: Perfume
@@ -29,6 +29,14 @@ export function PerfumeDetail({ perfume }: PerfumeDetailProps) {
 
   async function handleRemove() {
     await removeFromCollection(perfume.id)
+  }
+
+  async function handleMarkPreviouslyOwned() {
+    await updateCollectionEntry(perfume.id, { owned: false, previouslyOwned: true })
+  }
+
+  async function handleRecover() {
+    await updateCollectionEntry(perfume.id, { owned: true, previouslyOwned: false })
   }
 
   async function handleRatingChange(rating: number) {
@@ -195,12 +203,42 @@ export function PerfumeDetail({ perfume }: PerfumeDetailProps) {
                   Lista de Deseos
                 </button>
               </>
+            ) : entry.previouslyOwned ? (
+              <>
+                <span className="flex items-center gap-2 px-4 py-2 bg-text-muted/10 text-text-muted rounded-lg text-sm">
+                  <Archive className="w-4 h-4" />
+                  Fragancia anterior
+                </span>
+                <button
+                  onClick={handleRecover}
+                  className="flex items-center gap-2 px-4 py-2 bg-gold text-background rounded-lg text-sm font-medium hover:bg-gold-bright transition-colors"
+                >
+                  <RotateCcw className="w-4 h-4" />
+                  Recuperar
+                </button>
+                <button
+                  onClick={handleRemove}
+                  className="flex items-center gap-2 px-4 py-2 text-sm text-danger hover:bg-danger/10 rounded-lg transition-colors"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  Quitar
+                </button>
+              </>
             ) : (
               <>
                 <span className="flex items-center gap-2 px-4 py-2 bg-accent-green/15 text-accent-green rounded-lg text-sm">
                   <Check className="w-4 h-4" />
                   {entry.owned ? 'En tu colección' : 'En lista de deseos'}
                 </span>
+                {entry.owned && (
+                  <button
+                    onClick={handleMarkPreviouslyOwned}
+                    className="flex items-center gap-2 px-4 py-2 bg-surface border border-border rounded-lg text-sm text-text-secondary hover:text-text-primary hover:border-border transition-colors"
+                  >
+                    <Archive className="w-4 h-4" />
+                    Ya no la tengo
+                  </button>
+                )}
                 <button
                   onClick={handleRemove}
                   className="flex items-center gap-2 px-4 py-2 text-sm text-danger hover:bg-danger/10 rounded-lg transition-colors"

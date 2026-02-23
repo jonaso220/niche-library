@@ -4,7 +4,7 @@ export type ShelfType =
   | 'season-spring' | 'season-summer' | 'season-fall' | 'season-winter'
   | 'family-woody' | 'family-oriental' | 'family-fresh' | 'family-floral'
   | 'family-aromatic' | 'family-citrus'
-  | 'all' | 'wishlist'
+  | 'all' | 'wishlist' | 'previously-owned'
 
 export interface ShelfDefinition {
   id: ShelfType

@@ -19,7 +19,15 @@ export const SHELF_DEFINITIONS: ShelfDefinition[] = [
     icon: 'Heart',
     description: 'Perfumes que quieres tener',
     category: 'coleccion',
-    filterFn: (p) => !p.collectionData.owned,
+    filterFn: (p) => !p.collectionData.owned && !p.collectionData.previouslyOwned,
+  },
+  {
+    id: 'previously-owned',
+    label: 'Fragancias Anteriores',
+    icon: 'Archive',
+    description: 'Perfumes que ya no tienes',
+    category: 'coleccion',
+    filterFn: (p) => !!p.collectionData.previouslyOwned,
   },
   // Temporadas (solo owned)
   {

@@ -3,14 +3,14 @@ import { useState } from 'react'
 import { cn } from '@/lib/utils'
 import { getShelfsByCategory } from '@/lib/constants'
 import {
-  Library, Heart,
+  Library, Heart, Archive,
   Flower2, Sun, Leaf, Snowflake,
   TreePine, Flame, Wind, Flower, Citrus,
   Search, PlusCircle, Settings, X, ChevronDown,
 } from 'lucide-react'
 
 const ICON_MAP: Record<string, React.ElementType> = {
-  Library, Heart,
+  Library, Heart, Archive,
   Flower2, Sun, Leaf, Snowflake,
   TreePine, Flame, Wind, Flower, Citrus,
 }
