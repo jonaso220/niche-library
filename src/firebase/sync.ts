@@ -1,6 +1,7 @@
 import { db } from '@/db/database'
 import type { Perfume, CollectionEntry } from '@/types/perfume'
-import { ensureScoresInferred } from '@/db/fragrantica-import'
+import { seedDatabaseIfNeeded } from '@/db/seed'
+import { importFragranticaCollection, isFragranticaImportDone, ensureScoresInferred } from '@/db/fragrantica-import'
 import { applyFragranticaEnrichment } from '@/db/fragrantica-enrichment'
 import {
   fetchCloudPerfumes,
@@ -26,6 +27,14 @@ export async function syncOnLogin(userId: string): Promise<void> {
       photoURL: user.photoURL,
     }).catch(console.error)
   }
+
+  // 0. Initialize local data (seed catalog + Fragrantica import + enrichment)
+  await seedDatabaseIfNeeded()
+  if (!isFragranticaImportDone()) {
+    await importFragranticaCollection()
+  }
+  await applyFragranticaEnrichment()
+  await ensureScoresInferred()
 
   // 1. Fetch cloud data
   const cloudPerfumes = await fetchCloudPerfumes(userId)
@@ -116,7 +125,9 @@ function stopCloudListeners() {
   unsubscribeCollection = null
 }
 
-export function syncOnLogout() {
+export async function syncOnLogout() {
   stopCloudListeners()
-  // Local data stays - user can continue in offline mode
+  // Clear local data so the device is clean for another user
+  await db.perfumes.clear()
+  await db.collection.clear()
 }

@@ -1,5 +1,4 @@
 import { BrowserRouter, Routes, Route } from 'react-router'
-import { useEffect, useState } from 'react'
 import { AuthProvider } from '@/firebase/AuthContext'
 import { AppShell } from '@/components/layout/AppShell'
 import { HomePage } from '@/pages/HomePage'
@@ -8,53 +7,8 @@ import { PerfumePage } from '@/pages/PerfumePage'
 import { SearchPage } from '@/pages/SearchPage'
 import { AddManualPage } from '@/pages/AddManualPage'
 import { SettingsPage } from '@/pages/SettingsPage'
-import { seedDatabaseIfNeeded } from '@/db/seed'
-import { importFragranticaCollection, isFragranticaImportDone, ensureScoresInferred } from '@/db/fragrantica-import'
-import { applyFragranticaEnrichment } from '@/db/fragrantica-enrichment'
 
 function App() {
-  const [ready, setReady] = useState(false)
-  const [importProgress, setImportProgress] = useState('')
-
-  useEffect(() => {
-    async function init() {
-      await seedDatabaseIfNeeded()
-
-      // Import Fragrantica collection (runs once)
-      if (!isFragranticaImportDone()) {
-        setImportProgress('Importando colección de Fragrantica...')
-        await importFragranticaCollection((done, total, current) => {
-          setImportProgress(`Importando ${done}/${total}: ${current}`)
-        })
-      }
-
-      // Enrich perfumes with Fragrantica scraped data (notes, accords, ratings)
-      // Runs every init — idempotent, only updates if enrichment has more data
-      await applyFragranticaEnrichment()
-
-      // Ensure all perfumes with accords have inferred season/occasion scores
-      // Runs every init — idempotent, fast, skips already-inferred perfumes
-      await ensureScoresInferred()
-
-      setReady(true)
-    }
-    init()
-  }, [])
-
-  if (!ready) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-background">
-        <div className="text-center">
-          <img src="/icon-192.png" alt="Niche Library" className="w-24 h-24 mx-auto mb-4 rounded-2xl shadow-lg shadow-gold/10" />
-          <h1 className="text-3xl font-heading text-gold mb-2">Niche Library</h1>
-          <p className="text-text-secondary">
-            {importProgress || 'Cargando tu colección...'}
-          </p>
-        </div>
-      </div>
-    )
-  }
-
   return (
     <AuthProvider>
       <BrowserRouter>

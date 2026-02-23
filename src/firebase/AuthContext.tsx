@@ -41,7 +41,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           console.error('Error syncing on login:', err)
         }
       } else {
-        syncOnLogout()
+        await syncOnLogout()
       }
 
       setLoading(false)
