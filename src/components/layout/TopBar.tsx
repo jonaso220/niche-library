@@ -14,7 +14,7 @@ export function TopBar({ onMenuClick }: TopBarProps) {
   const [query, setQuery] = useState('')
   const [isFocused, setIsFocused] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
-  const blurTimeoutRef = useRef<ReturnType<typeof setTimeout>>()
+  const blurTimeoutRef = useRef<ReturnType<typeof setTimeout>>(undefined)
   const { user, isAuthenticated, signInWithGoogle, signOut } = useAuth()
 
   const results = useSearchPerfumes(query)

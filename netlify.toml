@@ -8,7 +8,7 @@
   status = 200
 
 [build.environment]
-  NODE_VERSION = "22"
+  NODE_VERSION = "22.13"
 
 [[headers]]
   for = "/assets/*"
