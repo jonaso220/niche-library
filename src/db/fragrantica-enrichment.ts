@@ -37,6 +37,10 @@ const IMAGE_FIXES: Record<string, { imageUrl: string; fragranticaId: string }> =
     imageUrl: 'https://fimgs.net/mdimg/perfume/375x500.93849.jpg',
     fragranticaId: '93849',
   },
+  'jean-paul-gaultier-le-beau-le-parfum': {
+    imageUrl: 'https://fimgs.net/mdimg/perfume/375x500.72158.jpg',
+    fragranticaId: '72158',
+  },
 }
 
 /**
