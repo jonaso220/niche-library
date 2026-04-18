@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { Link } from 'react-router'
 import type { ShelfPerfume, Perfume } from '@/types/perfume'
 import { RatingStars } from './RatingStars'
@@ -16,7 +17,7 @@ function isShelfPerfume(p: ShelfPerfume | Perfume): p is ShelfPerfume {
   return 'effectiveRating' in p
 }
 
-export function PerfumeCard({ perfume, showPrice = true, showSeasons = true, onClick }: PerfumeCardProps) {
+function PerfumeCardImpl({ perfume, showPrice = true, showSeasons = true, onClick }: PerfumeCardProps) {
   const rating = isShelfPerfume(perfume) ? perfume.effectiveRating : perfume.rating
 
   const content = (
@@ -100,3 +101,5 @@ export function PerfumeCard({ perfume, showPrice = true, showSeasons = true, onC
     </Link>
   )
 }
+
+export const PerfumeCard = memo(PerfumeCardImpl)

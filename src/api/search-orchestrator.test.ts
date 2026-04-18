@@ -1,6 +1,47 @@
-import { describe, expect, it } from 'vitest'
-import { richnessScore, deduplicateAndMerge } from './search-orchestrator'
+import { describe, expect, it, vi, beforeEach } from 'vitest'
 import type { Perfume } from '@/types/perfume'
+
+// Hoisted mock state — shared across tests; counts calls per provider.
+const mockState = vi.hoisted(() => ({
+  fragellaCalls: 0,
+  fragrancefinderCalls: 0,
+  parfumoCalls: 0,
+}))
+
+vi.mock('@/api/fragella', () => ({
+  fragellaProvider: {
+    name: 'Fragella',
+    isConfigured: () => true,
+    search: vi.fn(() => {
+      mockState.fragellaCalls++
+      return Promise.resolve([])
+    }),
+  },
+}))
+
+vi.mock('@/api/fragrancefinder', () => ({
+  fragranceFinderProvider: {
+    name: 'FragranceFinder',
+    isConfigured: () => false,
+    search: vi.fn(() => {
+      mockState.fragrancefinderCalls++
+      return Promise.resolve([])
+    }),
+  },
+}))
+
+vi.mock('@/api/parfumo-provider', () => ({
+  parfumoProvider: {
+    name: 'Parfumo',
+    isConfigured: () => true,
+    search: vi.fn(() => {
+      mockState.parfumoCalls++
+      return Promise.resolve([])
+    }),
+  },
+}))
+
+import { richnessScore, deduplicateAndMerge, searchAllApis, __clearSearchCache } from './search-orchestrator'
 
 function makePerfume(overrides: Partial<Perfume> = {}): Perfume {
   return {
@@ -95,5 +136,49 @@ describe('deduplicateAndMerge', () => {
     const a = makePerfume({ brand: 'Dior', name: 'Sauvage' })
     const b = makePerfume({ brand: 'Creed', name: 'Aventus' })
     expect(deduplicateAndMerge([a, b])).toHaveLength(2)
+  })
+})
+
+describe('searchAllApis cache', () => {
+  beforeEach(() => {
+    __clearSearchCache()
+    mockState.fragellaCalls = 0
+    mockState.fragrancefinderCalls = 0
+    mockState.parfumoCalls = 0
+  })
+
+  it('dedupes concurrent identical queries', async () => {
+    const [a, b] = await Promise.all([
+      searchAllApis('sauvage'),
+      searchAllApis('sauvage'),
+    ])
+    expect(a).toBe(b) // same promise resolved
+    expect(mockState.parfumoCalls).toBe(1)
+    expect(mockState.fragellaCalls).toBe(1)
+  })
+
+  it('reuses the cached result on repeat calls', async () => {
+    await searchAllApis('sauvage')
+    await searchAllApis('sauvage')
+    expect(mockState.parfumoCalls).toBe(1)
+    expect(mockState.fragellaCalls).toBe(1)
+  })
+
+  it('normalizes casing + surrounding whitespace', async () => {
+    await searchAllApis('Sauvage')
+    await searchAllApis('  sauvage  ')
+    expect(mockState.parfumoCalls).toBe(1)
+  })
+
+  it('treats different queries as separate cache entries', async () => {
+    await searchAllApis('sauvage')
+    await searchAllApis('aventus')
+    expect(mockState.parfumoCalls).toBe(2)
+  })
+
+  it('treats different limits as separate cache entries', async () => {
+    await searchAllApis('sauvage', 10)
+    await searchAllApis('sauvage', 20)
+    expect(mockState.parfumoCalls).toBe(2)
   })
 })

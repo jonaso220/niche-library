@@ -73,10 +73,50 @@ export function deduplicateAndMerge(allResults: Perfume[]): Perfume[] {
 }
 
 /**
+ * In-memory cache keyed by "normalizedQuery|limit|providerSet".
+ * Dedupes identical in-flight requests and short-circuits repeats.
+ * Bounded TTL prevents stale data from a long-running session.
+ */
+const CACHE_TTL_MS = 5 * 60 * 1000
+const CACHE_MAX_SIZE = 50
+
+interface CacheEntry {
+  expiresAt: number
+  promise: Promise<SearchResult>
+}
+
+const cache = new Map<string, CacheEntry>()
+
+function cacheKey(query: string, limit: number, providers: ApiProvider[]): string {
+  return `${query.trim().toLowerCase()}|${String(limit)}|${providers.map(p => p.name).sort().join(',')}`
+}
+
+function evictExpired(now: number) {
+  for (const [key, entry] of cache) {
+    if (entry.expiresAt <= now) cache.delete(key)
+  }
+  if (cache.size > CACHE_MAX_SIZE) {
+    // Evict oldest until under limit (Map preserves insertion order)
+    const excess = cache.size - CACHE_MAX_SIZE
+    let i = 0
+    for (const key of cache.keys()) {
+      if (i++ >= excess) break
+      cache.delete(key)
+    }
+  }
+}
+
+/** @internal exposed so tests can reset cache between cases. */
+export function __clearSearchCache() {
+  cache.clear()
+}
+
+/**
  * Search all configured providers in parallel.
  * Parfumo (local dataset) is always searched first if available.
  * Online APIs are searched in parallel alongside.
  * Partial failures are captured as errors but don't block other results.
+ * Identical queries within a 5-minute window reuse the in-flight / cached result.
  */
 export async function searchAllApis(query: string, limit = 20): Promise<SearchResult> {
   const allProviders: ApiProvider[] = []
@@ -94,32 +134,50 @@ export async function searchAllApis(query: string, limit = 20): Promise<SearchRe
     return { results: [], errors: [], providersQueried: 0 }
   }
 
-  const settled = await Promise.allSettled(
-    allProviders.map(provider => provider.search(query, limit))
-  )
+  const now = Date.now()
+  evictExpired(now)
 
-  const allResults: Perfume[] = []
-  const errors: SearchResult['errors'] = []
-
-  settled.forEach((result, i) => {
-    const provider = allProviders[i]
-    if (result.status === 'fulfilled') {
-      allResults.push(...result.value)
-    } else {
-      errors.push({
-        provider: provider.name,
-        error: result.reason instanceof Error ? result.reason.message : 'Error desconocido',
-      })
-    }
-  })
-
-  const results = deduplicateAndMerge(allResults)
-
-  return {
-    results,
-    errors,
-    providersQueried: allProviders.length,
+  const key = cacheKey(query, limit, allProviders)
+  const cached = cache.get(key)
+  if (cached && cached.expiresAt > now) {
+    return cached.promise
   }
+
+  const promise = (async () => {
+    const settled = await Promise.allSettled(
+      allProviders.map(provider => provider.search(query, limit)),
+    )
+
+    const allResults: Perfume[] = []
+    const errors: SearchResult['errors'] = []
+
+    settled.forEach((result, i) => {
+      const provider = allProviders[i]
+      if (result.status === 'fulfilled') {
+        allResults.push(...result.value)
+      } else {
+        errors.push({
+          provider: provider.name,
+          error: result.reason instanceof Error ? result.reason.message : 'Error desconocido',
+        })
+      }
+    })
+
+    const results = deduplicateAndMerge(allResults)
+
+    return {
+      results,
+      errors,
+      providersQueried: allProviders.length,
+    }
+  })()
+
+  // Cache the promise immediately so concurrent calls dedupe.
+  // If it rejects, remove so the next caller can retry.
+  cache.set(key, { expiresAt: now + CACHE_TTL_MS, promise })
+  promise.catch(() => cache.delete(key))
+
+  return promise
 }
 
 /**
