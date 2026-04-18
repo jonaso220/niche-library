@@ -38,11 +38,6 @@ export default defineConfig([
         'error',
         { checksVoidReturn: { attributes: false, arguments: false } },
       ],
-      // Stylistic / React 19 suggestions — keep as warnings so they don't fail CI
-      'react-x/no-use-context': 'warn',
-      'react-x/no-context-provider': 'warn',
-      'react-x/no-array-index-key': 'warn',
-      'react-dom/no-missing-button-type': 'warn',
     },
   },
   {

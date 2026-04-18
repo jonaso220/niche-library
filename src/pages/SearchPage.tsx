@@ -197,8 +197,8 @@ export function SearchPage() {
               <div>
                 <span className="font-medium">Algunos proveedores fallaron:</span>
                 <ul className="mt-1 space-y-0.5">
-                  {apiWarnings.map((w, i) => (
-                    <li key={i}>{w}</li>
+                  {apiWarnings.map(w => (
+                    <li key={w}>{w}</li>
                   ))}
                 </ul>
               </div>
@@ -301,6 +301,7 @@ function ApiResultCard({ perfume, onAdd }: {
       ) : (
         <div className="flex gap-2 shrink-0">
           <button
+            type="button"
             onClick={() => handleAdd(true)}
             disabled={adding}
             className="px-4 py-2 bg-gradient-to-r from-gold to-gold-bright text-background rounded-xl text-xs font-bold hover:shadow-lg hover:shadow-gold/15 disabled:opacity-50 transition-all"
@@ -308,6 +309,7 @@ function ApiResultCard({ perfume, onAdd }: {
             {adding ? '...' : 'Colección'}
           </button>
           <button
+            type="button"
             onClick={() => handleAdd(false)}
             disabled={adding}
             className="px-4 py-2 bg-white/[0.05] border border-white/[0.08] rounded-xl text-xs font-medium text-text-secondary hover:text-gold hover:border-gold/20 hover:bg-gold/5 disabled:opacity-50 transition-all"

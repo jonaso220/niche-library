@@ -61,6 +61,7 @@ export function PerfumeDetail({ perfume }: PerfumeDetailProps) {
     <div className="space-y-6">
       {/* Back button */}
       <button
+        type="button"
         onClick={() => navigate(-1)}
         className="flex items-center gap-2 text-sm text-text-secondary hover:text-gold transition-colors"
       >
@@ -88,6 +89,7 @@ export function PerfumeDetail({ perfume }: PerfumeDetailProps) {
 
             {/* Edit image overlay button */}
             <button
+              type="button"
               onClick={openImageEditor}
               className="absolute bottom-2 right-2 p-2 bg-background/80 backdrop-blur-sm border border-border rounded-lg text-text-muted hover:text-gold hover:border-gold/30 opacity-0 group-hover:opacity-100 transition-all duration-200"
               title="Cambiar imagen"
@@ -129,6 +131,7 @@ export function PerfumeDetail({ perfume }: PerfumeDetailProps) {
 
               <div className="flex gap-2">
                 <button
+                  type="button"
                   onClick={handleSaveImage}
                   disabled={!imageUrlInput.trim() || imagePreviewError}
                   className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-gold text-background rounded-lg text-sm font-medium hover:bg-gold-bright transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
@@ -137,6 +140,7 @@ export function PerfumeDetail({ perfume }: PerfumeDetailProps) {
                   Guardar
                 </button>
                 <button
+                  type="button"
                   onClick={() => setEditingImage(false)}
                   className="flex items-center justify-center gap-2 px-3 py-2 bg-surface border border-border rounded-lg text-sm text-text-secondary hover:text-text-primary transition-colors"
                 >
@@ -189,6 +193,7 @@ export function PerfumeDetail({ perfume }: PerfumeDetailProps) {
             {!entry ? (
               <>
                 <button
+                  type="button"
                   onClick={() => handleAdd(true)}
                   className="flex items-center gap-2 px-4 py-2 bg-gold text-background rounded-lg text-sm font-medium hover:bg-gold-bright transition-colors"
                 >
@@ -196,6 +201,7 @@ export function PerfumeDetail({ perfume }: PerfumeDetailProps) {
                   Agregar a Colección
                 </button>
                 <button
+                  type="button"
                   onClick={() => handleAdd(false)}
                   className="flex items-center gap-2 px-4 py-2 bg-surface border border-border rounded-lg text-sm text-text-secondary hover:text-gold hover:border-gold/30 transition-colors"
                 >
@@ -210,6 +216,7 @@ export function PerfumeDetail({ perfume }: PerfumeDetailProps) {
                   Fragancia anterior
                 </span>
                 <button
+                  type="button"
                   onClick={handleRecover}
                   className="flex items-center gap-2 px-4 py-2 bg-gold text-background rounded-lg text-sm font-medium hover:bg-gold-bright transition-colors"
                 >
@@ -217,6 +224,7 @@ export function PerfumeDetail({ perfume }: PerfumeDetailProps) {
                   Recuperar
                 </button>
                 <button
+                  type="button"
                   onClick={handleRemove}
                   className="flex items-center gap-2 px-4 py-2 text-sm text-danger hover:bg-danger/10 rounded-lg transition-colors"
                 >
@@ -232,6 +240,7 @@ export function PerfumeDetail({ perfume }: PerfumeDetailProps) {
                 </span>
                 {entry.owned && (
                   <button
+                    type="button"
                     onClick={handleMarkPreviouslyOwned}
                     className="flex items-center gap-2 px-4 py-2 bg-surface border border-border rounded-lg text-sm text-text-secondary hover:text-text-primary hover:border-border transition-colors"
                   >
@@ -240,6 +249,7 @@ export function PerfumeDetail({ perfume }: PerfumeDetailProps) {
                   </button>
                 )}
                 <button
+                  type="button"
                   onClick={handleRemove}
                   className="flex items-center gap-2 px-4 py-2 text-sm text-danger hover:bg-danger/10 rounded-lg transition-colors"
                 >

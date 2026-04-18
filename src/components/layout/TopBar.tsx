@@ -70,6 +70,7 @@ export function TopBar({ onMenuClick }: TopBarProps) {
       <div className="flex items-center gap-4 px-4 md:px-6 lg:px-8 h-16">
         {/* Mobile menu button */}
         <button
+          type="button"
           onClick={onMenuClick}
           className="lg:hidden p-2 -ml-2 text-text-secondary hover:text-gold rounded-xl hover:bg-gold/[0.06] transition-colors"
         >
@@ -183,6 +184,7 @@ export function TopBar({ onMenuClick }: TopBarProps) {
                   </div>
                 )}
                 <button
+                  type="button"
                   onClick={signOut}
                   className="p-2 text-text-muted hover:text-accent-rose rounded-xl hover:bg-accent-rose/10 transition-colors"
                   title="Cerrar sesión"
@@ -192,6 +194,7 @@ export function TopBar({ onMenuClick }: TopBarProps) {
               </div>
             ) : (
               <button
+                type="button"
                 onClick={signInWithGoogle}
                 className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-gold/15 to-gold/8 border border-gold/20 rounded-xl text-[13px] font-semibold text-gold hover:from-gold/20 hover:to-gold/12 hover:border-gold/30 hover:shadow-lg hover:shadow-gold/10 transition-all"
               >

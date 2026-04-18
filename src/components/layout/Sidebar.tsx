@@ -53,6 +53,7 @@ function CollapsibleSection({ title, children, defaultOpen = false }: {
   return (
     <div className="mt-4 pt-1">
       <button
+        type="button"
         onClick={() => setOpen(!open)}
         className="flex items-center justify-between w-full px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-[0.12em] text-text-muted/80 hover:text-text-secondary transition-colors"
       >
@@ -96,7 +97,7 @@ export function Sidebar({ onClose }: SidebarProps) {
               </p>
             </div>
           </NavLink>
-          <button onClick={onClose} className="lg:hidden p-1.5 text-text-muted hover:text-text-primary rounded-lg hover:bg-white/[0.06]">
+          <button type="button" onClick={onClose} className="lg:hidden p-1.5 text-text-muted hover:text-text-primary rounded-lg hover:bg-white/[0.06]">
             <X className="w-5 h-5" />
           </button>
         </div>

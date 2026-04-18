@@ -50,6 +50,7 @@ export function ShelfHeader({
               return (
                 <button
                   key={f.id}
+                  type="button"
                   onClick={() => onTimeFilterChange(active ? null : f.id)}
                   className={cn(
                     'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all duration-200',
@@ -74,6 +75,7 @@ export function ShelfHeader({
               return (
                 <button
                   key={f.id}
+                  type="button"
                   onClick={() => onOccasionFilterChange(active ? null : f.id)}
                   className={cn(
                     'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all duration-200',

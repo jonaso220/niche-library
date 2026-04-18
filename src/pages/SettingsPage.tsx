@@ -144,6 +144,7 @@ export function SettingsPage() {
               </p>
 
               <button
+                type="button"
                 onClick={signOut}
                 className="flex items-center gap-2 px-4 py-2 bg-white/[0.04] border border-white/[0.06] rounded-xl text-sm text-text-secondary hover:text-danger hover:border-danger/20"
               >
@@ -158,6 +159,7 @@ export function SettingsPage() {
                 Podrás acceder a tus perfumes desde cualquier dispositivo.
               </p>
               <button
+                type="button"
                 onClick={signInWithGoogle}
                 disabled={authLoading}
                 className="flex items-center gap-2 px-5 py-2.5 bg-gold text-background rounded-xl text-sm font-semibold hover:bg-gold-bright disabled:opacity-50 shadow-lg shadow-gold/20"
@@ -213,6 +215,7 @@ export function SettingsPage() {
               className="flex-1 px-3 py-2 bg-white/[0.04] border border-white/[0.06] rounded-lg text-xs text-text-primary placeholder:text-text-muted focus:outline-none focus:border-gold/40 focus:ring-1 focus:ring-gold/20"
             />
             <button
+              type="button"
               onClick={handleSaveFragellaKey}
               className="px-3.5 py-2 bg-gold text-background rounded-lg text-xs font-semibold hover:bg-gold-bright shadow-lg shadow-gold/20"
             >
@@ -253,6 +256,7 @@ export function SettingsPage() {
               className="flex-1 px-3 py-2 bg-white/[0.04] border border-white/[0.06] rounded-lg text-xs text-text-primary placeholder:text-text-muted focus:outline-none focus:border-gold/40 focus:ring-1 focus:ring-gold/20"
             />
             <button
+              type="button"
               onClick={handleSaveFFKey}
               className="px-3.5 py-2 bg-gold text-background rounded-lg text-xs font-semibold hover:bg-gold-bright shadow-lg shadow-gold/20"
             >
@@ -273,6 +277,7 @@ export function SettingsPage() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
           <button
+            type="button"
             onClick={handleExport}
             className="flex items-center gap-2 px-4 py-3 bg-white/[0.03] border border-white/[0.06] rounded-xl text-sm text-text-secondary hover:text-gold hover:border-gold/20"
           >
@@ -280,6 +285,7 @@ export function SettingsPage() {
             Exportar Colección (JSON)
           </button>
           <button
+            type="button"
             onClick={handleImport}
             disabled={importing}
             className="flex items-center gap-2 px-4 py-3 bg-white/[0.03] border border-white/[0.06] rounded-xl text-sm text-text-secondary hover:text-gold hover:border-gold/20 disabled:opacity-50"
@@ -297,6 +303,7 @@ export function SettingsPage() {
           Esto eliminará toda tu colección, catálogo y configuraciones. No se puede deshacer.
         </p>
         <button
+          type="button"
           onClick={handleReset}
           className="flex items-center gap-2 px-4 py-2 bg-danger/10 border border-danger/15 rounded-xl text-sm text-danger hover:bg-danger/15"
         >
