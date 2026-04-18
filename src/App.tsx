@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router'
-import { AuthProvider } from '@/firebase/AuthContext'
+import { AuthProvider } from '@/firebase/AuthProvider'
 import { AppShell } from '@/components/layout/AppShell'
 import { HomePage } from '@/pages/HomePage'
 import { ShelfPage } from '@/pages/ShelfPage'

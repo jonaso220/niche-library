@@ -2,9 +2,16 @@ import { useState } from 'react'
 import { db } from '@/db/database'
 import { isApiConfigured } from '@/api/fragella'
 import { isFragranceFinderConfigured } from '@/api/fragrancefinder'
-import { useAuth } from '@/firebase/AuthContext'
+import { useAuth } from '@/firebase/useAuth'
 import { isFirebaseConfigured } from '@/firebase/config'
+import type { Perfume, CollectionEntry } from '@/types/perfume'
 import { Key, Download, Upload, Trash2, Database, CheckCircle, Cloud, CloudOff, LogIn, LogOut, User, Search } from 'lucide-react'
+
+interface BackupData {
+  perfumes?: Perfume[]
+  collection?: CollectionEntry[]
+  exportedAt?: string
+}
 
 export function SettingsPage() {
   const { user, isAuthenticated, signInWithGoogle, signOut, loading: authLoading } = useAuth()
@@ -47,7 +54,7 @@ export function SettingsPage() {
     URL.revokeObjectURL(url)
   }
 
-  async function handleImport() {
+  function handleImport() {
     const input = document.createElement('input')
     input.type = 'file'
     input.accept = '.json'
@@ -58,7 +65,7 @@ export function SettingsPage() {
       setImporting(true)
       try {
         const text = await file.text()
-        const data = JSON.parse(text)
+        const data = JSON.parse(text) as BackupData
 
         if (data.perfumes && Array.isArray(data.perfumes)) {
           await db.perfumes.bulkPut(data.perfumes)

@@ -1,28 +1,9 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
+import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import { onAuthStateChanged, signInWithPopup, signOut as firebaseSignOut, type User } from 'firebase/auth'
 import { auth, googleProvider, isFirebaseConfigured } from './config'
 import { setCurrentUserId } from './auth-state'
 import { syncOnLogin, syncOnLogout } from './sync'
-
-interface AuthContextValue {
-  user: User | null
-  loading: boolean
-  isAuthenticated: boolean
-  error: string | null
-  clearError: () => void
-  signInWithGoogle: () => Promise<void>
-  signOut: () => Promise<void>
-}
-
-const AuthContext = createContext<AuthContextValue>({
-  user: null,
-  loading: true,
-  isAuthenticated: false,
-  error: null,
-  clearError: () => {},
-  signInWithGoogle: async () => {},
-  signOut: async () => {},
-})
+import { AuthContext, type AuthContextValue } from './AuthContext'
 
 function toMessage(err: unknown, fallback: string): string {
   if (err instanceof Error) return err.message
@@ -37,6 +18,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (!auth || !isFirebaseConfigured) {
+      // Legitimate init: mark auth as ready when Firebase isn't configured.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setLoading(false)
       return
     }
@@ -91,8 +74,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  return (
-    <AuthContext.Provider value={{
+  const value = useMemo<AuthContextValue>(
+    () => ({
       user,
       loading,
       isAuthenticated: !!user,
@@ -100,12 +83,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       clearError: () => setError(null),
       signInWithGoogle,
       signOut: handleSignOut,
-    }}>
-      {children}
-    </AuthContext.Provider>
+    }),
+    [user, loading, error],
   )
-}
 
-export function useAuth() {
-  return useContext(AuthContext)
+  return <AuthContext value={value}>{children}</AuthContext>
 }

@@ -36,13 +36,13 @@ async function doLoad(): Promise<void> {
     const res = await fetch('/parfumo-dataset.json')
     if (!res.ok) throw new Error(`Failed to load dataset: ${res.status}`)
 
-    const raw: unknown[][] = await res.json()
+    const raw = (await res.json()) as unknown[][]
 
     // Transform array-of-arrays to ParfumoEntry objects
     // Format: [name, brand, year, concentration, rating, accords, topNotes, midNotes, baseNotes, imageUrl]
     const BATCH_SIZE = 5000
     for (let i = 0; i < raw.length; i += BATCH_SIZE) {
-      const batch = raw.slice(i, i + BATCH_SIZE)
+      const batch = raw.slice(i, i + BATCH_SIZE) as (string | number)[][]
       const entries: ParfumoEntry[] = batch.map(row => ({
         id: generateSlug(String(row[1]), String(row[0]), String(row[3])),
         name: String(row[0]),
@@ -54,7 +54,7 @@ async function doLoad(): Promise<void> {
         topNotes: String(row[6]),
         midNotes: String(row[7]),
         baseNotes: String(row[8]),
-        imageUrl: String(row[9] ?? ''),
+        imageUrl: row[9] ? String(row[9]) : '',
       }))
 
       await db.parfumo.bulkPut(entries)

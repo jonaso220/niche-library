@@ -1,5 +1,5 @@
 import { AlertTriangle, X } from 'lucide-react'
-import { useAuth } from '@/firebase/AuthContext'
+import { useAuth } from '@/firebase/useAuth'
 
 export function AuthErrorBanner() {
   const { error, clearError } = useAuth()

@@ -1,7 +1,7 @@
 import { useNavigate, Link } from 'react-router'
 import { useState, useRef, useEffect } from 'react'
 import { Menu, Search, LogIn, LogOut, User, Command, Star, ChevronRight } from 'lucide-react'
-import { useAuth } from '@/firebase/AuthContext'
+import { useAuth } from '@/firebase/useAuth'
 import { isFirebaseConfigured } from '@/firebase/config'
 import { useSearchPerfumes } from '@/db/hooks'
 
@@ -49,7 +49,7 @@ export function TopBar({ onMenuClick }: TopBarProps) {
   function handleSearch(e: React.FormEvent) {
     e.preventDefault()
     if (query.trim()) {
-      navigate(`/search?q=${encodeURIComponent(query.trim())}`)
+      void navigate(`/search?q=${encodeURIComponent(query.trim())}`)
       setQuery('')
       inputRef.current?.blur()
     }

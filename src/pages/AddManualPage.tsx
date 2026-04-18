@@ -96,7 +96,7 @@ export function AddManualPage() {
     try {
       await addPerfumeToCatalog(perfume)
       await addToCollection(perfume.id, true)
-      navigate(`/perfume/${perfume.id}`)
+      void navigate(`/perfume/${perfume.id}`)
     } catch (err) {
       console.error('Error saving perfume:', err)
       setSaveError(
