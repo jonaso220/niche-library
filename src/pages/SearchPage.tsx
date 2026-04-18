@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useSearchParams } from 'react-router'
-import { Search, Loader2, Wifi, WifiOff, AlertTriangle, Database, Download } from 'lucide-react'
+import { Search, Loader2, Wifi, WifiOff, AlertTriangle, Database, Download, RefreshCw } from 'lucide-react'
 import { useSearchPerfumes, addToCollection, addPerfumeToCatalog } from '@/db/hooks'
 import { searchAllApis, isAnyApiConfigured } from '@/api/search-orchestrator'
 import { isParfumoLoaded, loadParfumoDataset } from '@/db/parfumo-loader'
@@ -18,23 +18,33 @@ export function SearchPage() {
   const [apiWarnings, setApiWarnings] = useState<string[]>([])
   const [datasetLoaded, setDatasetLoaded] = useState(isParfumoLoaded())
   const [datasetLoading, setDatasetLoading] = useState(false)
+  const [datasetError, setDatasetError] = useState<string | null>(null)
+  const [datasetRetry, setDatasetRetry] = useState(0)
 
   const localResults = useSearchPerfumes(query)
 
   // Auto-load dataset on mount if not already loaded
   useEffect(() => {
-    if (!isParfumoLoaded()) {
-      setDatasetLoading(true)
-      loadParfumoDataset()
-        .then(() => {
-          setDatasetLoaded(true)
-          setDatasetLoading(false)
-        })
-        .catch(() => {
-          setDatasetLoading(false)
-        })
+    if (isParfumoLoaded()) return
+    let cancelled = false
+    setDatasetLoading(true)
+    setDatasetError(null)
+    loadParfumoDataset()
+      .then(() => {
+        if (cancelled) return
+        setDatasetLoaded(true)
+        setDatasetLoading(false)
+      })
+      .catch((err: unknown) => {
+        if (cancelled) return
+        const message = err instanceof Error ? err.message : 'No se pudo descargar el catálogo.'
+        setDatasetError(message)
+        setDatasetLoading(false)
+      })
+    return () => {
+      cancelled = true
     }
-  }, [])
+  }, [datasetRetry])
 
   useEffect(() => {
     if (query.length < 3 || !isAnyApiConfigured()) return
@@ -103,19 +113,41 @@ export function SearchPage() {
       {datasetLoading && (
         <div className="p-4 bg-gold/5 border border-gold/15 rounded-2xl flex items-center gap-3 max-w-3xl">
           <div className="w-9 h-9 rounded-xl bg-gold/10 flex items-center justify-center shrink-0">
-            <Download className="w-4.5 h-4.5 text-gold animate-bounce" />
+            <Download className="w-4.5 h-4.5 text-gold animate-bounce" aria-hidden="true" />
           </div>
           <div>
             <p className="text-sm text-text-primary font-semibold">Descargando base de datos</p>
             <p className="text-xs text-text-muted mt-0.5">59.000+ fragancias (~2 MB). Solo se descarga una vez.</p>
           </div>
-          <Loader2 className="w-4 h-4 text-gold animate-spin ml-auto" />
+          <Loader2 className="w-4 h-4 text-gold animate-spin ml-auto" aria-hidden="true" />
+        </div>
+      )}
+
+      {/* Dataset load error */}
+      {datasetError && !datasetLoading && (
+        <div
+          role="alert"
+          className="p-4 bg-danger/10 border border-danger/20 rounded-2xl flex items-start gap-3 max-w-3xl"
+        >
+          <AlertTriangle className="w-4 h-4 text-danger shrink-0 mt-0.5" aria-hidden="true" />
+          <div className="flex-1">
+            <p className="text-sm text-danger font-semibold">No se pudo descargar el catálogo</p>
+            <p className="text-xs text-danger/80 mt-0.5">{datasetError}</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setDatasetRetry(n => n + 1)}
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-danger/15 hover:bg-danger/20 text-danger rounded-lg text-xs font-semibold transition-colors"
+          >
+            <RefreshCw className="w-3.5 h-3.5" aria-hidden="true" />
+            Reintentar
+          </button>
         </div>
       )}
 
       {/* Search input */}
       <div className="relative max-w-3xl group">
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-text-muted group-focus-within:text-gold transition-colors" />
+        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-text-muted group-focus-within:text-gold transition-colors" aria-hidden="true" />
         <input
           type="text"
           value={query}
@@ -146,11 +178,11 @@ export function SearchPage() {
         <section>
           <h2 className="text-xs font-bold text-text-muted uppercase tracking-[0.1em] mb-4 flex items-center gap-2">
             {apiLoading ? (
-              <Loader2 className="w-3.5 h-3.5 animate-spin text-gold" />
+              <Loader2 className="w-3.5 h-3.5 animate-spin text-gold" aria-hidden="true" />
             ) : datasetLoaded ? (
-              <Database className="w-3.5 h-3.5 text-accent-green" />
+              <Database className="w-3.5 h-3.5 text-accent-green" aria-hidden="true" />
             ) : (
-              <Wifi className="w-3.5 h-3.5 text-accent-green" />
+              <Wifi className="w-3.5 h-3.5 text-accent-green" aria-hidden="true" />
             )}
             Resultados Encontrados
             {apiResults.length > 0 && (
@@ -161,12 +193,12 @@ export function SearchPage() {
           {/* Warnings (partial failures) */}
           {apiWarnings.length > 0 && (
             <div className="p-3 bg-warning/5 border border-warning/15 rounded-xl text-xs text-warning/80 mb-4 flex items-start gap-2">
-              <AlertTriangle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+              <AlertTriangle className="w-3.5 h-3.5 shrink-0 mt-0.5" aria-hidden="true" />
               <div>
                 <span className="font-medium">Algunos proveedores fallaron:</span>
                 <ul className="mt-1 space-y-0.5">
-                  {apiWarnings.map((w, i) => (
-                    <li key={i}>{w}</li>
+                  {apiWarnings.map(w => (
+                    <li key={w}>{w}</li>
                   ))}
                 </ul>
               </div>
@@ -200,7 +232,7 @@ export function SearchPage() {
       {!hasAnyProvider && !datasetLoading && (
         <div className="p-5 bg-card border border-border/30 rounded-2xl flex items-start gap-3.5 max-w-3xl">
           <div className="w-10 h-10 rounded-xl bg-accent-blue/10 flex items-center justify-center shrink-0">
-            <WifiOff className="w-5 h-5 text-accent-blue" />
+            <WifiOff className="w-5 h-5 text-accent-blue" aria-hidden="true" />
           </div>
           <div>
             <p className="text-sm text-text-primary font-semibold">Búsqueda extendida no disponible</p>
@@ -241,7 +273,12 @@ function ApiResultCard({ perfume, onAdd }: {
     <div className="flex items-center gap-4 bg-card border border-border/30 rounded-2xl p-4 hover:border-gold/15 hover:shadow-lg hover:shadow-black/10 transition-all duration-200">
       <div className="w-16 h-16 bg-white/[0.03] rounded-xl flex items-center justify-center shrink-0 overflow-hidden border border-white/[0.04]">
         {perfume.imageUrl ? (
-          <img src={perfume.imageUrl} alt="" className="w-full h-full object-contain p-1.5" />
+          <img
+            src={perfume.imageUrl}
+            alt={`${perfume.brand} ${perfume.name}`}
+            loading="lazy"
+            className="w-full h-full object-contain p-1.5"
+          />
         ) : (
           <span className="text-xl text-text-muted/20">💧</span>
         )}
@@ -264,6 +301,7 @@ function ApiResultCard({ perfume, onAdd }: {
       ) : (
         <div className="flex gap-2 shrink-0">
           <button
+            type="button"
             onClick={() => handleAdd(true)}
             disabled={adding}
             className="px-4 py-2 bg-gradient-to-r from-gold to-gold-bright text-background rounded-xl text-xs font-bold hover:shadow-lg hover:shadow-gold/15 disabled:opacity-50 transition-all"
@@ -271,6 +309,7 @@ function ApiResultCard({ perfume, onAdd }: {
             {adding ? '...' : 'Colección'}
           </button>
           <button
+            type="button"
             onClick={() => handleAdd(false)}
             disabled={adding}
             className="px-4 py-2 bg-white/[0.05] border border-white/[0.08] rounded-xl text-xs font-medium text-text-secondary hover:text-gold hover:border-gold/20 hover:bg-gold/5 disabled:opacity-50 transition-all"

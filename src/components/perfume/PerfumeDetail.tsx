@@ -61,10 +61,11 @@ export function PerfumeDetail({ perfume }: PerfumeDetailProps) {
     <div className="space-y-6">
       {/* Back button */}
       <button
+        type="button"
         onClick={() => navigate(-1)}
         className="flex items-center gap-2 text-sm text-text-secondary hover:text-gold transition-colors"
       >
-        <ArrowLeft className="w-4 h-4" />
+        <ArrowLeft className="w-4 h-4" aria-hidden="true" />
         Volver
       </button>
 
@@ -88,11 +89,12 @@ export function PerfumeDetail({ perfume }: PerfumeDetailProps) {
 
             {/* Edit image overlay button */}
             <button
+              type="button"
               onClick={openImageEditor}
               className="absolute bottom-2 right-2 p-2 bg-background/80 backdrop-blur-sm border border-border rounded-lg text-text-muted hover:text-gold hover:border-gold/30 opacity-0 group-hover:opacity-100 transition-all duration-200"
               title="Cambiar imagen"
             >
-              <Pencil className="w-4 h-4" />
+              <Pencil className="w-4 h-4" aria-hidden="true" />
             </button>
           </div>
 
@@ -129,18 +131,20 @@ export function PerfumeDetail({ perfume }: PerfumeDetailProps) {
 
               <div className="flex gap-2">
                 <button
+                  type="button"
                   onClick={handleSaveImage}
                   disabled={!imageUrlInput.trim() || imagePreviewError}
                   className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-gold text-background rounded-lg text-sm font-medium hover:bg-gold-bright transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                 >
-                  <Save className="w-3.5 h-3.5" />
+                  <Save className="w-3.5 h-3.5" aria-hidden="true" />
                   Guardar
                 </button>
                 <button
+                  type="button"
                   onClick={() => setEditingImage(false)}
                   className="flex items-center justify-center gap-2 px-3 py-2 bg-surface border border-border rounded-lg text-sm text-text-secondary hover:text-text-primary transition-colors"
                 >
-                  <X className="w-3.5 h-3.5" />
+                  <X className="w-3.5 h-3.5" aria-hidden="true" />
                   Cancelar
                 </button>
               </div>
@@ -189,61 +193,67 @@ export function PerfumeDetail({ perfume }: PerfumeDetailProps) {
             {!entry ? (
               <>
                 <button
+                  type="button"
                   onClick={() => handleAdd(true)}
                   className="flex items-center gap-2 px-4 py-2 bg-gold text-background rounded-lg text-sm font-medium hover:bg-gold-bright transition-colors"
                 >
-                  <Plus className="w-4 h-4" />
+                  <Plus className="w-4 h-4" aria-hidden="true" />
                   Agregar a Colección
                 </button>
                 <button
+                  type="button"
                   onClick={() => handleAdd(false)}
                   className="flex items-center gap-2 px-4 py-2 bg-surface border border-border rounded-lg text-sm text-text-secondary hover:text-gold hover:border-gold/30 transition-colors"
                 >
-                  <Plus className="w-4 h-4" />
+                  <Plus className="w-4 h-4" aria-hidden="true" />
                   Lista de Deseos
                 </button>
               </>
             ) : entry.previouslyOwned ? (
               <>
                 <span className="flex items-center gap-2 px-4 py-2 bg-text-muted/10 text-text-muted rounded-lg text-sm">
-                  <Archive className="w-4 h-4" />
+                  <Archive className="w-4 h-4" aria-hidden="true" />
                   Fragancia anterior
                 </span>
                 <button
+                  type="button"
                   onClick={handleRecover}
                   className="flex items-center gap-2 px-4 py-2 bg-gold text-background rounded-lg text-sm font-medium hover:bg-gold-bright transition-colors"
                 >
-                  <RotateCcw className="w-4 h-4" />
+                  <RotateCcw className="w-4 h-4" aria-hidden="true" />
                   Recuperar
                 </button>
                 <button
+                  type="button"
                   onClick={handleRemove}
                   className="flex items-center gap-2 px-4 py-2 text-sm text-danger hover:bg-danger/10 rounded-lg transition-colors"
                 >
-                  <Trash2 className="w-4 h-4" />
+                  <Trash2 className="w-4 h-4" aria-hidden="true" />
                   Quitar
                 </button>
               </>
             ) : (
               <>
                 <span className="flex items-center gap-2 px-4 py-2 bg-accent-green/15 text-accent-green rounded-lg text-sm">
-                  <Check className="w-4 h-4" />
+                  <Check className="w-4 h-4" aria-hidden="true" />
                   {entry.owned ? 'En tu colección' : 'En lista de deseos'}
                 </span>
                 {entry.owned && (
                   <button
+                    type="button"
                     onClick={handleMarkPreviouslyOwned}
                     className="flex items-center gap-2 px-4 py-2 bg-surface border border-border rounded-lg text-sm text-text-secondary hover:text-text-primary hover:border-border transition-colors"
                   >
-                    <Archive className="w-4 h-4" />
+                    <Archive className="w-4 h-4" aria-hidden="true" />
                     Ya no la tengo
                   </button>
                 )}
                 <button
+                  type="button"
                   onClick={handleRemove}
                   className="flex items-center gap-2 px-4 py-2 text-sm text-danger hover:bg-danger/10 rounded-lg transition-colors"
                 >
-                  <Trash2 className="w-4 h-4" />
+                  <Trash2 className="w-4 h-4" aria-hidden="true" />
                   Quitar
                 </button>
               </>
@@ -256,7 +266,7 @@ export function PerfumeDetail({ perfume }: PerfumeDetailProps) {
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 px-4 py-2 text-sm text-text-muted hover:text-text-secondary transition-colors"
               >
-                <ExternalLink className="w-4 h-4" />
+                <ExternalLink className="w-4 h-4" aria-hidden="true" />
                 Ver en Fragrantica
               </a>
             )}

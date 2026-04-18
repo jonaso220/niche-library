@@ -23,7 +23,7 @@ function NoteRow({ label, notes, color }: {
             className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface border border-border-subtle text-xs text-text-secondary"
           >
             {note.imageUrl && (
-              <img src={note.imageUrl} alt="" className="w-3.5 h-3.5 rounded-full" />
+              <img src={note.imageUrl} alt="" aria-hidden="true" className="w-3.5 h-3.5 rounded-full" />
             )}
             {note.name}
           </span>

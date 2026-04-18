@@ -122,8 +122,10 @@ export async function searchFragrances(query: string, limit = 10): Promise<Perfu
     throw new Error(`Error de API: ${res.status}`)
   }
 
-  const data = await res.json()
-  const results = Array.isArray(data) ? data : data.results ?? data.data ?? []
+  const data = (await res.json()) as
+    | FragellaFragrance[]
+    | { results?: FragellaFragrance[]; data?: FragellaFragrance[] }
+  const results = Array.isArray(data) ? data : (data.results ?? data.data ?? [])
   return results.map(transformFragellaToLocal)
 }
 

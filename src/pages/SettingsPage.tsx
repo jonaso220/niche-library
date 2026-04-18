@@ -2,9 +2,16 @@ import { useState } from 'react'
 import { db } from '@/db/database'
 import { isApiConfigured } from '@/api/fragella'
 import { isFragranceFinderConfigured } from '@/api/fragrancefinder'
-import { useAuth } from '@/firebase/AuthContext'
+import { useAuth } from '@/firebase/useAuth'
 import { isFirebaseConfigured } from '@/firebase/config'
+import type { Perfume, CollectionEntry } from '@/types/perfume'
 import { Key, Download, Upload, Trash2, Database, CheckCircle, Cloud, CloudOff, LogIn, LogOut, User, Search } from 'lucide-react'
+
+interface BackupData {
+  perfumes?: Perfume[]
+  collection?: CollectionEntry[]
+  exportedAt?: string
+}
 
 export function SettingsPage() {
   const { user, isAuthenticated, signInWithGoogle, signOut, loading: authLoading } = useAuth()
@@ -47,7 +54,7 @@ export function SettingsPage() {
     URL.revokeObjectURL(url)
   }
 
-  async function handleImport() {
+  function handleImport() {
     const input = document.createElement('input')
     input.type = 'file'
     input.accept = '.json'
@@ -58,7 +65,7 @@ export function SettingsPage() {
       setImporting(true)
       try {
         const text = await file.text()
-        const data = JSON.parse(text)
+        const data = JSON.parse(text) as BackupData
 
         if (data.perfumes && Array.isArray(data.perfumes)) {
           await db.perfumes.bulkPut(data.perfumes)
@@ -97,11 +104,11 @@ export function SettingsPage() {
           <div className="flex items-center gap-2.5">
             {isAuthenticated ? (
               <div className="w-8 h-8 rounded-xl bg-accent-green/10 flex items-center justify-center">
-                <Cloud className="w-4 h-4 text-accent-green" />
+                <Cloud className="w-4 h-4 text-accent-green" aria-hidden="true" />
               </div>
             ) : (
               <div className="w-8 h-8 rounded-xl bg-white/[0.06] flex items-center justify-center">
-                <CloudOff className="w-4 h-4 text-text-muted" />
+                <CloudOff className="w-4 h-4 text-text-muted" aria-hidden="true" />
               </div>
             )}
             <h2 className="text-base font-semibold">Sincronización en la Nube</h2>
@@ -119,7 +126,7 @@ export function SettingsPage() {
                   />
                 ) : (
                   <div className="w-10 h-10 rounded-full bg-gold/15 flex items-center justify-center">
-                    <User className="w-5 h-5 text-gold" />
+                    <User className="w-5 h-5 text-gold" aria-hidden="true" />
                   </div>
                 )}
                 <div className="flex-1 min-w-0">
@@ -127,7 +134,7 @@ export function SettingsPage() {
                   <p className="text-xs text-text-muted truncate">{user.email}</p>
                 </div>
                 <span className="flex items-center gap-1 text-xs text-accent-green font-medium">
-                  <CheckCircle className="w-3.5 h-3.5" />
+                  <CheckCircle className="w-3.5 h-3.5" aria-hidden="true" />
                   Conectado
                 </span>
               </div>
@@ -137,10 +144,11 @@ export function SettingsPage() {
               </p>
 
               <button
+                type="button"
                 onClick={signOut}
                 className="flex items-center gap-2 px-4 py-2 bg-white/[0.04] border border-white/[0.06] rounded-xl text-sm text-text-secondary hover:text-danger hover:border-danger/20"
               >
-                <LogOut className="w-4 h-4" />
+                <LogOut className="w-4 h-4" aria-hidden="true" />
                 Cerrar Sesión
               </button>
             </div>
@@ -151,11 +159,12 @@ export function SettingsPage() {
                 Podrás acceder a tus perfumes desde cualquier dispositivo.
               </p>
               <button
+                type="button"
                 onClick={signInWithGoogle}
                 disabled={authLoading}
                 className="flex items-center gap-2 px-5 py-2.5 bg-gold text-background rounded-xl text-sm font-semibold hover:bg-gold-bright disabled:opacity-50 shadow-lg shadow-gold/20"
               >
-                <LogIn className="w-4 h-4" />
+                <LogIn className="w-4 h-4" aria-hidden="true" />
                 {authLoading ? 'Conectando...' : 'Iniciar Sesión con Google'}
               </button>
             </div>
@@ -167,7 +176,7 @@ export function SettingsPage() {
       <section className="bg-white/[0.04] border border-white/[0.06] rounded-2xl p-5 space-y-5">
         <div className="flex items-center gap-2.5">
           <div className="w-8 h-8 rounded-xl bg-gold/10 flex items-center justify-center">
-            <Search className="w-4 h-4 text-gold" />
+            <Search className="w-4 h-4 text-gold" aria-hidden="true" />
           </div>
           <div>
             <h2 className="text-base font-semibold">APIs de Búsqueda</h2>
@@ -179,12 +188,12 @@ export function SettingsPage() {
         <div className="space-y-2.5 p-3.5 bg-white/[0.02] rounded-xl border border-white/[0.04]">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Key className="w-3.5 h-3.5 text-gold/60" />
+              <Key className="w-3.5 h-3.5 text-gold/60" aria-hidden="true" />
               <span className="text-sm font-semibold">Fragella</span>
             </div>
             {isApiConfigured() ? (
               <span className="flex items-center gap-1 text-[10px] text-accent-green font-medium">
-                <CheckCircle className="w-3 h-3" />
+                <CheckCircle className="w-3 h-3" aria-hidden="true" />
                 Configurada
               </span>
             ) : (
@@ -206,6 +215,7 @@ export function SettingsPage() {
               className="flex-1 px-3 py-2 bg-white/[0.04] border border-white/[0.06] rounded-lg text-xs text-text-primary placeholder:text-text-muted focus:outline-none focus:border-gold/40 focus:ring-1 focus:ring-gold/20"
             />
             <button
+              type="button"
               onClick={handleSaveFragellaKey}
               className="px-3.5 py-2 bg-gold text-background rounded-lg text-xs font-semibold hover:bg-gold-bright shadow-lg shadow-gold/20"
             >
@@ -218,13 +228,13 @@ export function SettingsPage() {
         <div className="space-y-2.5 p-3.5 bg-white/[0.02] rounded-xl border border-white/[0.04]">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Key className="w-3.5 h-3.5 text-accent-blue/60" />
+              <Key className="w-3.5 h-3.5 text-accent-blue/60" aria-hidden="true" />
               <span className="text-sm font-semibold">FragranceFinder</span>
               <span className="text-[9px] text-text-muted/50 font-medium px-1.5 py-0.5 bg-white/[0.04] rounded">RapidAPI</span>
             </div>
             {isFragranceFinderConfigured() ? (
               <span className="flex items-center gap-1 text-[10px] text-accent-green font-medium">
-                <CheckCircle className="w-3 h-3" />
+                <CheckCircle className="w-3 h-3" aria-hidden="true" />
                 Configurada
               </span>
             ) : (
@@ -246,6 +256,7 @@ export function SettingsPage() {
               className="flex-1 px-3 py-2 bg-white/[0.04] border border-white/[0.06] rounded-lg text-xs text-text-primary placeholder:text-text-muted focus:outline-none focus:border-gold/40 focus:ring-1 focus:ring-gold/20"
             />
             <button
+              type="button"
               onClick={handleSaveFFKey}
               className="px-3.5 py-2 bg-gold text-background rounded-lg text-xs font-semibold hover:bg-gold-bright shadow-lg shadow-gold/20"
             >
@@ -259,25 +270,27 @@ export function SettingsPage() {
       <section className="bg-white/[0.04] border border-white/[0.06] rounded-2xl p-5 space-y-3">
         <div className="flex items-center gap-2.5">
           <div className="w-8 h-8 rounded-xl bg-accent-blue/10 flex items-center justify-center">
-            <Database className="w-4 h-4 text-accent-blue" />
+            <Database className="w-4 h-4 text-accent-blue" aria-hidden="true" />
           </div>
           <h2 className="text-base font-semibold">Datos</h2>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
           <button
+            type="button"
             onClick={handleExport}
             className="flex items-center gap-2 px-4 py-3 bg-white/[0.03] border border-white/[0.06] rounded-xl text-sm text-text-secondary hover:text-gold hover:border-gold/20"
           >
-            <Download className="w-4 h-4" />
+            <Download className="w-4 h-4" aria-hidden="true" />
             Exportar Colección (JSON)
           </button>
           <button
+            type="button"
             onClick={handleImport}
             disabled={importing}
             className="flex items-center gap-2 px-4 py-3 bg-white/[0.03] border border-white/[0.06] rounded-xl text-sm text-text-secondary hover:text-gold hover:border-gold/20 disabled:opacity-50"
           >
-            <Upload className="w-4 h-4" />
+            <Upload className="w-4 h-4" aria-hidden="true" />
             {importing ? 'Importando...' : 'Importar desde JSON'}
           </button>
         </div>
@@ -290,10 +303,11 @@ export function SettingsPage() {
           Esto eliminará toda tu colección, catálogo y configuraciones. No se puede deshacer.
         </p>
         <button
+          type="button"
           onClick={handleReset}
           className="flex items-center gap-2 px-4 py-2 bg-danger/10 border border-danger/15 rounded-xl text-sm text-danger hover:bg-danger/15"
         >
-          <Trash2 className="w-4 h-4" />
+          <Trash2 className="w-4 h-4" aria-hidden="true" />
           Resetear Todo
         </button>
       </section>

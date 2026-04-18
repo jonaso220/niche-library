@@ -27,13 +27,13 @@ export function CollectionOverview() {
       {/* Stats Grid */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
         <StatCard
-          icon={<Library className="w-4.5 h-4.5" />}
+          icon={<Library className="w-4.5 h-4.5" aria-hidden="true" />}
           color="gold"
           label="En Colección"
           value={stats?.totalInCollection ?? 0}
         />
         <StatCard
-          icon={<Heart className="w-4.5 h-4.5" />}
+          icon={<Heart className="w-4.5 h-4.5" aria-hidden="true" />}
           color="rose"
           label="Lista de Deseos"
           value={stats?.totalWishlist ?? 0}
@@ -46,7 +46,7 @@ export function CollectionOverview() {
           decimal
         />
         <StatCard
-          icon={<Database className="w-4.5 h-4.5" />}
+          icon={<Database className="w-4.5 h-4.5" aria-hidden="true" />}
           color="blue"
           label="En Catálogo"
           value={stats?.totalCatalog ?? 0}
@@ -76,7 +76,7 @@ export function CollectionOverview() {
 
             <div className="relative flex flex-col items-center text-center max-w-lg mx-auto">
               <div className="relative mb-6">
-                <img src="/icon-192.png" alt="" className="w-20 h-20 rounded-2xl shadow-xl shadow-black/30" />
+                <img src="/icon-192.png" alt="" aria-hidden="true" className="w-20 h-20 rounded-2xl shadow-xl shadow-black/30" />
                 <div className="absolute inset-0 rounded-2xl ring-1 ring-white/10" />
                 <div className="absolute -inset-2 rounded-3xl bg-gold/[0.06] blur-xl" />
               </div>
@@ -92,7 +92,7 @@ export function CollectionOverview() {
                   to="/search"
                   className="inline-flex items-center justify-center gap-2.5 px-7 py-3.5 bg-gradient-to-r from-gold to-gold-bright text-background rounded-xl font-bold text-sm glow-gold hover:shadow-xl hover:shadow-gold/20 hover:scale-[1.02] transition-all"
                 >
-                  <Search className="w-4 h-4" />
+                  <Search className="w-4 h-4" aria-hidden="true" />
                   Explorar Catálogo
                 </Link>
                 <Link
@@ -100,7 +100,7 @@ export function CollectionOverview() {
                   className="inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-white/[0.06] border border-white/[0.10] rounded-xl text-sm font-semibold text-text-secondary hover:text-text-primary hover:bg-white/[0.09] hover:border-white/[0.15] transition-all"
                 >
                   Agregar Manual
-                  <ArrowRight className="w-3.5 h-3.5" />
+                  <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
                 </Link>
               </div>
             </div>
@@ -155,7 +155,7 @@ function ShelfPreview({ title, items, to }: {
           className="flex items-center gap-1 text-xs text-text-muted hover:text-gold font-medium transition-colors"
         >
           Ver todo
-          <ChevronRight className="w-3.5 h-3.5" />
+          <ChevronRight className="w-3.5 h-3.5" aria-hidden="true" />
         </Link>
       </div>
       <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 2xl:grid-cols-8 gap-2.5 auto-rows-[0] overflow-hidden grid-rows-1">

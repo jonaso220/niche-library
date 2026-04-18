@@ -112,12 +112,14 @@ async function search(query: string, limit = 10): Promise<Perfume[]> {
     throw new Error(`Error FragranceFinder API: ${res.status}`)
   }
 
-  const data = await res.json()
+  const data = (await res.json()) as
+    | FFFragrance[]
+    | { results?: FFFragrance[]; hits?: FFFragrance[]; data?: FFFragrance[] }
 
   // Handle various response shapes
   const results: FFFragrance[] = Array.isArray(data)
     ? data
-    : data.results ?? data.hits ?? data.data ?? []
+    : (data.results ?? data.hits ?? data.data ?? [])
 
   return results.map(transformToLocal)
 }

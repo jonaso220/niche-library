@@ -17,6 +17,36 @@ import { auth } from './config'
 let unsubscribePerfumes: (() => void) | null = null
 let unsubscribeCollection: (() => void) | null = null
 
+/**
+ * Merge local + cloud perfumes. Cloud wins on ID conflicts.
+ * @internal exported for testing.
+ */
+export function mergePerfumes(local: Perfume[], cloud: Perfume[]): Perfume[] {
+  const merged = new Map<string, Perfume>()
+  for (const p of local) merged.set(p.id, p)
+  for (const p of cloud) merged.set(p.id, p)
+  return Array.from(merged.values())
+}
+
+/**
+ * Merge local + cloud collection entries. Most recent `addedAt` wins on ID conflicts.
+ * @internal exported for testing.
+ */
+export function mergeCollection(
+  local: CollectionEntry[],
+  cloud: CollectionEntry[],
+): CollectionEntry[] {
+  const merged = new Map<string, CollectionEntry>()
+  for (const e of local) merged.set(e.perfumeId, e)
+  for (const e of cloud) {
+    const existing = merged.get(e.perfumeId)
+    if (!existing || e.addedAt >= existing.addedAt) {
+      merged.set(e.perfumeId, e)
+    }
+  }
+  return Array.from(merged.values())
+}
+
 export async function syncOnLogin(userId: string): Promise<void> {
   // Save user profile to Firestore
   const user = auth?.currentUser
@@ -47,21 +77,10 @@ export async function syncOnLogin(userId: string): Promise<void> {
   const localCollection = await db.collection.toArray()
 
   // 3. Merge perfumes: union by ID, cloud wins on conflict
-  const mergedPerfumesMap = new Map<string, Perfume>()
-  for (const p of localPerfumes) mergedPerfumesMap.set(p.id, p)
-  for (const p of cloudPerfumes) mergedPerfumesMap.set(p.id, p) // cloud overwrites
-  const mergedPerfumes = Array.from(mergedPerfumesMap.values())
+  const mergedPerfumes = mergePerfumes(localPerfumes, cloudPerfumes)
 
   // 4. Merge collection: union by perfumeId, most recent wins
-  const mergedCollectionMap = new Map<string, CollectionEntry>()
-  for (const e of localCollection) mergedCollectionMap.set(e.perfumeId, e)
-  for (const e of cloudCollection) {
-    const local = mergedCollectionMap.get(e.perfumeId)
-    if (!local || e.addedAt >= local.addedAt) {
-      mergedCollectionMap.set(e.perfumeId, e)
-    }
-  }
-  const mergedCollection = Array.from(mergedCollectionMap.values())
+  const mergedCollection = mergeCollection(localCollection, cloudCollection)
 
   // 5. Write merged data to local Dexie
   if (mergedPerfumes.length > 0) {

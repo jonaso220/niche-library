@@ -11,7 +11,17 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
 }
 
-const hasConfig = !!firebaseConfig.apiKey && !!firebaseConfig.projectId
+const REQUIRED_KEYS = ['apiKey', 'authDomain', 'projectId', 'appId'] as const
+const missingKeys = REQUIRED_KEYS.filter(k => !firebaseConfig[k])
+const hasAnyConfig = REQUIRED_KEYS.some(k => !!firebaseConfig[k])
+const hasConfig = missingKeys.length === 0
+
+if (hasAnyConfig && !hasConfig) {
+  // Partial config: warn so silent failures are visible in DevTools.
+  console.warn(
+    `[firebase] Missing env vars: ${missingKeys.map(k => `VITE_FIREBASE_${k.replace(/([A-Z])/g, '_$1').toUpperCase()}`).join(', ')}. Cloud sync disabled.`,
+  )
+}
 
 let app: FirebaseApp | null = null
 let auth: Auth | null = null

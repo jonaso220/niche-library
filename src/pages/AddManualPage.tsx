@@ -3,11 +3,12 @@ import { useNavigate } from 'react-router'
 import { addPerfumeToCatalog, addToCollection } from '@/db/hooks'
 import { generateSlug } from '@/lib/utils'
 import type { Perfume, Gender, Concentration, Season, OccasionType } from '@/types/perfume'
-import { Save, ArrowLeft } from 'lucide-react'
+import { Save, ArrowLeft, AlertTriangle } from 'lucide-react'
 
 export function AddManualPage() {
   const navigate = useNavigate()
   const [saving, setSaving] = useState(false)
+  const [saveError, setSaveError] = useState<string | null>(null)
 
   const [name, setName] = useState('')
   const [brand, setBrand] = useState('')
@@ -57,6 +58,7 @@ export function AddManualPage() {
     if (!name.trim() || !brand.trim()) return
 
     setSaving(true)
+    setSaveError(null)
 
     const perfume: Perfume = {
       id: generateSlug(brand, name, concentration),
@@ -91,18 +93,29 @@ export function AddManualPage() {
       dataSource: 'manual',
     }
 
-    await addPerfumeToCatalog(perfume)
-    await addToCollection(perfume.id, true)
-    navigate(`/perfume/${perfume.id}`)
+    try {
+      await addPerfumeToCatalog(perfume)
+      await addToCollection(perfume.id, true)
+      void navigate(`/perfume/${perfume.id}`)
+    } catch (err) {
+      console.error('Error saving perfume:', err)
+      setSaveError(
+        err instanceof Error
+          ? err.message
+          : 'No se pudo guardar el perfume. Revisa tu conexión e inténtalo de nuevo.',
+      )
+      setSaving(false)
+    }
   }
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
       <button
+        type="button"
         onClick={() => navigate(-1)}
         className="flex items-center gap-2 text-sm text-text-secondary hover:text-gold transition-colors"
       >
-        <ArrowLeft className="w-4 h-4" />
+        <ArrowLeft className="w-4 h-4" aria-hidden="true" />
         Volver
       </button>
 
@@ -185,12 +198,22 @@ export function AddManualPage() {
           </div>
         </fieldset>
 
+        {saveError && (
+          <div
+            role="alert"
+            className="p-3 bg-danger/10 border border-danger/20 rounded-xl flex items-start gap-2.5"
+          >
+            <AlertTriangle className="w-4 h-4 text-danger shrink-0 mt-0.5" aria-hidden="true" />
+            <p className="text-sm text-danger">{saveError}</p>
+          </div>
+        )}
+
         <button
           type="submit"
           disabled={saving || !name.trim() || !brand.trim()}
           className="flex items-center gap-2 px-6 py-3 bg-gold text-background rounded-xl font-medium hover:bg-gold-bright transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          <Save className="w-4 h-4" />
+          <Save className="w-4 h-4" aria-hidden="true" />
           {saving ? 'Guardando...' : 'Guardar Perfume'}
         </button>
       </form>
