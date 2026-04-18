@@ -20,14 +20,14 @@ export function EmptyShelf({ message = 'No hay perfumes en esta estantería' }: 
           to="/search"
           className="flex items-center gap-1.5 px-4 py-2 bg-gold text-background rounded-lg text-sm font-semibold hover:bg-gold-bright glow-gold"
         >
-          <Search className="w-3.5 h-3.5" />
+          <Search className="w-3.5 h-3.5" aria-hidden="true" />
           Buscar
         </Link>
         <Link
           to="/add"
           className="flex items-center gap-1.5 px-4 py-2 bg-white/[0.04] border border-white/[0.06] rounded-lg text-sm text-text-secondary hover:text-text-primary hover:bg-white/[0.06]"
         >
-          <PlusCircle className="w-3.5 h-3.5" />
+          <PlusCircle className="w-3.5 h-3.5" aria-hidden="true" />
           Agregar
         </Link>
       </div>

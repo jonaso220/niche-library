@@ -115,7 +115,7 @@ export function AddManualPage() {
         onClick={() => navigate(-1)}
         className="flex items-center gap-2 text-sm text-text-secondary hover:text-gold transition-colors"
       >
-        <ArrowLeft className="w-4 h-4" />
+        <ArrowLeft className="w-4 h-4" aria-hidden="true" />
         Volver
       </button>
 
@@ -213,7 +213,7 @@ export function AddManualPage() {
           disabled={saving || !name.trim() || !brand.trim()}
           className="flex items-center gap-2 px-6 py-3 bg-gold text-background rounded-xl font-medium hover:bg-gold-bright transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          <Save className="w-4 h-4" />
+          <Save className="w-4 h-4" aria-hidden="true" />
           {saving ? 'Guardando...' : 'Guardar Perfume'}
         </button>
       </form>

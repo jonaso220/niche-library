@@ -59,7 +59,7 @@ export function ShelfHeader({
                       : 'bg-white/[0.04] text-text-secondary border-white/[0.08] hover:bg-white/[0.07] hover:text-text-primary hover:border-white/[0.12]'
                   )}
                 >
-                  {Icon && <Icon className="w-3.5 h-3.5" />}
+                  {Icon && <Icon className="w-3.5 h-3.5" aria-hidden="true" />}
                   {f.label}
                 </button>
               )
@@ -84,7 +84,7 @@ export function ShelfHeader({
                       : 'bg-white/[0.04] text-text-secondary border-white/[0.08] hover:bg-white/[0.07] hover:text-text-primary hover:border-white/[0.12]'
                   )}
                 >
-                  {Icon && <Icon className="w-3.5 h-3.5" />}
+                  {Icon && <Icon className="w-3.5 h-3.5" aria-hidden="true" />}
                   {f.label}
                 </button>
               )

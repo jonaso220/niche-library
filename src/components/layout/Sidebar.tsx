@@ -37,7 +37,7 @@ function NavItem({ to, icon: IconName, label, onClose }: {
           : 'text-text-secondary hover:bg-white/[0.05] hover:text-text-primary'
       )}
     >
-      {Icon && <Icon className="w-[18px] h-[18px] shrink-0" />}
+      {Icon && <Icon className="w-[18px] h-[18px] shrink-0" aria-hidden="true" />}
       <span className="truncate">{label}</span>
     </NavLink>
   )
@@ -58,10 +58,13 @@ function CollapsibleSection({ title, children, defaultOpen = false }: {
         className="flex items-center justify-between w-full px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-[0.12em] text-text-muted/80 hover:text-text-secondary transition-colors"
       >
         <span>{title}</span>
-        <ChevronDown className={cn(
-          'w-3.5 h-3.5 transition-transform duration-200',
-          open ? 'rotate-0' : '-rotate-90'
-        )} />
+        <ChevronDown
+          className={cn(
+            'w-3.5 h-3.5 transition-transform duration-200',
+            open ? 'rotate-0' : '-rotate-90',
+          )}
+          aria-hidden="true"
+        />
       </button>
       {open && (
         <div className="space-y-0.5 mt-1.5">
@@ -85,7 +88,7 @@ export function Sidebar({ onClose }: SidebarProps) {
         <div className="relative flex items-center justify-between">
           <NavLink to="/" onClick={onClose} className="flex items-center gap-3.5 group">
             <div className="relative">
-              <img src="/icon-192.png" alt="Niche Library" className="w-11 h-11 rounded-xl shadow-lg shadow-black/30" />
+              <img src="/icon-192.png" alt="" aria-hidden="true" className="w-11 h-11 rounded-xl shadow-lg shadow-black/30" />
               <div className="absolute inset-0 rounded-xl ring-1 ring-white/10" />
             </div>
             <div>
@@ -97,8 +100,13 @@ export function Sidebar({ onClose }: SidebarProps) {
               </p>
             </div>
           </NavLink>
-          <button type="button" onClick={onClose} className="lg:hidden p-1.5 text-text-muted hover:text-text-primary rounded-lg hover:bg-white/[0.06]">
-            <X className="w-5 h-5" />
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Cerrar menú"
+            className="lg:hidden p-1.5 text-text-muted hover:text-text-primary rounded-lg hover:bg-white/[0.06]"
+          >
+            <X className="w-5 h-5" aria-hidden="true" />
           </button>
         </div>
       </div>
@@ -110,7 +118,7 @@ export function Sidebar({ onClose }: SidebarProps) {
           onClick={onClose}
           className="flex items-center justify-center gap-2 flex-1 py-3 bg-gold/10 border border-gold/15 rounded-xl text-[13px] font-semibold text-gold hover:bg-gold/15 hover:border-gold/25 hover:shadow-lg hover:shadow-gold/5 transition-all"
         >
-          <Search className="w-4 h-4" />
+          <Search className="w-4 h-4" aria-hidden="true" />
           Buscar
         </NavLink>
         <NavLink
@@ -118,7 +126,7 @@ export function Sidebar({ onClose }: SidebarProps) {
           onClick={onClose}
           className="flex items-center justify-center gap-2 flex-1 py-3 bg-white/[0.04] border border-white/[0.08] rounded-xl text-[13px] font-semibold text-text-secondary hover:bg-white/[0.07] hover:text-text-primary hover:border-white/[0.12] transition-all"
         >
-          <PlusCircle className="w-4 h-4" />
+          <PlusCircle className="w-4 h-4" aria-hidden="true" />
           Agregar
         </NavLink>
       </div>
@@ -166,7 +174,7 @@ export function Sidebar({ onClose }: SidebarProps) {
               : 'text-text-muted hover:text-text-primary hover:bg-white/[0.05]'
           )}
         >
-          <Settings className="w-[18px] h-[18px]" />
+          <Settings className="w-[18px] h-[18px]" aria-hidden="true" />
           <span>Ajustes</span>
         </NavLink>
       </div>

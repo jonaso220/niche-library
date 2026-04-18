@@ -36,7 +36,7 @@ function PerfumeCardImpl({ perfume, showPrice = true, showSeasons = true, onClic
           />
         ) : (
           <div className="flex flex-col items-center gap-2 text-text-muted/20">
-            <Droplets className="w-8 h-8" />
+            <Droplets className="w-8 h-8" aria-hidden="true" />
             <span className="text-[10px] font-medium text-text-muted/30">{perfume.concentration}</span>
           </div>
         )}

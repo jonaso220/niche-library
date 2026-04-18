@@ -147,7 +147,7 @@ export function SearchPage() {
 
       {/* Search input */}
       <div className="relative max-w-3xl group">
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-text-muted group-focus-within:text-gold transition-colors" />
+        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-text-muted group-focus-within:text-gold transition-colors" aria-hidden="true" />
         <input
           type="text"
           value={query}
@@ -178,11 +178,11 @@ export function SearchPage() {
         <section>
           <h2 className="text-xs font-bold text-text-muted uppercase tracking-[0.1em] mb-4 flex items-center gap-2">
             {apiLoading ? (
-              <Loader2 className="w-3.5 h-3.5 animate-spin text-gold" />
+              <Loader2 className="w-3.5 h-3.5 animate-spin text-gold" aria-hidden="true" />
             ) : datasetLoaded ? (
-              <Database className="w-3.5 h-3.5 text-accent-green" />
+              <Database className="w-3.5 h-3.5 text-accent-green" aria-hidden="true" />
             ) : (
-              <Wifi className="w-3.5 h-3.5 text-accent-green" />
+              <Wifi className="w-3.5 h-3.5 text-accent-green" aria-hidden="true" />
             )}
             Resultados Encontrados
             {apiResults.length > 0 && (
@@ -193,7 +193,7 @@ export function SearchPage() {
           {/* Warnings (partial failures) */}
           {apiWarnings.length > 0 && (
             <div className="p-3 bg-warning/5 border border-warning/15 rounded-xl text-xs text-warning/80 mb-4 flex items-start gap-2">
-              <AlertTriangle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+              <AlertTriangle className="w-3.5 h-3.5 shrink-0 mt-0.5" aria-hidden="true" />
               <div>
                 <span className="font-medium">Algunos proveedores fallaron:</span>
                 <ul className="mt-1 space-y-0.5">
@@ -232,7 +232,7 @@ export function SearchPage() {
       {!hasAnyProvider && !datasetLoading && (
         <div className="p-5 bg-card border border-border/30 rounded-2xl flex items-start gap-3.5 max-w-3xl">
           <div className="w-10 h-10 rounded-xl bg-accent-blue/10 flex items-center justify-center shrink-0">
-            <WifiOff className="w-5 h-5 text-accent-blue" />
+            <WifiOff className="w-5 h-5 text-accent-blue" aria-hidden="true" />
           </div>
           <div>
             <p className="text-sm text-text-primary font-semibold">Búsqueda extendida no disponible</p>

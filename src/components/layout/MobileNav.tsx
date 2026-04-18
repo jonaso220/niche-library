@@ -29,7 +29,7 @@ export function MobileNav() {
             {({ isActive }) => (
               <>
                 <div className="relative">
-                  <Icon className="w-5 h-5" />
+                  <Icon className="w-5 h-5" aria-hidden="true" />
                   {isActive && (
                     <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-gold shadow-sm shadow-gold/50" />
                   )}
