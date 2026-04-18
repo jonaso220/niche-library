@@ -18,8 +18,9 @@ const onlineProviders: ApiProvider[] = [
 /**
  * Data richness score — used to decide which duplicate to keep.
  * Higher = more complete data.
+ * @internal exported for unit testing.
  */
-function richnessScore(p: Perfume): number {
+export function richnessScore(p: Perfume): number {
   let score = 0
   if (p.rating > 0) score += 2
   if (p.longevity !== 5) score += 1 // non-default
@@ -39,8 +40,9 @@ function richnessScore(p: Perfume): number {
 /**
  * Deduplicates and merges results from multiple API providers.
  * When duplicates are found (same slug), keeps the one with richer data.
+ * @internal exported for unit testing.
  */
-function deduplicateAndMerge(allResults: Perfume[]): Perfume[] {
+export function deduplicateAndMerge(allResults: Perfume[]): Perfume[] {
   const slugMap = new Map<string, Perfume>()
 
   for (const perfume of allResults) {

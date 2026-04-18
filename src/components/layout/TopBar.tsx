@@ -78,7 +78,7 @@ export function TopBar({ onMenuClick }: TopBarProps) {
 
         {/* Mobile logo */}
         <div className="lg:hidden flex items-center gap-2.5 shrink-0">
-          <img src="/icon-192.png" alt="" className="w-8 h-8 rounded-lg shadow-md shadow-black/20" />
+          <img src="/icon-192.png" alt="" aria-hidden="true" className="w-8 h-8 rounded-lg shadow-md shadow-black/20" />
           <span className="font-bold text-[15px] gradient-text hidden sm:block">Niche Library</span>
         </div>
 
@@ -124,7 +124,8 @@ export function TopBar({ onMenuClick }: TopBarProps) {
                   {perfume.imageUrl ? (
                     <img
                       src={perfume.imageUrl}
-                      alt=""
+                      alt={`${perfume.brand} ${perfume.name}`}
+                      loading="lazy"
                       className="w-9 h-12 object-cover rounded-lg bg-white/[0.03]"
                     />
                   ) : (
@@ -172,7 +173,7 @@ export function TopBar({ onMenuClick }: TopBarProps) {
                 {user?.photoURL ? (
                   <img
                     src={user.photoURL}
-                    alt={user.displayName ?? ''}
+                    alt={user.displayName ? `Avatar de ${user.displayName}` : 'Avatar de usuario'}
                     className="w-9 h-9 rounded-full ring-2 ring-gold/25 ring-offset-2 ring-offset-background shadow-lg shadow-gold/10"
                     referrerPolicy="no-referrer"
                   />

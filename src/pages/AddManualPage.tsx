@@ -3,11 +3,12 @@ import { useNavigate } from 'react-router'
 import { addPerfumeToCatalog, addToCollection } from '@/db/hooks'
 import { generateSlug } from '@/lib/utils'
 import type { Perfume, Gender, Concentration, Season, OccasionType } from '@/types/perfume'
-import { Save, ArrowLeft } from 'lucide-react'
+import { Save, ArrowLeft, AlertTriangle } from 'lucide-react'
 
 export function AddManualPage() {
   const navigate = useNavigate()
   const [saving, setSaving] = useState(false)
+  const [saveError, setSaveError] = useState<string | null>(null)
 
   const [name, setName] = useState('')
   const [brand, setBrand] = useState('')
@@ -57,6 +58,7 @@ export function AddManualPage() {
     if (!name.trim() || !brand.trim()) return
 
     setSaving(true)
+    setSaveError(null)
 
     const perfume: Perfume = {
       id: generateSlug(brand, name, concentration),
@@ -91,9 +93,19 @@ export function AddManualPage() {
       dataSource: 'manual',
     }
 
-    await addPerfumeToCatalog(perfume)
-    await addToCollection(perfume.id, true)
-    navigate(`/perfume/${perfume.id}`)
+    try {
+      await addPerfumeToCatalog(perfume)
+      await addToCollection(perfume.id, true)
+      navigate(`/perfume/${perfume.id}`)
+    } catch (err) {
+      console.error('Error saving perfume:', err)
+      setSaveError(
+        err instanceof Error
+          ? err.message
+          : 'No se pudo guardar el perfume. Revisa tu conexión e inténtalo de nuevo.',
+      )
+      setSaving(false)
+    }
   }
 
   return (
@@ -184,6 +196,16 @@ export function AddManualPage() {
             <SliderField label="Especial" value={special} onChange={setSpecial} max={100} />
           </div>
         </fieldset>
+
+        {saveError && (
+          <div
+            role="alert"
+            className="p-3 bg-danger/10 border border-danger/20 rounded-xl flex items-start gap-2.5"
+          >
+            <AlertTriangle className="w-4 h-4 text-danger shrink-0 mt-0.5" aria-hidden="true" />
+            <p className="text-sm text-danger">{saveError}</p>
+          </div>
+        )}
 
         <button
           type="submit"

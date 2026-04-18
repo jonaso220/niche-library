@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { Sidebar } from './Sidebar'
 import { TopBar } from './TopBar'
 import { MobileNav } from './MobileNav'
+import { AuthErrorBanner } from './AuthErrorBanner'
 
 export function AppShell() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -30,6 +31,7 @@ export function AppShell() {
       {/* Main content */}
       <div className="flex flex-1 flex-col min-w-0 relative z-10">
         <TopBar onMenuClick={() => setSidebarOpen(true)} />
+        <AuthErrorBanner />
 
         <main className="flex-1 overflow-y-auto px-6 pt-5 pb-24 sm:px-8 sm:pt-6 md:px-10 md:pt-7 lg:px-12 lg:pt-8 lg:pb-10">
           <Outlet />

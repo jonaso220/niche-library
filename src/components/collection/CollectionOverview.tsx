@@ -76,7 +76,7 @@ export function CollectionOverview() {
 
             <div className="relative flex flex-col items-center text-center max-w-lg mx-auto">
               <div className="relative mb-6">
-                <img src="/icon-192.png" alt="" className="w-20 h-20 rounded-2xl shadow-xl shadow-black/30" />
+                <img src="/icon-192.png" alt="" aria-hidden="true" className="w-20 h-20 rounded-2xl shadow-xl shadow-black/30" />
                 <div className="absolute inset-0 rounded-2xl ring-1 ring-white/10" />
                 <div className="absolute -inset-2 rounded-3xl bg-gold/[0.06] blur-xl" />
               </div>

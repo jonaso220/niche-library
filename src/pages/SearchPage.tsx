@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useSearchParams } from 'react-router'
-import { Search, Loader2, Wifi, WifiOff, AlertTriangle, Database, Download } from 'lucide-react'
+import { Search, Loader2, Wifi, WifiOff, AlertTriangle, Database, Download, RefreshCw } from 'lucide-react'
 import { useSearchPerfumes, addToCollection, addPerfumeToCatalog } from '@/db/hooks'
 import { searchAllApis, isAnyApiConfigured } from '@/api/search-orchestrator'
 import { isParfumoLoaded, loadParfumoDataset } from '@/db/parfumo-loader'
@@ -18,23 +18,33 @@ export function SearchPage() {
   const [apiWarnings, setApiWarnings] = useState<string[]>([])
   const [datasetLoaded, setDatasetLoaded] = useState(isParfumoLoaded())
   const [datasetLoading, setDatasetLoading] = useState(false)
+  const [datasetError, setDatasetError] = useState<string | null>(null)
+  const [datasetRetry, setDatasetRetry] = useState(0)
 
   const localResults = useSearchPerfumes(query)
 
   // Auto-load dataset on mount if not already loaded
   useEffect(() => {
-    if (!isParfumoLoaded()) {
-      setDatasetLoading(true)
-      loadParfumoDataset()
-        .then(() => {
-          setDatasetLoaded(true)
-          setDatasetLoading(false)
-        })
-        .catch(() => {
-          setDatasetLoading(false)
-        })
+    if (isParfumoLoaded()) return
+    let cancelled = false
+    setDatasetLoading(true)
+    setDatasetError(null)
+    loadParfumoDataset()
+      .then(() => {
+        if (cancelled) return
+        setDatasetLoaded(true)
+        setDatasetLoading(false)
+      })
+      .catch((err: unknown) => {
+        if (cancelled) return
+        const message = err instanceof Error ? err.message : 'No se pudo descargar el catálogo.'
+        setDatasetError(message)
+        setDatasetLoading(false)
+      })
+    return () => {
+      cancelled = true
     }
-  }, [])
+  }, [datasetRetry])
 
   useEffect(() => {
     if (query.length < 3 || !isAnyApiConfigured()) return
@@ -103,13 +113,35 @@ export function SearchPage() {
       {datasetLoading && (
         <div className="p-4 bg-gold/5 border border-gold/15 rounded-2xl flex items-center gap-3 max-w-3xl">
           <div className="w-9 h-9 rounded-xl bg-gold/10 flex items-center justify-center shrink-0">
-            <Download className="w-4.5 h-4.5 text-gold animate-bounce" />
+            <Download className="w-4.5 h-4.5 text-gold animate-bounce" aria-hidden="true" />
           </div>
           <div>
             <p className="text-sm text-text-primary font-semibold">Descargando base de datos</p>
             <p className="text-xs text-text-muted mt-0.5">59.000+ fragancias (~2 MB). Solo se descarga una vez.</p>
           </div>
-          <Loader2 className="w-4 h-4 text-gold animate-spin ml-auto" />
+          <Loader2 className="w-4 h-4 text-gold animate-spin ml-auto" aria-hidden="true" />
+        </div>
+      )}
+
+      {/* Dataset load error */}
+      {datasetError && !datasetLoading && (
+        <div
+          role="alert"
+          className="p-4 bg-danger/10 border border-danger/20 rounded-2xl flex items-start gap-3 max-w-3xl"
+        >
+          <AlertTriangle className="w-4 h-4 text-danger shrink-0 mt-0.5" aria-hidden="true" />
+          <div className="flex-1">
+            <p className="text-sm text-danger font-semibold">No se pudo descargar el catálogo</p>
+            <p className="text-xs text-danger/80 mt-0.5">{datasetError}</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setDatasetRetry(n => n + 1)}
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-danger/15 hover:bg-danger/20 text-danger rounded-lg text-xs font-semibold transition-colors"
+          >
+            <RefreshCw className="w-3.5 h-3.5" aria-hidden="true" />
+            Reintentar
+          </button>
         </div>
       )}
 
@@ -241,7 +273,12 @@ function ApiResultCard({ perfume, onAdd }: {
     <div className="flex items-center gap-4 bg-card border border-border/30 rounded-2xl p-4 hover:border-gold/15 hover:shadow-lg hover:shadow-black/10 transition-all duration-200">
       <div className="w-16 h-16 bg-white/[0.03] rounded-xl flex items-center justify-center shrink-0 overflow-hidden border border-white/[0.04]">
         {perfume.imageUrl ? (
-          <img src={perfume.imageUrl} alt="" className="w-full h-full object-contain p-1.5" />
+          <img
+            src={perfume.imageUrl}
+            alt={`${perfume.brand} ${perfume.name}`}
+            loading="lazy"
+            className="w-full h-full object-contain p-1.5"
+          />
         ) : (
           <span className="text-xl text-text-muted/20">💧</span>
         )}

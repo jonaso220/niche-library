@@ -9,7 +9,7 @@ export function EmptyShelf({ message = 'No hay perfumes en esta estantería' }: 
   return (
     <div className="flex flex-col items-center justify-center py-16 text-center">
       <div className="w-12 h-12 rounded-xl bg-white/[0.04] border border-white/[0.06] flex items-center justify-center mb-4">
-        <img src="/icon-192.png" alt="" className="w-7 h-7 rounded-lg opacity-40" />
+        <img src="/icon-192.png" alt="" aria-hidden="true" className="w-7 h-7 rounded-lg opacity-40" />
       </div>
       <h2 className="text-base font-semibold text-text-secondary mb-1">{message}</h2>
       <p className="text-sm text-text-muted mb-5 max-w-sm leading-relaxed">
