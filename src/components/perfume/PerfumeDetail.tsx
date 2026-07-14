@@ -39,6 +39,10 @@ export function PerfumeDetail({ perfume }: PerfumeDetailProps) {
     await updateCollectionEntry(perfume.id, { owned: true, previouslyOwned: false })
   }
 
+  async function handleMarkOwned() {
+    await updateCollectionEntry(perfume.id, { owned: true, previouslyOwned: false })
+  }
+
   async function handleRatingChange(rating: number) {
     if (entry) {
       await updateCollectionEntry(perfume.id, { personalRating: rating })
@@ -246,6 +250,16 @@ export function PerfumeDetail({ perfume }: PerfumeDetailProps) {
                   >
                     <Archive className="w-4 h-4" aria-hidden="true" />
                     Ya no la tengo
+                  </button>
+                )}
+                {!entry.owned && (
+                  <button
+                    type="button"
+                    onClick={handleMarkOwned}
+                    className="flex items-center gap-2 px-4 py-2 bg-gold text-background rounded-lg text-sm font-medium hover:bg-gold-bright transition-colors"
+                  >
+                    <Check className="w-4 h-4" aria-hidden="true" />
+                    Ya lo tengo
                   </button>
                 )}
                 <button
