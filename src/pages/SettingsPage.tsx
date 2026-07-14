@@ -99,15 +99,16 @@ export function SettingsPage() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto space-y-5">
-      <div>
-        <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Ajustes</h1>
-        <p className="text-sm text-text-secondary mt-1">Configura tu biblioteca</p>
-      </div>
+    <div className="max-w-4xl mx-auto space-y-5">
+      <header className="mb-8">
+        <h1 className="page-title text-4xl md:text-5xl">Ajustes</h1>
+        <p className="text-sm md:text-base text-text-secondary mt-3">Configura tu biblioteca</p>
+        <div className="gold-rail mt-6" aria-hidden="true" />
+      </header>
 
       {/* Cloud Sync */}
       {isFirebaseConfigured && (
-        <section className="bg-white/[0.04] border border-white/[0.06] rounded-2xl p-5 space-y-4">
+        <section className="surface-panel rounded-[1.35rem] p-5 md:p-6 space-y-4">
           <div className="flex items-center gap-2.5">
             {isAuthenticated ? (
               <div className="w-8 h-8 rounded-xl bg-accent-green/10 flex items-center justify-center">
@@ -180,7 +181,7 @@ export function SettingsPage() {
       )}
 
       {/* APIs de Búsqueda */}
-      <section className="bg-white/[0.04] border border-white/[0.06] rounded-2xl p-5 space-y-5">
+      <section className="surface-panel rounded-[1.35rem] p-5 md:p-6 space-y-5">
         <div className="flex items-center gap-2.5">
           <div className="w-8 h-8 rounded-xl bg-gold/10 flex items-center justify-center">
             <Search className="w-4 h-4 text-gold" aria-hidden="true" />
@@ -274,7 +275,7 @@ export function SettingsPage() {
       </section>
 
       {/* Data management */}
-      <section className="bg-white/[0.04] border border-white/[0.06] rounded-2xl p-5 space-y-3">
+      <section className="surface-panel rounded-[1.35rem] p-5 md:p-6 space-y-3">
         <div className="flex items-center gap-2.5">
           <div className="w-8 h-8 rounded-xl bg-accent-blue/10 flex items-center justify-center">
             <Database className="w-4 h-4 text-accent-blue" aria-hidden="true" />

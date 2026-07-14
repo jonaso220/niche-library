@@ -31,9 +31,9 @@ function NavItem({ to, icon: IconName, label, onClose }: {
       to={to}
       onClick={onClose}
       className={({ isActive }) => cn(
-        'flex items-center gap-3 px-3.5 py-2 rounded-xl text-sm transition-all duration-200',
+        'relative flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm transition-all duration-200',
         isActive
-          ? 'bg-gradient-to-r from-gold/15 to-gold/5 text-gold font-semibold shadow-[inset_0_0_0_1px] shadow-gold/10'
+          ? 'bg-gradient-to-r from-gold/[0.17] to-gold/[0.045] text-gold font-semibold shadow-[inset_0_0_0_1px] shadow-gold/15 before:absolute before:left-0 before:top-2 before:bottom-2 before:w-0.5 before:rounded-full before:bg-gold'
           : 'text-text-secondary hover:bg-white/[0.05] hover:text-text-primary'
       )}
     >
@@ -84,9 +84,9 @@ export function Sidebar({ onClose }: SidebarProps) {
   const coleccion = getShelfsByCategory('coleccion')
 
   return (
-    <div className="flex flex-col h-full bg-surface/80 backdrop-blur-xl overflow-y-auto border-r border-border/30">
+    <div className="flex flex-col h-full bg-[linear-gradient(180deg,rgba(6,20,16,0.96),rgba(5,13,11,0.985))] backdrop-blur-xl overflow-y-auto border-r border-white/[0.055]">
       {/* Header with gradient accent */}
-      <div className="relative px-5 py-6">
+      <div className="relative px-5 py-7">
         <div className="absolute inset-0 bg-gradient-to-b from-gold/[0.04] to-transparent pointer-events-none" />
         <div className="relative flex items-center justify-between">
           <NavLink to="/" onClick={onClose} className="flex items-center gap-3.5 group">
@@ -95,7 +95,7 @@ export function Sidebar({ onClose }: SidebarProps) {
               <div className="absolute inset-0 rounded-xl ring-1 ring-white/10" />
             </div>
             <div>
-              <h1 className="text-base font-bold text-text-primary leading-tight group-hover:text-gold transition-colors">
+              <h1 className="font-display text-lg font-semibold text-text-primary leading-tight group-hover:text-gold transition-colors">
                 Niche Library
               </h1>
               <p className="text-[10px] text-gold-dim font-semibold tracking-[0.15em] uppercase mt-0.5">
@@ -116,7 +116,7 @@ export function Sidebar({ onClose }: SidebarProps) {
       </div>
 
       {/* Quick Actions */}
-      <div className="px-4 pb-4 flex gap-2.5">
+      <div className="px-4 pb-5 flex gap-2.5">
         <NavLink
           to="/search"
           onClick={onClose}

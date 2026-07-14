@@ -129,8 +129,8 @@ export function TopBar({ onMenuClick, menuButtonRef }: TopBarProps) {
   const activeOptionId = activeIndex >= 0 ? optionId(activeIndex) : undefined
 
   return (
-    <header className="sticky top-0 z-20 glass border-b border-white/[0.06]">
-      <div className="flex items-center gap-4 px-4 md:px-6 lg:px-8 h-16">
+    <header className="sticky top-0 z-20 bg-background/82 backdrop-blur-2xl border-b border-white/[0.045]">
+      <div className="flex items-center gap-4 px-4 md:px-7 lg:px-10 xl:px-12 h-[4.5rem]">
         {/* Mobile menu button */}
         <button
           ref={menuButtonRef}
@@ -150,11 +150,11 @@ export function TopBar({ onMenuClick, menuButtonRef }: TopBarProps) {
 
         {/* Search — fills all available space, no max-width */}
         <form onSubmit={handleSearch} className="flex-1 min-w-0 relative" role="search">
-          <div className={`relative group rounded-xl transition-all duration-300 ${isFocused ? 'shadow-md shadow-gold/[0.06]' : ''}`}>
+          <div className={`relative group rounded-2xl transition-all duration-300 ${isFocused ? 'shadow-lg shadow-gold/[0.055]' : ''}`}>
             {/* Subtle gold glow border on focus */}
-            <div className={`absolute -inset-px rounded-xl bg-gradient-to-r from-gold/20 via-gold/8 to-gold/20 transition-opacity duration-300 ${isFocused ? 'opacity-100' : 'opacity-0'}`} />
+            <div className={`absolute -inset-px rounded-2xl bg-gradient-to-r from-gold/35 via-gold/8 to-transparent transition-opacity duration-300 ${isFocused ? 'opacity-100' : 'opacity-45'}`} />
 
-            <div className={`relative flex items-center rounded-xl transition-all duration-200 overflow-hidden ${isFocused ? 'bg-white/[0.06]' : 'bg-white/[0.04] hover:bg-white/[0.05]'} border ${isFocused ? 'border-gold/20' : 'border-white/[0.07] hover:border-white/[0.10]'}`}>
+            <div className={`relative flex items-center rounded-2xl transition-all duration-200 overflow-hidden ${isFocused ? 'bg-surface/95' : 'bg-white/[0.035] hover:bg-white/[0.05]'} border ${isFocused ? 'border-gold/20' : 'border-white/[0.075] hover:border-white/[0.12]'} before:absolute before:left-0 before:inset-y-2 before:w-px before:bg-gold/80`}>
               <Search className={`ml-3.5 w-4 h-4 shrink-0 transition-colors duration-200 ${isFocused ? 'text-gold' : 'text-text-muted/50'}`} aria-hidden="true" />
               <input
                 ref={inputRef}
@@ -165,7 +165,7 @@ export function TopBar({ onMenuClick, menuButtonRef }: TopBarProps) {
                 onBlur={handleBlur}
                 onKeyDown={handleInputKeyDown}
                 placeholder="Buscar fragancias, marcas, notas..."
-                className="w-full px-3 py-2.5 bg-transparent text-sm text-text-primary placeholder:text-text-muted/40 focus:outline-none"
+                className="w-full px-3 py-3 bg-transparent text-sm text-text-primary placeholder:text-text-muted/45 focus:outline-none"
                 role="combobox"
                 aria-label="Buscar fragancias"
                 aria-expanded={!!showDropdown}

@@ -31,16 +31,20 @@ export function ShelfHeader({
   onOccasionFilterChange,
 }: ShelfHeaderProps) {
   return (
-    <div className="mb-6">
-      <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-text-primary">
+    <header className="mb-8 md:mb-10">
+      <h1 className="page-title text-4xl md:text-5xl text-text-primary">
         {shelf.label}
       </h1>
-      <p className="text-sm text-text-secondary mt-1">
-        {shelf.description} — <span className="text-gold font-medium">{count} perfume{count !== 1 ? 's' : ''}</span>
+      <p className="text-sm md:text-base text-text-secondary mt-3 flex flex-wrap items-center gap-2">
+        <span>{shelf.description}</span>
+        <span className="text-text-muted/50" aria-hidden="true">•</span>
+        <span className="text-gold font-semibold">{count} perfume{count !== 1 ? 's' : ''}</span>
       </p>
 
+      <div className="gold-rail mt-6" aria-hidden="true" />
+
       {isSeasonShelf && (
-        <div className="mt-4 space-y-2.5">
+        <div className="surface-panel mt-6 rounded-2xl p-4 md:p-5 space-y-3">
           {/* Horario chips */}
           <div className="flex flex-wrap gap-2">
             <span className="text-[10px] font-bold uppercase tracking-[0.1em] text-text-muted/60 self-center mr-1">Horario</span>
@@ -94,6 +98,6 @@ export function ShelfHeader({
           </div>
         </div>
       )}
-    </div>
+    </header>
   )
 }

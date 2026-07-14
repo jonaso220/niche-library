@@ -57,7 +57,7 @@ export function CollectionOverview() {
     <div className="space-y-8">
       <div>
         <p className="text-gold-dim text-xs font-bold uppercase tracking-[0.15em] mb-1.5">Bienvenido</p>
-        <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-text-primary">
+        <h1 className="page-title text-4xl md:text-5xl text-text-primary">
           Tu Colección
         </h1>
         <p className="text-sm text-text-secondary mt-1.5">
@@ -166,7 +166,7 @@ function DailyFeature({ perfume, seasonLabel, onShuffle }: {
           <p className="text-xs uppercase tracking-[0.12em] text-text-muted font-bold mb-1.5">
             {perfume.brand}
           </p>
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-[-0.035em] text-text-primary leading-[1.02]">
+          <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-semibold tracking-[-0.035em] text-text-primary leading-[1.02]">
             {perfume.name}
           </h2>
           <p className="text-sm text-text-secondary leading-relaxed mt-4 max-w-lg">

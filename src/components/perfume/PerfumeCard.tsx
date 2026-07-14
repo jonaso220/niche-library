@@ -21,17 +21,17 @@ function PerfumeCardImpl({ perfume, showPrice = true, showSeasons = true, onClic
   const rating = isShelfPerfume(perfume) ? perfume.effectiveRating : perfume.rating
 
   const content = (
-    <div className="group relative bg-card hover:bg-card-hover border border-border/40 hover:border-gold/20 rounded-2xl overflow-hidden card-lift flex flex-col h-full">
+    <article className="group relative bg-[linear-gradient(155deg,rgba(15,34,28,0.96),rgba(8,21,17,0.98))] border border-white/[0.075] hover:border-gold/30 rounded-[1.15rem] overflow-hidden card-lift flex flex-col h-full shadow-[inset_0_1px_0_rgba(255,255,255,0.025)]">
       {/* Subtle gold glow on hover */}
-      <div className="absolute inset-0 bg-gradient-to-b from-gold/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-gold/55 to-transparent opacity-25 group-hover:opacity-80 transition-opacity duration-300 pointer-events-none" />
 
       {/* Image */}
-      <div className="relative aspect-square flex items-center justify-center overflow-hidden bg-[radial-gradient(ellipse_at_center,_rgba(180,170,155,0.12)_0%,_transparent_70%)]">
+      <div className="relative m-2.5 mb-0 aspect-[4/3] rounded-[0.9rem] border border-gold/[0.13] flex items-center justify-center overflow-hidden bg-[radial-gradient(ellipse_at_center,_rgba(180,170,155,0.13)_0%,_rgba(15,41,32,0.2)_42%,_transparent_74%)]">
         {perfume.imageUrl ? (
           <img
             src={perfume.imageUrl}
             alt={`${perfume.brand} ${perfume.name}`}
-            className="w-full h-full object-contain p-3 brightness-[0.88] contrast-[1.05] group-hover:brightness-100 group-hover:scale-105 transition-all duration-500"
+            className="w-full h-full object-contain p-3 brightness-[0.9] contrast-[1.04] drop-shadow-[0_14px_16px_rgba(0,0,0,0.32)] group-hover:brightness-100 group-hover:scale-[1.045] transition-all duration-500"
             loading="lazy"
           />
         ) : (
@@ -43,25 +43,29 @@ function PerfumeCardImpl({ perfume, showPrice = true, showSeasons = true, onClic
       </div>
 
       {/* Info */}
-      <div className="relative p-3.5 border-t border-white/[0.04] flex flex-col flex-1">
-        <div className="space-y-2 flex-1">
+      <div className="relative p-4 flex flex-col flex-1">
+        <div className="space-y-2.5 flex-1">
           <div>
             <p className="text-[10px] uppercase tracking-[0.1em] text-gold-dim font-bold truncate">
               {perfume.brand}
             </p>
-            <h3 className="font-semibold text-[13px] leading-snug truncate text-text-primary group-hover:text-gold transition-colors duration-200">
+            <h3 className="font-display font-semibold text-lg leading-tight truncate text-text-primary group-hover:text-gold transition-colors duration-200">
               {perfume.name}
             </h3>
           </div>
 
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-2 pb-2.5 border-b border-white/[0.065]">
             <RatingStars rating={rating} />
-            <span className="text-[10px] text-text-muted font-medium">{perfume.concentration}</span>
           </div>
 
           {showSeasons && perfume.seasonScores.length > 0 && (
             <SeasonBadge seasonScores={perfume.seasonScores} compact />
           )}
+
+          <div className="flex items-center gap-1.5 text-[10px] text-text-muted font-semibold uppercase tracking-[0.08em]">
+            <Droplets className="w-3.5 h-3.5 text-gold-dim/70" aria-hidden="true" />
+            <span>{perfume.concentration}</span>
+          </div>
 
           {showPrice && (
             <PriceTag
@@ -73,7 +77,7 @@ function PerfumeCardImpl({ perfume, showPrice = true, showSeasons = true, onClic
         </div>
 
         {/* Performance bars — always at bottom */}
-        <div className="flex items-center gap-3 text-[10px] text-text-muted mt-2">
+        <div className="flex items-center justify-between gap-3 text-[10px] text-text-muted mt-3 pt-3 border-t border-white/[0.065]">
           <span className="flex items-center gap-1.5">
             <span className="w-1.5 h-1.5 rounded-full bg-accent-green shadow-sm shadow-accent-green/30" />
             {perfume.longevity}/10
@@ -84,7 +88,7 @@ function PerfumeCardImpl({ perfume, showPrice = true, showSeasons = true, onClic
           </span>
         </div>
       </div>
-    </div>
+    </article>
   )
 
   if (onClick) {

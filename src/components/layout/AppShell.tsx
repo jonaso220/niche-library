@@ -47,9 +47,10 @@ export function AppShell() {
   }, [sidebarOpen])
 
   return (
-    <div className="flex h-screen bg-background overflow-hidden relative">
+    <div className="flex h-screen bg-background/90 overflow-hidden relative isolate">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_82%_12%,_rgba(23,74,57,0.11),_transparent_35%),radial-gradient(circle_at_62%_100%,_rgba(184,144,66,0.035),_transparent_34%)] pointer-events-none" />
       {/* Sidebar - Desktop */}
-      <aside className="hidden lg:flex lg:w-72 lg:flex-col lg:border-r lg:border-border/50">
+      <aside className="hidden lg:flex lg:w-[19rem] lg:flex-col lg:border-r lg:border-border/50 relative z-20">
         <Sidebar onClose={() => setSidebarOpen(false)} />
       </aside>
 
@@ -79,8 +80,10 @@ export function AppShell() {
         <TopBar menuButtonRef={menuButtonRef} onMenuClick={() => setSidebarOpen(true)} />
         <AuthErrorBanner />
 
-        <main className="flex-1 overflow-y-auto px-6 pt-5 pb-24 sm:px-8 sm:pt-6 md:px-10 md:pt-7 lg:px-12 lg:pt-8 lg:pb-10">
-          <Outlet />
+        <main className="flex-1 overflow-y-auto px-5 pt-6 pb-28 sm:px-8 sm:pt-7 md:px-10 lg:px-12 xl:px-14 lg:pt-10 lg:pb-12">
+          <div className="mx-auto w-full max-w-[108rem]">
+            <Outlet />
+          </div>
         </main>
 
         <MobileNav />

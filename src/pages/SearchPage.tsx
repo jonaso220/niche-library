@@ -120,20 +120,20 @@ export function SearchPage() {
   const hasOnlineProvider = isAnyOnlineApiConfigured()
 
   return (
-    <div className="space-y-8">
-      <div>
-        <p className="text-gold-dim text-xs font-bold uppercase tracking-[0.15em] mb-1.5">Explorar</p>
-        <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
+    <div className="space-y-9 md:space-y-10">
+      <header>
+        <h1 className="page-title text-4xl md:text-5xl">
           Buscar Perfumes
         </h1>
-        <p className="text-sm text-text-secondary mt-1.5">
+        <p className="text-sm md:text-base text-text-secondary mt-3">
           {datasetLoaded
             ? 'Busca entre 59.000+ fragancias del catálogo global'
             : datasetLoading
               ? 'Cargando base de datos de fragancias...'
               : 'Busca en el catálogo local'}
         </p>
-      </div>
+        <div className="gold-rail mt-6" aria-hidden="true" />
+      </header>
 
       {/* Dataset loading indicator */}
       {datasetLoading && (
@@ -172,16 +172,18 @@ export function SearchPage() {
       )}
 
       {/* Search input */}
-      <div className="relative max-w-3xl group">
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-text-muted group-focus-within:text-gold transition-colors" aria-hidden="true" />
-        <input
-          type="text"
-          value={query}
-          onChange={(e) => handleQueryChange(e.target.value)}
-          placeholder="Escribe nombre o marca... (ej: Sauvage, Le Beau, Givenchy)"
-          className="w-full pl-12 pr-5 py-4 bg-card border border-border/50 rounded-2xl text-text-primary placeholder:text-text-muted/50 focus:outline-none focus:border-gold/30 focus:ring-2 focus:ring-gold/15 focus:shadow-lg focus:shadow-gold/5 text-[15px] transition-all"
-          autoFocus
-        />
+      <div className="surface-panel relative max-w-4xl rounded-[1.35rem] p-2 group">
+        <div className="relative rounded-2xl bg-background/45 border border-white/[0.06] group-focus-within:border-gold/25 transition-colors">
+          <Search className="absolute left-4.5 top-1/2 -translate-y-1/2 w-5 h-5 text-text-muted group-focus-within:text-gold transition-colors" aria-hidden="true" />
+          <input
+            type="text"
+            value={query}
+            onChange={(e) => handleQueryChange(e.target.value)}
+            placeholder="Escribe nombre o marca... (ej: Sauvage, Le Beau, Givenchy)"
+            className="w-full pl-12 pr-5 py-4 bg-transparent rounded-2xl text-text-primary placeholder:text-text-muted/50 focus:outline-none focus:ring-2 focus:ring-gold/10 text-[15px] transition-all"
+            autoFocus
+          />
+        </div>
       </div>
 
       {/* Local results */}
@@ -191,7 +193,7 @@ export function SearchPage() {
             Catálogo global
             <span className="px-2 py-0.5 bg-gold/10 text-gold rounded-full text-[10px] font-bold">{localResults.length}</span>
           </h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 2xl:grid-cols-6 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-[repeat(auto-fill,minmax(12.5rem,1fr))] gap-3.5 md:gap-4">
             {localResults.map(perfume => (
               <PerfumeCard key={perfume.id} perfume={perfume} showSeasons={false} />
             ))}
@@ -301,7 +303,7 @@ function ApiResultCard({ perfume, onAdd }: {
   }
 
   return (
-    <div className="flex items-center gap-4 bg-card border border-border/30 rounded-2xl p-4 hover:border-gold/15 hover:shadow-lg hover:shadow-black/10 transition-all duration-200">
+    <div className="surface-panel flex items-center gap-4 rounded-2xl p-4 hover:border-gold/25 transition-all duration-200">
       <div className="w-16 h-16 bg-white/[0.03] rounded-xl flex items-center justify-center shrink-0 overflow-hidden border border-white/[0.04]">
         {perfume.imageUrl ? (
           <img
