@@ -111,11 +111,23 @@ describe('mergeCollection', () => {
     expect(merged.personalRating).toBe(5)
   })
 
-  it('ties go to cloud (overwrite, matches current behavior)', () => {
+  it('ties preserve local edits instead of overwriting them', () => {
     const local = [makeEntry('x', '2025-01-01', { personalNotes: 'local' })]
     const cloud = [makeEntry('x', '2025-01-01', { personalNotes: 'cloud' })]
     const [merged] = mergeCollection(local, cloud)
-    expect(merged.personalNotes).toBe('cloud')
+    expect(merged.personalNotes).toBe('local')
+  })
+
+  it('uses updatedAt instead of addedAt for edits', () => {
+    const local = [makeEntry('x', '2025-01-01', { personalNotes: 'new', updatedAt: '2025-03-01' })]
+    const cloud = [makeEntry('x', '2025-02-01', { personalNotes: 'old', updatedAt: '2025-02-15' })]
+    expect(mergeCollection(local, cloud)[0].personalNotes).toBe('new')
+  })
+
+  it('keeps a newer deletion tombstone', () => {
+    const local = [makeEntry('x', '2025-01-01', { deletedAt: '2025-04-01', updatedAt: '2025-04-01' })]
+    const cloud = [makeEntry('x', '2025-01-01', { updatedAt: '2025-03-01' })]
+    expect(mergeCollection(local, cloud)[0].deletedAt).toBe('2025-04-01')
   })
 
   it('preserves local-only entries (multi-device: add on A, login on A keeps it)', () => {

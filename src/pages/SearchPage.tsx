@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react'
-import { useSearchParams } from 'react-router'
+import { useState, useEffect, useDeferredValue, useRef } from 'react'
+import { Link, useSearchParams } from 'react-router'
 import { Search, Loader2, Wifi, WifiOff, AlertTriangle, Database, Download, RefreshCw } from 'lucide-react'
 import { useSearchPerfumes, addToCollection, addPerfumeToCatalog } from '@/db/hooks'
-import { searchAllApis, isAnyApiConfigured } from '@/api/search-orchestrator'
+import { searchOnlineApis, isAnyOnlineApiConfigured } from '@/api/search-orchestrator'
 import { isParfumoLoaded, loadParfumoDataset } from '@/db/parfumo-loader'
 import type { Perfume } from '@/types/perfume'
 import { PerfumeCard } from '@/components/perfume/PerfumeCard'
@@ -20,14 +20,21 @@ export function SearchPage() {
   const [datasetLoading, setDatasetLoading] = useState(false)
   const [datasetError, setDatasetError] = useState<string | null>(null)
   const [datasetRetry, setDatasetRetry] = useState(0)
+  const requestId = useRef(0)
+  const deferredQuery = useDeferredValue(query.trim())
 
-  const localResults = useSearchPerfumes(query)
+  const localResults = useSearchPerfumes(deferredQuery)
+
+  // Keep the input in sync with browser history and navigation from the top bar.
+  useEffect(() => {
+    const urlQuery = searchParams.get('q') ?? ''
+    setQuery(current => current === urlQuery ? current : urlQuery)
+  }, [searchParams])
 
   // Auto-load dataset on mount if not already loaded
   useEffect(() => {
-    if (isParfumoLoaded()) return
     let cancelled = false
-    setDatasetLoading(true)
+    if (!isParfumoLoaded()) setDatasetLoading(true)
     setDatasetError(null)
     loadParfumoDataset()
       .then(() => {
@@ -47,14 +54,24 @@ export function SearchPage() {
   }, [datasetRetry])
 
   useEffect(() => {
-    if (query.length < 3 || !isAnyApiConfigured()) return
+    const trimmedQuery = deferredQuery
+    const currentRequest = ++requestId.current
+    let cancelled = false
+    if (trimmedQuery.length < 3 || !isAnyOnlineApiConfigured()) {
+      setApiResults([])
+      setApiError(null)
+      setApiWarnings([])
+      setApiLoading(false)
+      return
+    }
 
     const timeout = setTimeout(async () => {
       setApiLoading(true)
       setApiError(null)
       setApiWarnings([])
       try {
-        const { results, errors } = await searchAllApis(query)
+        const { results, errors } = await searchOnlineApis(trimmedQuery)
+        if (cancelled || currentRequest !== requestId.current) return
         const localIds = new Set(localResults?.map(p => p.id) ?? [])
         setApiResults(results.filter(r => !localIds.has(r.id)))
 
@@ -67,15 +84,19 @@ export function SearchPage() {
           setApiError(errors.map(e => `${e.provider}: ${e.error}`).join(' | '))
         }
       } catch (err) {
+        if (cancelled || currentRequest !== requestId.current) return
         setApiError(err instanceof Error ? err.message : 'Error al buscar')
         setApiResults([])
       } finally {
-        setApiLoading(false)
+        if (!cancelled && currentRequest === requestId.current) setApiLoading(false)
       }
-    }, 500)
+    }, 350)
 
-    return () => clearTimeout(timeout)
-  }, [query, localResults, datasetLoaded])
+    return () => {
+      cancelled = true
+      clearTimeout(timeout)
+    }
+  }, [deferredQuery, localResults])
 
   function handleQueryChange(value: string) {
     setQuery(value)
@@ -91,7 +112,7 @@ export function SearchPage() {
     await addToCollection(perfume.id, owned)
   }
 
-  const hasAnyProvider = isAnyApiConfigured()
+  const hasOnlineProvider = isAnyOnlineApiConfigured()
 
   return (
     <div className="space-y-8">
@@ -162,7 +183,7 @@ export function SearchPage() {
       {localResults && localResults.length > 0 && (
         <section>
           <h2 className="text-xs font-bold text-text-muted uppercase tracking-[0.1em] mb-4 flex items-center gap-2">
-            En tu Catálogo
+            Catálogo global
             <span className="px-2 py-0.5 bg-gold/10 text-gold rounded-full text-[10px] font-bold">{localResults.length}</span>
           </h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 2xl:grid-cols-6 gap-3">
@@ -174,7 +195,7 @@ export function SearchPage() {
       )}
 
       {/* API + Dataset results */}
-      {hasAnyProvider && query.length >= 3 && (
+      {hasOnlineProvider && query.length >= 3 && (
         <section>
           <h2 className="text-xs font-bold text-text-muted uppercase tracking-[0.1em] mb-4 flex items-center gap-2">
             {apiLoading ? (
@@ -229,7 +250,7 @@ export function SearchPage() {
         </section>
       )}
 
-      {!hasAnyProvider && !datasetLoading && (
+      {!datasetLoaded && !hasOnlineProvider && !datasetLoading && (
         <div className="p-5 bg-card border border-border/30 rounded-2xl flex items-start gap-3.5 max-w-3xl">
           <div className="w-10 h-10 rounded-xl bg-accent-blue/10 flex items-center justify-center shrink-0">
             <WifiOff className="w-5 h-5 text-accent-blue" aria-hidden="true" />
@@ -247,7 +268,7 @@ export function SearchPage() {
       {query.length >= 2 && localResults?.length === 0 && !apiLoading && apiResults.length === 0 && (
         <div className="text-center py-12">
           <p className="text-text-muted text-sm">
-            No se encontró "{query}". <a href="/add" className="text-gold hover:text-gold-bright font-semibold underline underline-offset-2 decoration-gold/30 hover:decoration-gold/60 transition-colors">Agregar manualmente</a>.
+            No se encontró "{query}". <Link to="/add" className="text-gold hover:text-gold-bright font-semibold underline underline-offset-2 decoration-gold/30 hover:decoration-gold/60 transition-colors">Agregar manualmente</Link>.
           </p>
         </div>
       )}
@@ -264,9 +285,12 @@ function ApiResultCard({ perfume, onAdd }: {
 
   async function handleAdd(owned: boolean) {
     setAdding(true)
-    await onAdd(perfume, owned)
-    setAdded(true)
-    setAdding(false)
+    try {
+      await onAdd(perfume, owned)
+      setAdded(true)
+    } finally {
+      setAdding(false)
+    }
   }
 
   return (

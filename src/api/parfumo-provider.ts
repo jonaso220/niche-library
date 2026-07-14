@@ -53,7 +53,7 @@ export function transformToLocal(entry: ParfumoEntry): Perfume {
     seasonScores: inferSeasonScores(accords),
     occasionScores: inferOccasionScores(accords),
     imageUrl,
-    dataSource: 'manual', // Treat as manual since it's from a dataset, not a live API
+    dataSource: 'parfumo',
   }
 }
 

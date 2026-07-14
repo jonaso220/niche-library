@@ -4,14 +4,9 @@ import { isApiConfigured } from '@/api/fragella'
 import { isFragranceFinderConfigured } from '@/api/fragrancefinder'
 import { useAuth } from '@/firebase/useAuth'
 import { isFirebaseConfigured } from '@/firebase/config'
-import type { Perfume, CollectionEntry } from '@/types/perfume'
 import { Key, Download, Upload, Trash2, Database, CheckCircle, Cloud, CloudOff, LogIn, LogOut, User, Search } from 'lucide-react'
-
-interface BackupData {
-  perfumes?: Perfume[]
-  collection?: CollectionEntry[]
-  exportedAt?: string
-}
+import { parseBackup } from '@/db/backup'
+import { cloudBulkWriteCollection, cloudBulkWritePerfumes, clearCloudUserData } from '@/firebase/firestore-service'
 
 export function SettingsPage() {
   const { user, isAuthenticated, signInWithGoogle, signOut, loading: authLoading } = useAuth()
@@ -43,7 +38,7 @@ export function SettingsPage() {
 
   async function handleExport() {
     const perfumes = await db.perfumes.toArray()
-    const collection = await db.collection.toArray()
+    const collection = await db.collection.filter(entry => !entry.deletedAt).toArray()
     const data = { perfumes, collection, exportedAt: new Date().toISOString() }
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
     const url = URL.createObjectURL(blob)
@@ -65,18 +60,24 @@ export function SettingsPage() {
       setImporting(true)
       try {
         const text = await file.text()
-        const data = JSON.parse(text) as BackupData
+        const data = parseBackup(JSON.parse(text))
 
-        if (data.perfumes && Array.isArray(data.perfumes)) {
+        await db.transaction('rw', db.perfumes, db.collection, async () => {
           await db.perfumes.bulkPut(data.perfumes)
-        }
-        if (data.collection && Array.isArray(data.collection)) {
           await db.collection.bulkPut(data.collection)
+        })
+
+        if (user) {
+          await Promise.all([
+            cloudBulkWritePerfumes(user.uid, data.perfumes.filter(p => p.dataSource !== 'seed')),
+            cloudBulkWriteCollection(user.uid, data.collection),
+          ])
         }
 
-        alert(`Importación exitosa: ${data.perfumes?.length ?? 0} perfumes, ${data.collection?.length ?? 0} entradas de colección`)
-      } catch {
-        alert('Error al importar. Verifica que el archivo sea válido.')
+        alert(`Importación exitosa: ${data.perfumes.length} perfumes, ${data.collection.length} entradas de colección`)
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'Verifica que el archivo sea válido.'
+        alert(`Error al importar: ${message}`)
       } finally {
         setImporting(false)
       }
@@ -85,9 +86,15 @@ export function SettingsPage() {
   }
 
   async function handleReset() {
-    if (!window.confirm('¿Estás seguro? Esto eliminará todos los datos de tu colección y catálogo local. Esta acción no se puede deshacer.')) return
+    const scope = user ? 'locales y sincronizados en la nube' : 'locales'
+    if (!window.confirm(`¿Estás seguro? Esto eliminará tus datos ${scope}, incluidas las claves de API. Esta acción no se puede deshacer.`)) return
+    if (user) await clearCloudUserData(user.uid)
     await db.delete()
-    localStorage.removeItem('niche-library-seed-v')
+    for (const key of Object.keys(localStorage)) {
+      if (key.startsWith('niche-library-') || key === 'fragella_api_key' || key === 'fragrancefinder_api_key') {
+        localStorage.removeItem(key)
+      }
+    }
     window.location.reload()
   }
 
@@ -300,7 +307,9 @@ export function SettingsPage() {
       <section className="bg-danger/[0.04] border border-danger/15 rounded-2xl p-5 space-y-3">
         <h2 className="text-base font-semibold text-danger">Zona de Peligro</h2>
         <p className="text-xs text-text-muted leading-relaxed">
-          Esto eliminará toda tu colección, catálogo y configuraciones. No se puede deshacer.
+          Esto eliminará tu colección, catálogo personal y claves de API
+          {isAuthenticated ? ' tanto de este dispositivo como de la nube' : ' de este dispositivo'}.
+          El catálogo público se volverá a instalar al iniciar la app. No se puede deshacer.
         </p>
         <button
           type="button"

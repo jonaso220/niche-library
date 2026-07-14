@@ -33,6 +33,7 @@ VITE_FIREBASE_PROJECT_ID=
 VITE_FIREBASE_STORAGE_BUCKET=
 VITE_FIREBASE_MESSAGING_SENDER_ID=
 VITE_FIREBASE_APP_ID=
+VITE_FIREBASE_APPCHECK_SITE_KEY=
 
 # Proveedores de búsqueda externos (opcionales; también se pueden meter desde Ajustes)
 VITE_FRAGELLA_API_KEY=
@@ -90,9 +91,9 @@ src/
 
 ### Flujo de datos
 
-1. **Primer arranque:** seed del catálogo local → importación Fragrantica → enrichment → inferencia de scores.
-2. **Login con Google:** merge bidireccional entre Dexie y Firestore (cloud gana en perfumes, entrada más reciente gana en colección). Se registran listeners real-time.
-3. **Logout:** se detienen los listeners y se limpia Dexie (multi-cuenta en el mismo dispositivo).
+1. **Primer arranque:** seed público local → enrichment → inferencia de scores. Funciona aunque Firebase no esté configurado.
+2. **Login con Google:** merge bidireccional por `updatedAt` entre Dexie y Firestore. Los borrados offline viajan como tombstones y se registran listeners real-time.
+3. **Logout:** se detienen los listeners y se limpian únicamente los datos personales; el catálogo público permanece disponible.
 
 ---
 
@@ -114,3 +115,5 @@ Ejemplos actuales:
 ## Despliegue
 
 Configurado para **Netlify** (ver `netlify.toml`). Cualquier host de estáticos sirve: `npm run build` produce `dist/` con un SPA. Asegúrate de redirigir todo a `index.html` (lo que hace el bloque `[[redirects]]`).
+
+Las reglas privadas de Firestore están versionadas en `firestore.rules` y se despliegan con `firebase deploy --only firestore:rules`. Para App Check, registra la web con reCAPTCHA Enterprise, añade `VITE_FIREBASE_APPCHECK_SITE_KEY`, comprueba primero las métricas y solo después activa enforcement en Firestore.

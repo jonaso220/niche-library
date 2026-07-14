@@ -52,7 +52,7 @@ describe('PerfumeCard', () => {
 
   it('shows concentration fallback icon when no imageUrl', () => {
     renderCard(makePerfume({ imageUrl: undefined }))
-    expect(screen.queryByRole('img')).toBeNull()
+    expect(screen.queryByAltText('Dior Sauvage')).toBeNull()
     // Concentration appears twice (fallback + info row); just confirm >= 1
     expect(screen.getAllByText('EDP').length).toBeGreaterThanOrEqual(1)
   })
@@ -61,10 +61,7 @@ describe('PerfumeCard', () => {
     const onClick = () => {}
     renderCard(makePerfume(), { onClick })
     expect(screen.queryByRole('link')).toBeNull()
-    // Outer card button wraps the content; RatingStars also renders (disabled) star buttons.
-    // The outer one is the first and has our specific wrapper class.
-    const outer = screen.getAllByRole('button').find(b => b.className.includes('text-left'))
-    expect(outer).toBeDefined()
+    expect(screen.getByRole('button')).toHaveClass('text-left')
   })
 
   it('uses effectiveRating when passed a ShelfPerfume', () => {

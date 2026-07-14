@@ -180,11 +180,45 @@ export async function searchAllApis(query: string, limit = 20): Promise<SearchRe
   return promise
 }
 
+/** Search only remote providers. The Parfumo dataset is already included in local search. */
+export async function searchOnlineApis(query: string, limit = 20): Promise<SearchResult> {
+  const providers = onlineProviders.filter(provider => provider.isConfigured())
+  if (providers.length === 0) return { results: [], errors: [], providersQueried: 0 }
+
+  const now = Date.now()
+  evictExpired(now)
+  const key = cacheKey(query, limit, providers)
+  const cached = cache.get(key)
+  if (cached && cached.expiresAt > now) return cached.promise
+
+  const promise = (async () => {
+    const settled = await Promise.allSettled(providers.map(provider => provider.search(query, limit)))
+    const results: Perfume[] = []
+    const errors: SearchResult['errors'] = []
+    settled.forEach((result, index) => {
+      if (result.status === 'fulfilled') results.push(...result.value)
+      else errors.push({
+        provider: providers[index].name,
+        error: result.reason instanceof Error ? result.reason.message : 'Error desconocido',
+      })
+    })
+    return { results: deduplicateAndMerge(results), errors, providersQueried: providers.length }
+  })()
+
+  cache.set(key, { expiresAt: now + CACHE_TTL_MS, promise })
+  promise.catch(() => cache.delete(key))
+  return promise
+}
+
 /**
  * Check if at least one search provider is available (including local dataset).
  */
 export function isAnyApiConfigured(): boolean {
   return parfumoProvider.isConfigured() || onlineProviders.some(p => p.isConfigured())
+}
+
+export function isAnyOnlineApiConfigured(): boolean {
+  return onlineProviders.some(provider => provider.isConfigured())
 }
 
 /**

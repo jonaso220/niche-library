@@ -51,6 +51,7 @@ export function ShelfHeader({
                 <button
                   key={f.id}
                   type="button"
+                  aria-pressed={active}
                   onClick={() => onTimeFilterChange(active ? null : f.id)}
                   className={cn(
                     'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all duration-200',
@@ -76,6 +77,7 @@ export function ShelfHeader({
                 <button
                   key={f.id}
                   type="button"
+                  aria-pressed={active}
                   onClick={() => onOccasionFilterChange(active ? null : f.id)}
                   className={cn(
                     'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all duration-200',

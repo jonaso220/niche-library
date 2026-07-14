@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router'
-import { useState } from 'react'
+import { useId, useState } from 'react'
 import { cn } from '@/lib/utils'
 import { getShelfsByCategory } from '@/lib/constants'
 import {
@@ -49,12 +49,15 @@ function CollapsibleSection({ title, children, defaultOpen = false }: {
   defaultOpen?: boolean
 }) {
   const [open, setOpen] = useState(defaultOpen)
+  const sectionId = useId()
 
   return (
     <div className="mt-4 pt-1">
       <button
         type="button"
         onClick={() => setOpen(!open)}
+        aria-expanded={open}
+        aria-controls={sectionId}
         className="flex items-center justify-between w-full px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-[0.12em] text-text-muted/80 hover:text-text-secondary transition-colors"
       >
         <span>{title}</span>
@@ -67,7 +70,7 @@ function CollapsibleSection({ title, children, defaultOpen = false }: {
         />
       </button>
       {open && (
-        <div className="space-y-0.5 mt-1.5">
+        <div id={sectionId} className="space-y-0.5 mt-1.5">
           {children}
         </div>
       )}
@@ -101,6 +104,7 @@ export function Sidebar({ onClose }: SidebarProps) {
             </div>
           </NavLink>
           <button
+            data-mobile-close
             type="button"
             onClick={onClose}
             aria-label="Cerrar menú"

@@ -53,7 +53,7 @@ export function PerfumeDetail({ perfume }: PerfumeDetailProps) {
 
   async function handleSaveImage() {
     if (!imageUrlInput.trim()) return
-    await updatePerfumeImage(perfume.id, imageUrlInput.trim())
+    await updatePerfumeImage(perfume, imageUrlInput.trim())
     setEditingImage(false)
   }
 

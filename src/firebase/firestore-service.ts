@@ -114,6 +114,20 @@ export async function cloudBulkWriteCollection(userId: string, entries: Collecti
   }
 }
 
+/** Permanently remove all user-owned catalog and collection documents. */
+export async function clearCloudUserData(userId: string): Promise<void> {
+  if (!firestore) return
+  for (const ref of [userPerfumesRef(userId), userCollectionRef(userId)]) {
+    const snapshot = await getDocs(ref)
+    for (let i = 0; i < snapshot.docs.length; i += 450) {
+      const batch = writeBatch(firestore)
+      for (const item of snapshot.docs.slice(i, i + 450)) batch.delete(item.ref)
+      await batch.commit()
+    }
+  }
+  await deleteDoc(doc(firestore, 'users', userId))
+}
+
 // ===================== USER PROFILE =====================
 
 export async function saveUserProfile(userId: string, profile: {

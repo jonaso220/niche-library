@@ -158,7 +158,7 @@ function ShelfPreview({ title, items, to }: {
           <ChevronRight className="w-3.5 h-3.5" aria-hidden="true" />
         </Link>
       </div>
-      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 2xl:grid-cols-8 gap-2.5 auto-rows-[0] overflow-hidden grid-rows-1">
+      <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 2xl:grid-cols-8 gap-2.5 auto-rows-[0] overflow-hidden grid-rows-1">
         {items.map(perfume => (
           <PerfumeCard key={perfume.id} perfume={perfume} showSeasons={false} />
         ))}

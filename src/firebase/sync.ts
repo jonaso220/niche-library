@@ -1,7 +1,7 @@
 import { db } from '@/db/database'
 import type { Perfume, CollectionEntry } from '@/types/perfume'
-import { seedDatabaseIfNeeded } from '@/db/seed'
-import { importFragranticaCollection, isFragranticaImportDone, ensureScoresInferred } from '@/db/fragrantica-import'
+import { initializeLocalDatabase } from '@/db/bootstrap'
+import { ensureScoresInferred } from '@/db/fragrantica-import'
 import { applyFragranticaEnrichment } from '@/db/fragrantica-enrichment'
 import {
   fetchCloudPerfumes,
@@ -18,18 +18,22 @@ let unsubscribePerfumes: (() => void) | null = null
 let unsubscribeCollection: (() => void) | null = null
 
 /**
- * Merge local + cloud perfumes. Cloud wins on ID conflicts.
+ * Merge local + cloud perfumes. The most recently updated copy wins.
  * @internal exported for testing.
  */
 export function mergePerfumes(local: Perfume[], cloud: Perfume[]): Perfume[] {
   const merged = new Map<string, Perfume>()
   for (const p of local) merged.set(p.id, p)
-  for (const p of cloud) merged.set(p.id, p)
+  for (const p of cloud) {
+    const existing = merged.get(p.id)
+    if (existing && getTimestamp(existing) && getTimestamp(p) <= getTimestamp(existing)) continue
+    merged.set(p.id, p)
+  }
   return Array.from(merged.values())
 }
 
 /**
- * Merge local + cloud collection entries. Most recent `addedAt` wins on ID conflicts.
+ * Merge local + cloud collection entries. Most recent change wins, including tombstones.
  * @internal exported for testing.
  */
 export function mergeCollection(
@@ -40,11 +44,15 @@ export function mergeCollection(
   for (const e of local) merged.set(e.perfumeId, e)
   for (const e of cloud) {
     const existing = merged.get(e.perfumeId)
-    if (!existing || e.addedAt >= existing.addedAt) {
+    if (!existing || getTimestamp(e) > getTimestamp(existing)) {
       merged.set(e.perfumeId, e)
     }
   }
   return Array.from(merged.values())
+}
+
+function getTimestamp(value: { updatedAt?: string; deletedAt?: string; addedAt?: string }): string {
+  return value.updatedAt ?? value.deletedAt ?? value.addedAt ?? ''
 }
 
 export async function syncOnLogin(userId: string): Promise<void> {
@@ -58,13 +66,8 @@ export async function syncOnLogin(userId: string): Promise<void> {
     }).catch(console.error)
   }
 
-  // 0. Initialize local data (seed catalog + Fragrantica import + enrichment)
-  await seedDatabaseIfNeeded()
-  if (!isFragranticaImportDone()) {
-    await importFragranticaCollection()
-  }
-  await applyFragranticaEnrichment()
-  await ensureScoresInferred()
+  // 0. Local public data is initialized for guests and authenticated users.
+  await initializeLocalDatabase()
 
   // 1. Fetch cloud data
   const cloudPerfumes = await fetchCloudPerfumes(userId)
@@ -114,7 +117,9 @@ function startCloudListeners(userId: string) {
 
   unsubscribePerfumes = onCloudPerfumesChange(userId, async (perfumes) => {
     if (perfumes.length > 0) {
-      await db.perfumes.bulkPut(perfumes)
+      const ids = perfumes.map(p => p.id)
+      const local = await db.perfumes.where('id').anyOf(ids).toArray()
+      await db.perfumes.bulkPut(mergePerfumes(local, perfumes))
       // Re-apply enrichment and re-infer scores after cloud overwrites
       await applyFragranticaEnrichment()
       await ensureScoresInferred()
@@ -122,17 +127,10 @@ function startCloudListeners(userId: string) {
   })
 
   unsubscribeCollection = onCloudCollectionChange(userId, async (entries) => {
-    // Detect deletions: if entry is in Dexie but not in cloud, remove it
-    const cloudIds = new Set(entries.map(e => e.perfumeId))
-    const localEntries = await db.collection.toArray()
-    const toDelete = localEntries.filter(e => !cloudIds.has(e.perfumeId))
-
-    for (const e of toDelete) {
-      await db.collection.delete(e.perfumeId)
-    }
-
     if (entries.length > 0) {
-      await db.collection.bulkPut(entries)
+      const ids = entries.map(e => e.perfumeId)
+      const local = await db.collection.where('perfumeId').anyOf(ids).toArray()
+      await db.collection.bulkPut(mergeCollection(local, entries))
     }
   })
 }
@@ -146,7 +144,8 @@ function stopCloudListeners() {
 
 export async function syncOnLogout() {
   stopCloudListeners()
-  // Clear local data so the device is clean for another user
-  await db.perfumes.clear()
+  // Clear user-specific data only. Public catalog data remains usable offline.
+  await db.perfumes.filter(p => p.dataSource !== 'seed').delete()
   await db.collection.clear()
+  await initializeLocalDatabase()
 }

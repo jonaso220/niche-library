@@ -7,22 +7,25 @@ import { useSearchPerfumes } from '@/db/hooks'
 
 interface TopBarProps {
   onMenuClick: () => void
+  menuButtonRef?: React.Ref<HTMLButtonElement>
 }
 
-export function TopBar({ onMenuClick }: TopBarProps) {
+export function TopBar({ onMenuClick, menuButtonRef }: TopBarProps) {
   const navigate = useNavigate()
   const listboxId = useId()
   const [query, setQuery] = useState('')
+  const [searchQuery, setSearchQuery] = useState('')
   const [isFocused, setIsFocused] = useState(false)
   const [activeIndex, setActiveIndex] = useState(-1)
   const inputRef = useRef<HTMLInputElement>(null)
   const blurTimeoutRef = useRef<ReturnType<typeof setTimeout>>(undefined)
   const { user, isAuthenticated, signInWithGoogle, signOut } = useAuth()
 
-  const results = useSearchPerfumes(query)
+  const results = useSearchPerfumes(searchQuery)
+  const resultsAreCurrent = searchQuery === query.trim()
   const hasQuery = isFocused && query.length >= 2
-  const showDropdown = hasQuery && results && results.length > 0
-  const showNoResults = hasQuery && results && results.length === 0
+  const showDropdown = hasQuery && resultsAreCurrent && results && results.length > 0
+  const showNoResults = hasQuery && resultsAreCurrent && results && results.length === 0
   const displayResults = results?.slice(0, 6) ?? []
   const hasSeeAll = !!(results && results.length > 6)
   const navigableCount = displayResults.length + (hasSeeAll ? 1 : 0)
@@ -32,6 +35,11 @@ export function TopBar({ onMenuClick }: TopBarProps) {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setActiveIndex(-1)
   }, [query, isFocused])
+
+  useEffect(() => {
+    const timeout = setTimeout(() => setSearchQuery(query.trim()), 180)
+    return () => clearTimeout(timeout)
+  }, [query])
 
   // Cmd+K / Ctrl+K to focus search
   useEffect(() => {
@@ -125,6 +133,7 @@ export function TopBar({ onMenuClick }: TopBarProps) {
       <div className="flex items-center gap-4 px-4 md:px-6 lg:px-8 h-16">
         {/* Mobile menu button */}
         <button
+          ref={menuButtonRef}
           type="button"
           onClick={onMenuClick}
           className="lg:hidden p-2 -ml-2 text-text-secondary hover:text-gold rounded-xl hover:bg-gold/[0.06] transition-colors"

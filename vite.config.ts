@@ -13,12 +13,22 @@ export default defineConfig({
   build: {
     rollupOptions: {
       output: {
+        onlyExplicitManualChunks: true,
         // Vendor splitting: group heavy third-party deps into stable chunks
         // so they stay cached across deploys and don't bloat the entry bundle.
-        manualChunks: {
-          'vendor-firebase': ['firebase/app', 'firebase/auth', 'firebase/firestore'],
-          'vendor-react': ['react', 'react-dom', 'react-router'],
-          'vendor-dexie': ['dexie', 'dexie-react-hooks'],
+        manualChunks(id) {
+          if (id.includes('/node_modules/@firebase/app-check') || id.includes('/node_modules/firebase/app-check')) {
+            return 'vendor-firebase-app-check'
+          }
+          if (id.includes('/node_modules/@firebase/') || id.includes('/node_modules/firebase/')) {
+            return 'vendor-firebase'
+          }
+          if (id.includes('/node_modules/react/') || id.includes('/node_modules/react-dom/') || id.includes('/node_modules/react-router/')) {
+            return 'vendor-react'
+          }
+          if (id.includes('/node_modules/dexie/') || id.includes('/node_modules/dexie-react-hooks/')) {
+            return 'vendor-dexie'
+          }
         },
       },
     },

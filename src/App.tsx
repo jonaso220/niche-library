@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from 'react-router'
 import { AuthProvider } from '@/firebase/AuthProvider'
 import { AppShell } from '@/components/layout/AppShell'
 import { PageSkeleton } from '@/components/layout/PageSkeleton'
+import { AppErrorBoundary } from '@/components/errors/AppErrorBoundary'
 
 const HomePage = lazy(() => import('@/pages/HomePage').then(m => ({ default: m.HomePage })))
 const ShelfPage = lazy(() => import('@/pages/ShelfPage').then(m => ({ default: m.ShelfPage })))
@@ -10,12 +11,14 @@ const PerfumePage = lazy(() => import('@/pages/PerfumePage').then(m => ({ defaul
 const SearchPage = lazy(() => import('@/pages/SearchPage').then(m => ({ default: m.SearchPage })))
 const AddManualPage = lazy(() => import('@/pages/AddManualPage').then(m => ({ default: m.AddManualPage })))
 const SettingsPage = lazy(() => import('@/pages/SettingsPage').then(m => ({ default: m.SettingsPage })))
+const NotFoundPage = lazy(() => import('@/pages/NotFoundPage').then(m => ({ default: m.NotFoundPage })))
 
 function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
-        <Routes>
+        <AppErrorBoundary>
+          <Routes>
           <Route element={<AppShell />}>
             <Route
               index
@@ -65,8 +68,17 @@ function App() {
                 </Suspense>
               }
             />
+            <Route
+              path="*"
+              element={
+                <Suspense fallback={<PageSkeleton />}>
+                  <NotFoundPage />
+                </Suspense>
+              }
+            />
           </Route>
-        </Routes>
+          </Routes>
+        </AppErrorBoundary>
       </BrowserRouter>
     </AuthProvider>
   )

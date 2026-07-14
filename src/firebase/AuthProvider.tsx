@@ -1,9 +1,10 @@
-import { useEffect, useMemo, useState, type ReactNode } from 'react'
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { onAuthStateChanged, signInWithPopup, signOut as firebaseSignOut, type User } from 'firebase/auth'
-import { auth, googleProvider, isFirebaseConfigured } from './config'
+import { auth, firebaseReady, googleProvider, isFirebaseConfigured } from './config'
 import { setCurrentUserId } from './auth-state'
 import { syncOnLogin, syncOnLogout } from './sync'
 import { AuthContext, type AuthContextValue } from './AuthContext'
+import { initializeLocalDatabase } from '@/db/bootstrap'
 
 function toMessage(err: unknown, fallback: string): string {
   if (err instanceof Error) return err.message
@@ -15,38 +16,60 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(isFirebaseConfigured)
   const [error, setError] = useState<string | null>(null)
+  const previousUserId = useRef<string | null>(null)
 
   useEffect(() => {
-    if (!auth || !isFirebaseConfigured) {
-      // Legitimate init: mark auth as ready when Firebase isn't configured.
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setLoading(false)
-      return
-    }
-
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      setUser(firebaseUser)
-      setCurrentUserId(firebaseUser?.uid ?? null)
-
-      if (firebaseUser) {
-        try {
-          await syncOnLogin(firebaseUser.uid)
-        } catch (err) {
-          console.error('Error syncing on login:', err)
-          setError(toMessage(err, 'No se pudo sincronizar tu colección. Revisa tu conexión.'))
-        }
-      } else {
-        try {
-          await syncOnLogout()
-        } catch (err) {
-          console.error('Error on logout cleanup:', err)
-        }
-      }
-
-      setLoading(false)
+    initializeLocalDatabase().catch(err => {
+      console.error('Error initializing local database:', err)
+      setError(toMessage(err, 'No se pudo inicializar el catálogo local.'))
     })
 
-    return unsubscribe
+    let cancelled = false
+    let unsubscribe = () => {}
+
+    void firebaseReady.then(() => {
+      if (cancelled) return
+      if (!auth || !isFirebaseConfigured) {
+        setLoading(false)
+        return
+      }
+
+      unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+        const signedOutUserId = previousUserId.current
+        setUser(firebaseUser)
+        setCurrentUserId(firebaseUser?.uid ?? null)
+
+        if (firebaseUser) {
+          try {
+            await syncOnLogin(firebaseUser.uid)
+          } catch (err) {
+            console.error('Error syncing on login:', err)
+            setError(toMessage(err, 'No se pudo sincronizar tu colección. Revisa tu conexión.'))
+          }
+          previousUserId.current = firebaseUser.uid
+        } else if (signedOutUserId) {
+          try {
+            await syncOnLogout()
+          } catch (err) {
+            console.error('Error on logout cleanup:', err)
+          }
+          previousUserId.current = null
+        }
+
+        if (!cancelled) setLoading(false)
+      })
+    }).catch(err => {
+      console.error('Error initializing Firebase:', err)
+      if (!cancelled) {
+        setError(toMessage(err, 'No se pudo inicializar Firebase.'))
+        setLoading(false)
+      }
+    })
+
+    return () => {
+      cancelled = true
+      unsubscribe()
+    }
   }, [])
 
   async function signInWithGoogle() {

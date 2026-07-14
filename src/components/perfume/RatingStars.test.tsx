@@ -9,21 +9,21 @@ describe('RatingStars', () => {
     expect(screen.getByText('4.2')).toBeInTheDocument()
   })
 
-  it('renders maxRating star buttons (default 5)', () => {
+  it('renders a single accessible rating when not interactive', () => {
     render(<RatingStars rating={3} />)
-    expect(screen.getAllByRole('button')).toHaveLength(5)
+    expect(screen.getByRole('img', { name: '3.0 de 5 estrellas' })).toBeInTheDocument()
+    expect(screen.queryByRole('button')).toBeNull()
   })
 
   it('respects a custom maxRating', () => {
     render(<RatingStars rating={2} maxRating={10} />)
-    expect(screen.getAllByRole('button')).toHaveLength(10)
+    expect(screen.getByRole('img', { name: '2.0 de 10 estrellas' })).toBeInTheDocument()
   })
 
-  it('disables buttons when not interactive', () => {
-    render(<RatingStars rating={3} />)
-    for (const btn of screen.getAllByRole('button')) {
-      expect(btn).toBeDisabled()
-    }
+  it('labels every choice when interactive', () => {
+    render(<RatingStars rating={3} interactive />)
+    expect(screen.getAllByRole('button')).toHaveLength(5)
+    expect(screen.getByRole('button', { name: '4 de 5 estrellas' })).toBeInTheDocument()
   })
 
   it('calls onChange with the clicked star index when interactive', async () => {

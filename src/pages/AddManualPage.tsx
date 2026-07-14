@@ -1,9 +1,15 @@
-import { useState } from 'react'
+import { useId, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { addPerfumeToCatalog, addToCollection } from '@/db/hooks'
 import { generateSlug } from '@/lib/utils'
 import type { Perfume, Gender, Concentration, Season, OccasionType } from '@/types/perfume'
 import { Save, ArrowLeft, AlertTriangle } from 'lucide-react'
+import { db } from '@/db/database'
+
+function numericValue(value: string, fallback: number): number {
+  const parsed = Number(value)
+  return Number.isFinite(parsed) ? parsed : fallback
+}
 
 export function AddManualPage() {
   const navigate = useNavigate()
@@ -60,16 +66,23 @@ export function AddManualPage() {
     setSaving(true)
     setSaveError(null)
 
+    const perfumeId = generateSlug(brand.trim(), name.trim(), concentration)
+    if (await db.perfumes.get(perfumeId)) {
+      setSaveError('Ese perfume ya existe en el catálogo. Puedes abrirlo desde la búsqueda.')
+      setSaving(false)
+      return
+    }
+
     const perfume: Perfume = {
-      id: generateSlug(brand, name, concentration),
+      id: perfumeId,
       name: name.trim(),
       brand: brand.trim(),
-      year: year ? parseInt(year) : undefined,
+      year: year ? numericValue(year, new Date().getFullYear()) : undefined,
       gender,
       concentration,
-      rating: parseFloat(rating) || 4.0,
-      longevity: parseInt(longevity) || 6,
-      sillage: parseInt(sillage) || 6,
+      rating: numericValue(rating, 4),
+      longevity: numericValue(longevity, 6),
+      sillage: numericValue(sillage, 6),
       notes: {
         top: parseNotes(topNotes),
         middle: parseNotes(middleNotes),
@@ -77,19 +90,19 @@ export function AddManualPage() {
       },
       accords: parseAccords(accords),
       seasonScores: [
-        { season: 'spring' as Season, score: parseInt(spring) },
-        { season: 'summer' as Season, score: parseInt(summer) },
-        { season: 'fall' as Season, score: parseInt(fall) },
-        { season: 'winter' as Season, score: parseInt(winter) },
+        { season: 'spring' as Season, score: numericValue(spring, 50) },
+        { season: 'summer' as Season, score: numericValue(summer, 50) },
+        { season: 'fall' as Season, score: numericValue(fall, 50) },
+        { season: 'winter' as Season, score: numericValue(winter, 50) },
       ],
       occasionScores: [
-        { occasion: 'casual' as OccasionType, score: parseInt(casual) },
-        { occasion: 'professional' as OccasionType, score: parseInt(professional) },
-        { occasion: 'nightOut' as OccasionType, score: parseInt(nightOut) },
-        { occasion: 'date' as OccasionType, score: parseInt(dateScore) },
-        { occasion: 'special' as OccasionType, score: parseInt(special) },
+        { occasion: 'casual' as OccasionType, score: numericValue(casual, 50) },
+        { occasion: 'professional' as OccasionType, score: numericValue(professional, 50) },
+        { occasion: 'nightOut' as OccasionType, score: numericValue(nightOut, 50) },
+        { occasion: 'date' as OccasionType, score: numericValue(dateScore, 50) },
+        { occasion: 'special' as OccasionType, score: numericValue(special, 50) },
       ],
-      imageUrl: imageUrl || undefined,
+      imageUrl: imageUrl.trim() || undefined,
       dataSource: 'manual',
     }
 
@@ -137,7 +150,7 @@ export function AddManualPage() {
             <Field label="Nombre *" value={name} onChange={setName} placeholder="Ej: Sauvage" required />
             <Field label="Marca *" value={brand} onChange={setBrand} placeholder="Ej: Dior" required />
             <Field label="Año" value={year} onChange={setYear} placeholder="Ej: 2018" type="number" />
-            <Field label="URL de Imagen" value={imageUrl} onChange={setImageUrl} placeholder="https://..." />
+            <Field label="URL de Imagen" value={imageUrl} onChange={setImageUrl} placeholder="https://..." type="url" />
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
@@ -226,10 +239,12 @@ function Field({ label, value, onChange, placeholder, type = 'text', required, m
   label: string; value: string; onChange: (v: string) => void; placeholder?: string
   type?: string; required?: boolean; min?: string; max?: string; step?: string
 }) {
+  const id = useId()
   return (
     <div>
-      <label className="block text-xs text-text-secondary mb-1">{label}</label>
+      <label htmlFor={id} className="block text-xs text-text-secondary mb-1">{label}</label>
       <input
+        id={id}
         type={type}
         value={value}
         onChange={(e) => onChange(e.target.value)}
@@ -248,10 +263,12 @@ function SelectField({ label, value, onChange, options }: {
   label: string; value: string; onChange: (v: string) => void
   options: { value: string; label: string }[]
 }) {
+  const id = useId()
   return (
     <div>
-      <label className="block text-xs text-text-secondary mb-1">{label}</label>
+      <label htmlFor={id} className="block text-xs text-text-secondary mb-1">{label}</label>
       <select
+        id={id}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-text-primary focus:outline-none focus:border-gold/50"
@@ -267,13 +284,15 @@ function SelectField({ label, value, onChange, options }: {
 function SliderField({ label, value, onChange, max }: {
   label: string; value: string; onChange: (v: string) => void; max: number
 }) {
+  const id = useId()
   return (
     <div>
       <div className="flex justify-between items-center mb-1">
-        <label className="text-xs text-text-secondary">{label}</label>
+        <label htmlFor={id} className="text-xs text-text-secondary">{label}</label>
         <span className="text-xs text-text-muted font-mono">{value}</span>
       </div>
       <input
+        id={id}
         type="range"
         min="0"
         max={max}

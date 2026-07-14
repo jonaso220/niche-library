@@ -22,34 +22,36 @@ export function RatingStars({
     lg: 'w-5.5 h-5.5',
   }
 
-  return (
-    <div className="flex items-center gap-0.5">
-      {Array.from({ length: maxRating }, (_, i) => {
-        const filled = i < Math.floor(rating)
-        const half = !filled && i < rating
+  const star = (i: number) => {
+    const filled = i < Math.floor(rating)
+    const half = !filled && i < rating
+    return (
+      <Star
+        aria-hidden="true"
+        className={cn(
+          sizeClasses[size],
+          filled ? 'fill-gold text-gold' : half ? 'fill-gold/50 text-gold' : 'fill-transparent text-text-muted/40',
+        )}
+      />
+    )
+  }
 
-        return (
+  return (
+    <div className="flex items-center gap-0.5" role={interactive ? 'group' : 'img'} aria-label={`${rating.toFixed(1)} de ${maxRating} estrellas`}>
+      {Array.from({ length: maxRating }, (_, i) => {
+        return interactive ? (
           <button
             key={i}
             type="button"
-            disabled={!interactive}
-            onClick={() => interactive && onChange?.(i + 1)}
-            className={cn(
-              'transition-colors',
-              interactive ? 'cursor-pointer hover:scale-110' : 'cursor-default'
-            )}
+            onClick={() => onChange?.(i + 1)}
+            aria-label={`${i + 1} de ${maxRating} estrellas`}
+            aria-pressed={rating === i + 1}
+            className="transition-colors cursor-pointer hover:scale-110"
           >
-            <Star
-              className={cn(
-                sizeClasses[size],
-                filled
-                  ? 'fill-gold text-gold'
-                  : half
-                    ? 'fill-gold/50 text-gold'
-                    : 'fill-transparent text-text-muted/40'
-              )}
-            />
+            {star(i)}
           </button>
+        ) : (
+          <span key={i}>{star(i)}</span>
         )
       })}
       <span className="ml-1 text-xs text-text-secondary">{rating.toFixed(1)}</span>

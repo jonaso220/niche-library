@@ -19,16 +19,19 @@ export function usePerfumeById(id: string): Perfume | undefined {
 }
 
 export function useCollection(): CollectionEntry[] | undefined {
-  return useLiveQuery(() => db.collection.toArray())
+  return useLiveQuery(() => db.collection.filter(entry => !entry.deletedAt).toArray())
 }
 
 export function useCollectionEntry(perfumeId: string): CollectionEntry | undefined {
-  return useLiveQuery(() => db.collection.get(perfumeId), [perfumeId])
+  return useLiveQuery(async () => {
+    const entry = await db.collection.get(perfumeId)
+    return entry?.deletedAt ? undefined : entry
+  }, [perfumeId])
 }
 
 export function useCollectionPerfumes(): ShelfPerfume[] | undefined {
   return useLiveQuery(async () => {
-    const entries = await db.collection.toArray()
+    const entries = await db.collection.filter(entry => !entry.deletedAt).toArray()
     if (entries.length === 0) return []
 
     const perfumeIds = entries.map(e => e.perfumeId)
@@ -65,9 +68,9 @@ export function useShelfPerfumes(shelfId: ShelfType): ShelfPerfume[] | undefined
 
 export function useCollectionStats() {
   return useLiveQuery(async () => {
-    const entries = await db.collection.toArray()
+    const entries = await db.collection.filter(entry => !entry.deletedAt).toArray()
     const owned = entries.filter(e => e.owned)
-    const wishlist = entries.filter(e => !e.owned)
+    const wishlist = entries.filter(e => !e.owned && !e.previouslyOwned)
     const totalPerfumes = await db.perfumes.count()
 
     let avgRating = 0
@@ -121,12 +124,14 @@ export function useSearchPerfumes(query: string): Perfume[] | undefined {
 
 export async function addToCollection(perfumeId: string, owned: boolean = true): Promise<void> {
   const existing = await db.collection.get(perfumeId)
-  if (existing) return
+  if (existing && !existing.deletedAt) return
 
+  const now = new Date().toISOString()
   const entry: CollectionEntry = {
     perfumeId,
-    addedAt: new Date().toISOString(),
+    addedAt: existing?.addedAt ?? now,
     owned,
+    updatedAt: now,
   }
 
   // Local write (instant, triggers useLiveQuery)
@@ -140,13 +145,16 @@ export async function addToCollection(perfumeId: string, owned: boolean = true):
 }
 
 export async function removeFromCollection(perfumeId: string): Promise<void> {
-  // Local write
-  await db.collection.delete(perfumeId)
+  const existing = await db.collection.get(perfumeId)
+  if (!existing) return
+  const now = new Date().toISOString()
+  const tombstone: CollectionEntry = { ...existing, deletedAt: now, updatedAt: now }
+  await db.collection.put(tombstone)
 
   // Cloud write
   const userId = getCurrentUserId()
   if (userId) {
-    cloud.cloudRemoveFromCollection(userId, perfumeId).catch(console.error)
+    cloud.cloudAddToCollection(userId, tombstone).catch(console.error)
   }
 }
 
@@ -154,21 +162,19 @@ export async function updateCollectionEntry(
   perfumeId: string,
   updates: Partial<CollectionEntry>
 ): Promise<void> {
+  const timestampedUpdates = { ...updates, updatedAt: new Date().toISOString() }
   // Local write
-  await db.collection.update(perfumeId, updates)
+  await db.collection.update(perfumeId, timestampedUpdates)
 
   // Cloud write
   const userId = getCurrentUserId()
   if (userId) {
-    cloud.cloudUpdateCollectionEntry(userId, perfumeId, updates).catch(console.error)
+    cloud.cloudUpdateCollectionEntry(userId, perfumeId, timestampedUpdates).catch(console.error)
   }
 }
 
-export async function updatePerfumeImage(perfumeId: string, imageUrl: string): Promise<void> {
-  const perfume = await db.perfumes.get(perfumeId)
-  if (!perfume) return
-
-  const updated = { ...perfume, imageUrl }
+export async function updatePerfumeImage(perfume: Perfume, imageUrl: string): Promise<void> {
+  const updated = { ...perfume, imageUrl, updatedAt: new Date().toISOString() }
 
   // Local write
   await db.perfumes.put(updated)
@@ -181,14 +187,15 @@ export async function updatePerfumeImage(perfumeId: string, imageUrl: string): P
 }
 
 export async function addPerfumeToCatalog(perfume: Perfume): Promise<void> {
+  const timestamped = { ...perfume, updatedAt: perfume.updatedAt ?? new Date().toISOString() }
   // Local write
-  await db.perfumes.put(perfume)
+  await db.perfumes.put(timestamped)
 
   // Cloud write (only non-seed perfumes)
   if (perfume.dataSource !== 'seed') {
     const userId = getCurrentUserId()
     if (userId) {
-      cloud.cloudAddPerfume(userId, perfume).catch(console.error)
+      cloud.cloudAddPerfume(userId, timestamped).catch(console.error)
     }
   }
 }

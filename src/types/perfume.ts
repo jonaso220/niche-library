@@ -3,7 +3,7 @@ export type TimeOfDay = 'day' | 'night' | 'versatile'
 export type Gender = 'masculino' | 'femenino' | 'unisex'
 export type Concentration = 'EDT' | 'EDP' | 'Extrait' | 'Parfum' | 'EDC' | 'Other'
 export type OccasionType = 'professional' | 'casual' | 'nightOut' | 'date' | 'special'
-export type DataSource = 'fragella' | 'fragrancefinder' | 'manual' | 'seed' | 'fragrantica'
+export type DataSource = 'fragella' | 'fragrancefinder' | 'manual' | 'seed' | 'fragrantica' | 'parfumo'
 
 export interface FragranceNote {
   name: string
@@ -58,6 +58,7 @@ export interface Perfume {
   sourceUrl?: string
   dataSource: DataSource
   fragranticaId?: string
+  updatedAt?: string
 }
 
 export interface CollectionEntry {
@@ -69,6 +70,9 @@ export interface CollectionEntry {
   previouslyOwned?: boolean
   priceEstimate?: PriceEstimate
   tags?: string[]
+  updatedAt?: string
+  /** Tombstone used to propagate offline deletions safely. */
+  deletedAt?: string
 }
 
 export interface ShelfPerfume extends Perfume {
