@@ -1,5 +1,12 @@
 import { db, type ParfumoEntry } from './database'
 import { generateSlug } from '@/lib/utils'
+import {
+  normalizeFragranceText,
+  prepareFragranceSearchDocument,
+  prepareFragranceSearchQuery,
+  scorePreparedFragranceMatch,
+  type PreparedFragranceSearchDocument,
+} from '@/lib/fragrance-search'
 
 const PARFUMO_LOADED_KEY = 'niche-library-parfumo-v'
 const CURRENT_PARFUMO_VERSION = 3
@@ -48,6 +55,32 @@ export function sanitizeNotes(raw: unknown): string {
 /** Check if dataset is currently being loaded */
 let loadingPromise: Promise<void> | null = null
 
+interface IndexedParfumoEntry {
+  entry: ParfumoEntry
+  search: PreparedFragranceSearchDocument
+}
+
+let searchIndexPromise: Promise<IndexedParfumoEntry[]> | null = null
+const searchCache = new Map<string, ParfumoEntry[]>()
+
+function resetSearchIndex(): void {
+  searchIndexPromise = null
+  searchCache.clear()
+}
+
+function getSearchIndex(): Promise<IndexedParfumoEntry[]> {
+  if (!searchIndexPromise) {
+    searchIndexPromise = db.parfumo.toArray().then(entries => entries.map(entry => ({
+      entry,
+      search: prepareFragranceSearchDocument(entry),
+    })))
+    searchIndexPromise.catch(() => {
+      searchIndexPromise = null
+    })
+  }
+  return searchIndexPromise
+}
+
 /**
  * Load the Parfumo dataset (59K fragrances) into IndexedDB.
  * Downloads JSON from /parfumo-dataset.json and bulk-inserts into the parfumo table.
@@ -79,6 +112,7 @@ async function doLoad(): Promise<void> {
     const raw = (await res.json()) as unknown[][]
 
     // Version changes may alter IDs after normalization; remove stale entries.
+    resetSearchIndex()
     await db.parfumo.clear()
 
     // Transform array-of-arrays to ParfumoEntry objects
@@ -110,6 +144,7 @@ async function doLoad(): Promise<void> {
     }
 
     localStorage.setItem(PARFUMO_LOADED_KEY, String(CURRENT_PARFUMO_VERSION))
+    resetSearchIndex()
   } catch (err) {
     console.error('Failed to load Parfumo dataset:', err)
     throw err
@@ -117,36 +152,35 @@ async function doLoad(): Promise<void> {
 }
 
 /**
- * Search the Parfumo dataset in IndexedDB.
- * Uses a case-insensitive scan — IndexedDB doesn't support full-text search,
- * so we filter in JS after fetching candidates by brand prefix or doing a full scan.
+ * Search the Parfumo dataset using an in-memory normalized index. Results are
+ * ranked by relevance and tolerate accents, punctuation, token order and small
+ * spelling mistakes. The index is created lazily once per browser session.
  */
 export async function searchParfumo(query: string, limit = 20): Promise<ParfumoEntry[]> {
   if (!isParfumoLoaded()) return []
 
-  const q = query.toLowerCase().trim()
-  if (!q) return []
+  const preparedQuery = prepareFragranceSearchQuery(query)
+  if (!preparedQuery.normalized || preparedQuery.normalized.length < 2) return []
 
-  // Split query into words for multi-term matching
-  const terms = q.split(/\s+/).filter(t => t.length >= 2)
-  if (terms.length === 0) return []
+  const normalizedLimit = Math.max(1, limit)
+  const cacheKey = `${normalizeFragranceText(query)}|${String(normalizedLimit)}`
+  const cached = searchCache.get(cacheKey)
+  if (cached) return cached
 
-  // Use Dexie's Collection.filter() for a full scan with early termination
-  const results: ParfumoEntry[] = []
+  const index = await getSearchIndex()
+  const scored: Array<{ entry: ParfumoEntry; score: number }> = []
 
-  await db.parfumo
-    .orderBy('rating')
-    .reverse()
-    .filter(entry => {
-      const nameL = entry.name.toLowerCase()
-      const brandL = entry.brand.toLowerCase()
-      const searchable = `${nameL} ${brandL}`
-      return terms.every(term => searchable.includes(term))
-    })
-    .until(() => results.length >= limit)
-    .each(entry => {
-      results.push(entry)
-    })
+  for (const indexedEntry of index) {
+    const score = scorePreparedFragranceMatch(preparedQuery, indexedEntry.search)
+    if (score >= 0.68) scored.push({ entry: indexedEntry.entry, score })
+  }
 
+  scored.sort((left, right) =>
+    right.score - left.score || right.entry.rating - left.entry.rating,
+  )
+
+  const results = scored.slice(0, normalizedLimit).map(result => result.entry)
+  searchCache.set(cacheKey, results)
+  if (searchCache.size > 50) searchCache.delete(searchCache.keys().next().value as string)
   return results
 }

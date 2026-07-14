@@ -41,7 +41,13 @@ vi.mock('@/api/parfumo-provider', () => ({
   },
 }))
 
-import { richnessScore, deduplicateAndMerge, searchAllApis, __clearSearchCache } from './search-orchestrator'
+import {
+  richnessScore,
+  deduplicateAndMerge,
+  searchAllApis,
+  shouldSearchOnline,
+  __clearSearchCache,
+} from './search-orchestrator'
 
 function makePerfume(overrides: Partial<Perfume> = {}): Perfume {
   return {
@@ -180,5 +186,20 @@ describe('searchAllApis cache', () => {
     await searchAllApis('sauvage', 10)
     await searchAllApis('sauvage', 20)
     expect(mockState.parfumoCalls).toBe(2)
+  })
+})
+
+describe('shouldSearchOnline', () => {
+  it('skips remote providers when the local catalog has a strong match', () => {
+    const result = makePerfume({ name: 'Qaed Al Fursan', brand: 'Lattafa Perfumes' })
+    expect(shouldSearchOnline('Lattafa Qaed Al Fursan', [result])).toBe(false)
+    expect(shouldSearchOnline('Qaed Al Fursn', [result])).toBe(false)
+  })
+
+  it('uses remote providers when local results are empty or weak', () => {
+    expect(shouldSearchOnline('Unknown perfume', [])).toBe(true)
+    expect(shouldSearchOnline('Dior Sauvage', [
+      makePerfume({ name: 'Qaed Al Fursan', brand: 'Lattafa Perfumes' }),
+    ])).toBe(true)
   })
 })

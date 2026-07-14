@@ -4,6 +4,7 @@ import { generateSlug } from '@/lib/utils'
 import { fragellaProvider } from '@/api/fragella'
 import { fragranceFinderProvider } from '@/api/fragrancefinder'
 import { parfumoProvider } from '@/api/parfumo-provider'
+import { normalizeFragranceText, scoreFragranceMatch } from '@/lib/fragrance-search'
 
 /**
  * Priority order: providers listed first win in merge conflicts.
@@ -219,6 +220,25 @@ export function isAnyApiConfigured(): boolean {
 
 export function isAnyOnlineApiConfigured(): boolean {
   return onlineProviders.some(provider => provider.isConfigured())
+}
+
+const STRONG_LOCAL_MATCH_SCORE = 0.82
+
+/**
+ * Preserve the small free API quotas: remote providers are only queried when
+ * the local catalog has no confident result for the current search.
+ */
+export function shouldSearchOnline(query: string, localResults: Perfume[]): boolean {
+  if (normalizeFragranceText(query).length < 3) return false
+  if (localResults.length === 0) return true
+
+  let bestScore = 0
+  for (const perfume of localResults) {
+    bestScore = Math.max(bestScore, scoreFragranceMatch(query, perfume))
+    if (bestScore >= STRONG_LOCAL_MATCH_SCORE) return false
+  }
+
+  return true
 }
 
 /**

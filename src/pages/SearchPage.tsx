@@ -2,7 +2,7 @@ import { useState, useEffect, useDeferredValue, useRef } from 'react'
 import { Link, useSearchParams } from 'react-router'
 import { Search, Loader2, Wifi, WifiOff, AlertTriangle, Database, Download, RefreshCw } from 'lucide-react'
 import { useSearchPerfumes, addToCollection, addPerfumeToCatalog } from '@/db/hooks'
-import { searchOnlineApis, isAnyOnlineApiConfigured } from '@/api/search-orchestrator'
+import { searchOnlineApis, isAnyOnlineApiConfigured, shouldSearchOnline } from '@/api/search-orchestrator'
 import { isParfumoLoaded, loadParfumoDataset } from '@/db/parfumo-loader'
 import type { Perfume } from '@/types/perfume'
 import { PerfumeCard } from '@/components/perfume/PerfumeCard'
@@ -57,7 +57,12 @@ export function SearchPage() {
     const trimmedQuery = deferredQuery
     const currentRequest = ++requestId.current
     let cancelled = false
-    if (trimmedQuery.length < 3 || !isAnyOnlineApiConfigured()) {
+    if (
+      trimmedQuery.length < 3 ||
+      !isAnyOnlineApiConfigured() ||
+      localResults === undefined ||
+      !shouldSearchOnline(trimmedQuery, localResults)
+    ) {
       setApiResults([])
       setApiError(null)
       setApiWarnings([])
@@ -65,8 +70,8 @@ export function SearchPage() {
       return
     }
 
+    setApiLoading(true)
     const timeout = setTimeout(async () => {
-      setApiLoading(true)
       setApiError(null)
       setApiWarnings([])
       try {
@@ -195,7 +200,9 @@ export function SearchPage() {
       )}
 
       {/* API + Dataset results */}
-      {hasOnlineProvider && query.length >= 3 && (
+      {hasOnlineProvider && deferredQuery.length >= 3 && (
+        apiLoading || apiError || apiWarnings.length > 0 || apiResults.length > 0
+      ) && (
         <section>
           <h2 className="text-xs font-bold text-text-muted uppercase tracking-[0.1em] mb-4 flex items-center gap-2">
             {apiLoading ? (
@@ -205,7 +212,7 @@ export function SearchPage() {
             ) : (
               <Wifi className="w-3.5 h-3.5 text-accent-green" aria-hidden="true" />
             )}
-            Resultados Encontrados
+            Resultados online
             {apiResults.length > 0 && (
               <span className="px-2 py-0.5 bg-accent-green/10 text-accent-green rounded-full text-[10px] font-bold">{apiResults.length}</span>
             )}
@@ -244,9 +251,6 @@ export function SearchPage() {
             </div>
           )}
 
-          {!apiLoading && !apiError && apiResults.length === 0 && query.length >= 3 && (
-            <p className="text-sm text-text-muted">No se encontraron resultados.</p>
-          )}
         </section>
       )}
 
@@ -265,10 +269,13 @@ export function SearchPage() {
       )}
 
       {/* No results */}
-      {query.length >= 2 && localResults?.length === 0 && !apiLoading && apiResults.length === 0 && (
+      {deferredQuery.length >= 2 && localResults?.length === 0 && !apiLoading && apiResults.length === 0 && (
         <div className="text-center py-12">
           <p className="text-text-muted text-sm">
-            No se encontró "{query}". <Link to="/add" className="text-gold hover:text-gold-bright font-semibold underline underline-offset-2 decoration-gold/30 hover:decoration-gold/60 transition-colors">Agregar manualmente</Link>.
+            No se encontró "{query}". <Link to="/add" className="text-gold hover:text-gold-bright font-semibold underline underline-offset-2 decoration-gold/30 hover:decoration-gold/60 transition-colors">Agregar manualmente</Link>
+            {!hasOnlineProvider && (
+              <> o <Link to="/settings" className="text-accent-blue hover:text-accent-blue/80 font-semibold underline underline-offset-2 transition-colors">activar la búsqueda online</Link></>
+            )}.
           </p>
         </div>
       )}

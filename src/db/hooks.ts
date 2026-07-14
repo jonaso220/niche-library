@@ -7,6 +7,7 @@ import { getCurrentUserId } from '@/firebase/auth-state'
 import * as cloud from '@/firebase/firestore-service'
 import { isParfumoLoaded } from './parfumo-loader'
 import { parfumoProvider } from '@/api/parfumo-provider'
+import { scoreFragranceMatch } from '@/lib/fragrance-search'
 
 // ===================== QUERY HOOKS (unchanged - read from Dexie) =====================
 
@@ -96,27 +97,31 @@ export function useCollectionStats() {
 export function useSearchPerfumes(query: string): Perfume[] | undefined {
   return useLiveQuery(async () => {
     if (!query || query.length < 2) return []
-    const lower = query.toLowerCase()
 
     // Search local collection perfumes
     const all = await db.perfumes.toArray()
     const localResults = all
-      .filter(p =>
-        p.name.toLowerCase().includes(lower) ||
-        p.brand.toLowerCase().includes(lower)
-      )
-      .slice(0, 20)
+      .map(perfume => ({ perfume, score: scoreFragranceMatch(query, perfume) }))
+      .filter(result => result.score >= 0.68)
+      .sort((left, right) => right.score - left.score || right.perfume.rating - left.perfume.rating)
+      .map(result => result.perfume)
 
     // Also search Parfumo dataset if loaded
-    if (!isParfumoLoaded()) return localResults
+    if (!isParfumoLoaded()) return localResults.slice(0, 20)
 
     const parfumoResults = await parfumoProvider.search(query, 20)
 
-    // Merge: local first, then Parfumo results not already in local
-    const localIds = new Set(localResults.map(p => p.id))
-    const extra = parfumoResults.filter(p => !localIds.has(p.id))
+    // Merge both catalogs, then keep relevance as the primary ordering signal.
+    const merged = new Map<string, Perfume>()
+    for (const perfume of [...localResults, ...parfumoResults]) {
+      if (!merged.has(perfume.id)) merged.set(perfume.id, perfume)
+    }
 
-    return [...localResults, ...extra].slice(0, 20)
+    return Array.from(merged.values())
+      .map(perfume => ({ perfume, score: scoreFragranceMatch(query, perfume) }))
+      .sort((left, right) => right.score - left.score || right.perfume.rating - left.perfume.rating)
+      .slice(0, 20)
+      .map(result => result.perfume)
   }, [query])
 }
 
